@@ -24,7 +24,9 @@ const BSTVisualizer = () => {
   const networkContainer = useRef<HTMLDivElement | null>(null);
   const [network, setNetwork] = useState<Network | null>(null);
   const nodes = useRef(new DataSet<TreeNode>([]));
-  const edges = useRef(new DataSet<{ id?: number; from: number; to: number }>([]));
+  const edges = useRef(
+    new DataSet<{ id?: number; from: number; to: number }>([]),
+  );
   const root = useRef<TreeNode | null>(null);
   const [value, setValue] = useState("");
 
@@ -52,7 +54,6 @@ const BSTVisualizer = () => {
       setNetwork(new Network(networkContainer.current, data, options));
     }
   }, []);
-
 
   /*
     the function below is the bulk of my code rn
@@ -97,7 +98,6 @@ const BSTVisualizer = () => {
       parentId = currentNode.id;
       depth++;
 
-
       // "animation"
       nodes.current.update({
         id: currentNode.id,
@@ -108,7 +108,6 @@ const BSTVisualizer = () => {
         id: currentNode.id,
         color: { background: "#97C2FC" },
       });
-
 
       currentNode = nodes.current.get(currentNode.id) as TreeNode;
 
@@ -134,7 +133,6 @@ const BSTVisualizer = () => {
     // ! checks to ensure currentNode is not null
     const newX = currentNode!.x + (isLeftChild ? -xOffset : xOffset);
     const newY = currentNode!.y + 100;
-
 
     // declare the tree
     const newId = nodes.current.getIds().length + 1;
