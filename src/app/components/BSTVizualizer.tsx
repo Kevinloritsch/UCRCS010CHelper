@@ -61,9 +61,6 @@ const BSTVisualizer = () => {
 
     main things that need improvement rn:
 
-    the size of each node is not consistent and changes
-        (input 500 then 700 as example)
-
     distance between nodes... rn its kinda inconsistent
 
     when its a duplicate it just calls an alert rn
@@ -164,6 +161,10 @@ const BSTVisualizer = () => {
       network.stabilize();
       network.setOptions({ physics: false });
       network.moveNode(newId, newX, newY);
+
+      // Simulate clicking on the root node and then clicking off
+      network.selectNodes([root.current.id]);
+      network.selectNodes([]); // deselect the node
     }
   };
 
