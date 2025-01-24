@@ -61,9 +61,6 @@ const BSTVisualizer = () => {
 
     main things that need improvement rn:
 
-    the size of each node is not consistent and changes
-        (input 500 then 700 as example)
-
     distance between nodes... rn its kinda inconsistent
 
     when its a duplicate it just calls an alert rn
@@ -99,15 +96,15 @@ const BSTVisualizer = () => {
       depth++;
 
       // "animation"
-      // nodes.current.update({
-      //   id: currentNode.id,
-      //   color: { background: "red" },
-      // });
-      // await sleep(500);
-      // nodes.current.update({
-      //   id: currentNode.id,
-      //   color: { background: "#97C2FC" },
-      // });
+      nodes.current.update({
+        id: currentNode.id,
+        color: { background: "red" },
+      });
+      await sleep(500);
+      nodes.current.update({
+        id: currentNode.id,
+        color: { background: "#97C2FC" },
+      });
 
       currentNode = nodes.current.get(currentNode.id) as TreeNode;
 
@@ -169,8 +166,6 @@ const BSTVisualizer = () => {
       network.selectNodes([root.current.id]);
       network.selectNodes([]); // deselect the node
     }
-
-    
   };
 
   return (
