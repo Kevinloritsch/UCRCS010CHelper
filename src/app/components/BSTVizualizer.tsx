@@ -168,6 +168,89 @@ const BSTVisualizer = () => {
     }
   };
 
+  const removeNode = async (value: number) => {
+    if (!root.current) {
+      alert("Tree is Empty");
+    }
+
+    let currentNode = root.current;
+    let parentNode: TreeNode | null = null;
+    let parentId: number | null = null;
+    let depth = 0;
+
+    while (currentNode) {
+      parentId = currentNode.id;
+      depth++;
+
+      // "animation"
+      nodes.current.update({
+        id: currentNode.id,
+        color: { background: "red" },
+      });
+      await sleep(500);
+      nodes.current.update({
+        id: currentNode.id,
+        color: { background: "#97C2FC" },
+      });
+
+      currentNode = nodes.current.get(currentNode.id) as TreeNode;
+
+      if (value < currentNode.value) {
+        if (currentNode.left) {
+          parentNode = currentNode
+          currentNode = nodes.current.get(currentNode.left) as TreeNode;
+        } else {
+          currentNode = null;
+        }
+      } else if (value > currentNode.value) {
+        if (currentNode.right) {
+          parentNode = currentNode
+          currentNode = nodes.current.get(currentNode.right) as TreeNode;
+        } else {
+          currentNode = null;
+        }
+      } else {
+        alert("Value exists in the tree.");
+        break
+      }
+    }
+
+    if(!currentNode) {
+      alert("Value not in tree")
+      return
+    }
+
+    // is leaf case
+    if (!currentNode.left && !currentNode.right) {
+      if (parentNode) {
+        if (parentNode.left === currentNode.id) {
+          parentNode.left = null;
+        } else if (parentNode.right === currentNode.id) {
+          parentNode.right = null;
+        }
+        nodes.current.update(parentNode);
+      } else {
+        root.current = null;
+      }
+  
+      // Remove the node
+      nodes.current.remove(currentNode.id);
+      edges.current.remove(edges.current.get({ filter: (edge) => edge.to === currentNode.id }));
+  
+      alert(`Node ${value} removed successfully.`);
+      return;
+    }
+
+    if (network && root.current) {
+       // Simulate clicking on the root node and then clicking off
+      network.selectNodes([root.current.id]);
+      network.selectNodes([]); // deselect the node
+    }
+  };
+
+
+  
+
   return (
     <div>
       <h1>Binary Search Tree Visualizer</h1>
@@ -177,7 +260,8 @@ const BSTVisualizer = () => {
         value={value}
         onChange={(e) => setValue(e.target.value)}
       />
-      <button onClick={() => insertNode(parseInt(value))}>Insert</button>
+      <button className="px-5 border-black border-2" onClick={() => insertNode(parseInt(value))}>Insert</button>
+      <button className="mx-5 px-5 border-black border-2" onClick={() => removeNode(parseInt(value))}>Remove</button>
       <div
         ref={networkContainer}
         style={{
@@ -187,6 +271,7 @@ const BSTVisualizer = () => {
         }}
       ></div>
     </div>
+
   );
 };
 
