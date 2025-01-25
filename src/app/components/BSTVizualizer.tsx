@@ -175,13 +175,8 @@ const BSTVisualizer = () => {
 
     let currentNode = root.current;
     let parentNode: TreeNode | null = null;
-    let parentId: number | null = null;
-    let depth = 0;
 
     while (currentNode) {
-      parentId = currentNode.id;
-      depth++;
-
       // "animation"
       nodes.current.update({
         id: currentNode.id,
