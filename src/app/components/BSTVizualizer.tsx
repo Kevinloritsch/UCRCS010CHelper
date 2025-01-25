@@ -197,27 +197,27 @@ const BSTVisualizer = () => {
 
       if (value < currentNode.value) {
         if (currentNode.left) {
-          parentNode = currentNode
+          parentNode = currentNode;
           currentNode = nodes.current.get(currentNode.left) as TreeNode;
         } else {
           currentNode = null;
         }
       } else if (value > currentNode.value) {
         if (currentNode.right) {
-          parentNode = currentNode
+          parentNode = currentNode;
           currentNode = nodes.current.get(currentNode.right) as TreeNode;
         } else {
           currentNode = null;
         }
       } else {
         alert("Value exists in the tree.");
-        break
+        break;
       }
     }
 
-    if(!currentNode) {
-      alert("Value not in tree")
-      return
+    if (!currentNode) {
+      alert("Value not in tree");
+      return;
     }
 
     // is leaf case
@@ -232,24 +232,23 @@ const BSTVisualizer = () => {
       } else {
         root.current = null;
       }
-  
+
       // Remove the node
       nodes.current.remove(currentNode.id);
-      edges.current.remove(edges.current.get({ filter: (edge) => edge.to === currentNode.id }));
-  
+      edges.current.remove(
+        edges.current.get({ filter: (edge) => edge.to === currentNode.id }),
+      );
+
       alert(`Node ${value} removed successfully.`);
       return;
     }
 
     if (network && root.current) {
-       // Simulate clicking on the root node and then clicking off
+      // Simulate clicking on the root node and then clicking off
       network.selectNodes([root.current.id]);
       network.selectNodes([]); // deselect the node
     }
   };
-
-
-  
 
   return (
     <div>
@@ -260,8 +259,18 @@ const BSTVisualizer = () => {
         value={value}
         onChange={(e) => setValue(e.target.value)}
       />
-      <button className="px-5 border-black border-2" onClick={() => insertNode(parseInt(value))}>Insert</button>
-      <button className="mx-5 px-5 border-black border-2" onClick={() => removeNode(parseInt(value))}>Remove</button>
+      <button
+        className="border-2 border-black px-5"
+        onClick={() => insertNode(parseInt(value))}
+      >
+        Insert
+      </button>
+      <button
+        className="mx-5 border-2 border-black px-5"
+        onClick={() => removeNode(parseInt(value))}
+      >
+        Remove
+      </button>
       <div
         ref={networkContainer}
         style={{
@@ -271,7 +280,6 @@ const BSTVisualizer = () => {
         }}
       ></div>
     </div>
-
   );
 };
 
