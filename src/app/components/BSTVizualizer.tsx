@@ -161,6 +161,8 @@ const BSTVisualizer = () => {
     const edgeId = ++maxEdgeId.current;
     edges.current.add({ id: edgeId, from: parentId!, to: newId });
 
+    console.log(nodes);
+
     if (network) {
       network.stabilize();
       network.setOptions({ physics: false });
@@ -173,16 +175,17 @@ const BSTVisualizer = () => {
   };
 
   const removeNode = async (value: number) => {
+    // empty base case
     if (!root.current) {
       alert("Tree is Empty");
       return;
     }
 
-    let currentNode = root.current;
+    // variable definitions
+    let currentNode: TreeNode | null = root.current;
     let parentNode: TreeNode | null = null;
     let isLeftChild = false;
 
-    // Traverse to find the node to delete
     while (currentNode) {
       // "animation"
       nodes.current.update({
@@ -195,8 +198,13 @@ const BSTVisualizer = () => {
         color: { background: "#97C2FC" },
       });
 
+      // fetch most up to date node
       currentNode = nodes.current.get(currentNode.id) as TreeNode;
+      console.log(
+        `Checking node: ${currentNode.value}, Parent: ${parentNode?.value}`,
+      );
 
+      // standard bst iteration logic
       if (value < currentNode.value) {
         if (currentNode.left) {
           parentNode = currentNode;
@@ -214,81 +222,112 @@ const BSTVisualizer = () => {
           currentNode = null; // Value not found
         }
       } else {
-        alert("Value exists in the tree.");
-        break;
+        break; // Value found
       }
     }
 
+    // the currentNode = null cases from above
     if (!currentNode) {
       alert("Value not in tree");
       return;
     }
 
-    // Handle node deletion based on its children
+    // actual remove
+    console.log(`Removing node: ${currentNode.value}`);
+
+    // this part "should be" chilling
     if (!currentNode.left && !currentNode.right) {
-      // Case 1: Node is a leaf node
+      // leaf node
       if (parentNode) {
         if (isLeftChild) {
           parentNode.left = null;
+          console.log(
+            `Removed leaf node, updated left child of ${parentNode.value} to null`,
+          );
         } else {
           parentNode.right = null;
+          console.log(
+            `Removed leaf node, updated right child of ${parentNode.value} to null`,
+          );
         }
         nodes.current.update(parentNode);
       } else {
-        // Case 2: Node is the root and has no children
+        // root with no children
         root.current = null;
+        console.log("Root node removed (no children).");
       }
       nodes.current.remove(currentNode.id);
       edges.current.remove(
-        edges.current.get({ filter: (edge) => edge.to === currentNode.id }),
+        edges.current.getIds({ filter: (edge) => edge.to === currentNode.id }),
       );
-
-      alert(`Node ${value} removed successfully.`);
+      console.log(`Removed node: ${currentNode.value} and its edges.`);
+    }
+    // Case for node with two children
+    else if (currentNode.left && currentNode.right) {
+      alert("Uh oh, removing a node with two children is not supported yet.");
+      console.log("Node with two children detected, cannot remove.");
       return;
-    } else if (currentNode.left && currentNode.right) {
-      // Case 3: Node has two children
-      let predecessor = nodes.current.get(currentNode.left) as TreeNode;
-      while (predecessor.right) {
-        predecessor = nodes.current.get(predecessor.right) as TreeNode;
-      }
-
-      // Swap values between current node and predecessor
-      const predecessorValue = predecessor.value;
-      currentNode.value = predecessorValue;
-
-      nodes.current.update({
-        id: currentNode.id,
-        label: currentNode.value.toString(),
-      });
-      nodes.current.update({
-        id: predecessor.id,
-        label: predecessorValue.toString(),
-      });
-
-      // Remove predecessor node (it is now a leaf or has one child)
-      removeNode(predecessorValue);
     } else {
-      // Case 4: Node has one child
-      const childNode = currentNode.left ? currentNode.left : currentNode.right;
-      if (parentNode) {
+      // node with one child
+      const childNode = currentNode.left
+        ? (nodes.current.get(currentNode.left) as TreeNode)
+        : currentNode.right
+          ? (nodes.current.get(currentNode.right) as TreeNode)
+          : null;
+
+      console.log("Node with one child:", childNode);
+
+      if (parentNode && childNode) {
         if (isLeftChild) {
-          parentNode.left = childNode;
+          parentNode.left = childNode.id;
+          console.log(
+            `Replaced left child of ${parentNode.value} with ${childNode.value}`,
+          );
         } else {
-          parentNode.right = childNode;
+          parentNode.right = childNode.id;
+          console.log(
+            `Replaced right child of ${parentNode.value} with ${childNode.value}`,
+          );
         }
         nodes.current.update(parentNode);
       } else {
-        // Case 5: Root node has one child
-        root.current = nodes.current.get(childNode) as TreeNode;
+        // root node with one child
+        root.current = childNode;
+        console.log(`Root node replaced by its child: ${childNode?.value}`);
       }
-      nodes.current.remove(currentNode.id);
-      edges.current.remove(
-        edges.current.get({ filter: (edge) => edge.to === currentNode.id }),
-      );
 
-      alert(`Node ${value} removed successfully.`);
-      return;
+      // Swap the current node with its child
+      if (childNode) {
+        currentNode.value = childNode.value;
+        currentNode.left = childNode.left;
+        currentNode.right = childNode.right;
+        nodes.current.update({
+          id: currentNode.id,
+          label: currentNode.value.toString(),
+        });
+        console.log(
+          `Swapped values: current node ${currentNode.value} with child ${childNode.value}`,
+        );
+      }
+
+      // Remove the child node
+      if (childNode) {
+        nodes.current.remove(childNode.id);
+        const childEdgeIds = edges.current.getIds({
+          filter: (edge) => edge.to === childNode.id,
+        });
+        console.log("Removing child node edges:", childEdgeIds);
+        edges.current.remove(childEdgeIds);
+      }
+
+      // stabilize (needed)
+      if (network) {
+        network.stabilize();
+        network.setOptions({ physics: false });
+      }
     }
+
+    alert(`Node ${value} removed successfully.`);
   };
 
   return (
