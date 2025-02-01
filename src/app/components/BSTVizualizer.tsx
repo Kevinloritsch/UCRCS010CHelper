@@ -85,7 +85,7 @@ const BSTVisualizer = () => {
       };
       root.current = newNode;
       nodes.current.add(newNode);
-      ++maxNodeId.current
+      ++maxNodeId.current;
       return;
     }
 
@@ -125,7 +125,7 @@ const BSTVisualizer = () => {
         currentNode = nodes.current.get(currentNode.right) as TreeNode;
       } else {
         alert("Value already exists in the tree.");
-        
+
         return;
       }
     }
