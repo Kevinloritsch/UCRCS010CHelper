@@ -28,6 +28,8 @@ const BSTVisualizer = () => {
     new DataSet<{ id?: number; from: number; to: number }>([]),
   );
   const root = useRef<TreeNode | null>(null);
+  const maxNodeId = useRef(0);
+  const maxEdgeId = useRef(0);
   const [value, setValue] = useState("");
 
   useEffect(() => {
@@ -83,6 +85,7 @@ const BSTVisualizer = () => {
       };
       root.current = newNode;
       nodes.current.add(newNode);
+      ++maxNodeId.current
       return;
     }
 
@@ -122,6 +125,7 @@ const BSTVisualizer = () => {
         currentNode = nodes.current.get(currentNode.right) as TreeNode;
       } else {
         alert("Value already exists in the tree.");
+        
         return;
       }
     }
@@ -132,7 +136,7 @@ const BSTVisualizer = () => {
     const newY = currentNode!.y + 100;
 
     // declare the tree
-    const newId = nodes.current.getIds().length + 1;
+    const newId = ++maxNodeId.current;
     const newNode: TreeNode = {
       id: newId,
       value,
@@ -154,7 +158,7 @@ const BSTVisualizer = () => {
     }
 
     // add to list of all the edges
-    const edgeId = edges.current.getIds().length + 1;
+    const edgeId = ++maxEdgeId.current;
     edges.current.add({ id: edgeId, from: parentId!, to: newId });
 
     if (network) {
