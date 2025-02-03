@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useRef, useState } from "react";
-import { insertNode } from "@/utils/insertBST";
-import { removeNode } from "@/utils/removeBST";
+import { insertNode } from "@/utils/BSTFunctions/insertBST";
+import { removeNode } from "@/utils/BSTFunctions/removeBST";
 import {
   DataSet,
   Network,
@@ -84,7 +84,9 @@ const BSTVisualizer = () => {
       </button>
       <button
         className="mx-5 border-2 border-black px-5"
-        onClick={() => removeNode(parseInt(value), root, nodes, edges, network)}
+        onClick={() =>
+          removeNode(1, parseInt(value), 0, root, nodes, edges, network)
+        }
       >
         Remove
       </button>

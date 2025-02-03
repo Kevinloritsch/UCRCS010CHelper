@@ -106,5 +106,6 @@ export const insertNode = async (
     network.moveNode(newId, newX, newY);
     network.selectNodes([root.current.id]);
     network.selectNodes([]);
+    console.log(nodes.current.get());
   }
 };
