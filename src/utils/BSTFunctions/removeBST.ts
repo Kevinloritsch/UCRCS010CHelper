@@ -134,9 +134,7 @@ export const removeNode = async (
 
     if (childNode) {
       // make them both yellow and swap values visually
-      let tempCurrentRight = currentNode.right;
-      let tempCurrentLeft = currentNode.left;
-      let tempCurrentNodeID = currentNode.id;
+      const tempCurrentNodeID = currentNode.id;
 
       console.log(currentNode);
       console.log(childNode);
