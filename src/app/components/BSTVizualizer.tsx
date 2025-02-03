@@ -1,11 +1,13 @@
 "use client";
 import React, { useEffect, useRef, useState } from "react";
+import { insertNode } from "@/utils/BSTFunctions/insertBST";
+import { removeNode } from "@/utils/BSTFunctions/removeBST";
 import {
   DataSet,
   Network,
 } from "vis-network/standalone/umd/vis-network.min.js";
 
-type TreeNode = {
+export type TreeNode = {
   id: number;
   value: number;
   left: number | null;
@@ -18,8 +20,6 @@ type TreeNode = {
   };
 };
 
-const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
-
 const BSTVisualizer = () => {
   const networkContainer = useRef<HTMLDivElement | null>(null);
   const [network, setNetwork] = useState<Network | null>(null);
@@ -28,6 +28,8 @@ const BSTVisualizer = () => {
     new DataSet<{ id?: number; from: number; to: number }>([]),
   );
   const root = useRef<TreeNode | null>(null);
+  const maxNodeId = useRef(0);
+  const maxEdgeId = useRef(0);
   const [value, setValue] = useState("");
 
   useEffect(() => {
@@ -55,119 +57,6 @@ const BSTVisualizer = () => {
     }
   }, []);
 
-  /*
-    the function below is the bulk of my code rn
-    its still kinda a bit sketch, but from how im aware it still works
-
-    main things that need improvement rn:
-
-    distance between nodes... rn its kinda inconsistent
-
-    when its a duplicate it just calls an alert rn
-
-    UI is ugly
-
-
-  */
-
-  const insertNode = async (value: number) => {
-    if (!root.current) {
-      const newNode: TreeNode = {
-        id: 1,
-        value,
-        left: null,
-        right: null,
-        x: 0,
-        y: 0,
-        label: value.toString(),
-      };
-      root.current = newNode;
-      nodes.current.add(newNode);
-      return;
-    }
-
-    let currentNode = root.current;
-    let parentId: number | null = null;
-    let isLeftChild = false;
-    let depth = 0;
-
-    while (currentNode) {
-      parentId = currentNode.id;
-      depth++;
-
-      // "animation"
-      nodes.current.update({
-        id: currentNode.id,
-        color: { background: "red" },
-      });
-      await sleep(500);
-      nodes.current.update({
-        id: currentNode.id,
-        color: { background: "#97C2FC" },
-      });
-
-      currentNode = nodes.current.get(currentNode.id) as TreeNode;
-
-      if (value < currentNode.value) {
-        if (currentNode.left === null) {
-          isLeftChild = true;
-          break;
-        }
-        currentNode = nodes.current.get(currentNode.left) as TreeNode;
-      } else if (value > currentNode.value) {
-        if (currentNode.right === null) {
-          isLeftChild = false;
-          break;
-        }
-        currentNode = nodes.current.get(currentNode.right) as TreeNode;
-      } else {
-        alert("Value already exists in the tree.");
-        return;
-      }
-    }
-
-    const xOffset = 500 * Math.pow(2, -depth);
-    // ! checks to ensure currentNode is not null
-    const newX = currentNode!.x + (isLeftChild ? -xOffset : xOffset);
-    const newY = currentNode!.y + 100;
-
-    // declare the tree
-    const newId = nodes.current.getIds().length + 1;
-    const newNode: TreeNode = {
-      id: newId,
-      value,
-      left: null,
-      right: null,
-      x: newX,
-      y: newY,
-      label: value.toString(),
-    };
-
-    // add to list of all the nodes
-    nodes.current.add(newNode);
-
-    // set appropriate child pointer
-    if (isLeftChild) {
-      currentNode!.left = newId;
-    } else {
-      currentNode!.right = newId;
-    }
-
-    // add to list of all the edges
-    const edgeId = edges.current.getIds().length + 1;
-    edges.current.add({ id: edgeId, from: parentId!, to: newId });
-
-    if (network) {
-      network.stabilize();
-      network.setOptions({ physics: false });
-      network.moveNode(newId, newX, newY);
-
-      // Simulate clicking on the root node and then clicking off
-      network.selectNodes([root.current.id]);
-      network.selectNodes([]); // deselect the node
-    }
-  };
-
   return (
     <div>
       <h1>Binary Search Tree Visualizer</h1>
@@ -177,7 +66,30 @@ const BSTVisualizer = () => {
         value={value}
         onChange={(e) => setValue(e.target.value)}
       />
-      <button onClick={() => insertNode(parseInt(value))}>Insert</button>
+      <button
+        className="border-2 border-black px-5"
+        onClick={() =>
+          insertNode(
+            parseInt(value),
+            root,
+            nodes,
+            edges,
+            maxNodeId,
+            maxEdgeId,
+            network,
+          )
+        }
+      >
+        Insert
+      </button>
+      <button
+        className="mx-5 border-2 border-black px-5"
+        onClick={() =>
+          removeNode(1, parseInt(value), 0, root, nodes, edges, network)
+        }
+      >
+        Remove
+      </button>
       <div
         ref={networkContainer}
         style={{
