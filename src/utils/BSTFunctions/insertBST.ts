@@ -31,6 +31,15 @@ export const insertNode = async (
     root.current = newNode;
     nodes.current.add(newNode);
     ++maxNodeId.current;
+    // reset values
+    if (network) {
+      network.stabilize();
+      if (root) {
+        network.selectNodes([root.current.id]);
+        network.selectNodes([]);
+      }
+      network.setOptions({ physics: false });
+    }
     return;
   }
 
@@ -65,11 +74,21 @@ export const insertNode = async (
     } else if (value > currentNode.value) {
       if (currentNode.right === null) {
         isLeftChild = false;
+
         break;
       }
       currentNode = nodes.current.get(currentNode.right) as TreeNode;
     } else {
       alert("Value already exists in the tree.");
+      // reset values
+      if (network) {
+        network.stabilize();
+        if (root) {
+          network.selectNodes([root.current.id]);
+          network.selectNodes([]);
+        }
+        network.setOptions({ physics: false });
+      }
       return;
     }
   }

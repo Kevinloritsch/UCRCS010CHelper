@@ -3,7 +3,9 @@ import {
   Network,
 } from "vis-network/standalone/umd/vis-network.min.js";
 import { TreeNode } from "@/app/components/BSTVizualizer";
+import colors from "@/styles/colors";
 
+// custom defines "pause" buffer
 export const sleep = (ms: number) =>
   new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -18,38 +20,38 @@ export const removeNode = async (
   >,
   network: Network | null,
 ) => {
+  // can't remove from an empty tree
   if (!root.current) {
     alert("Tree is Empty");
     return;
   }
 
+  // iterator
   let currentNode = nodes.current.get(nodeId) as TreeNode | null;
   let parentNode: TreeNode | null = null;
+
+  // this is for the recursive cases, itll be passed in as 0 for the default case
   if (parentID != 0) {
     parentNode = nodes.current.get(parentID) as TreeNode | null;
   }
 
   let isLeftChild = false;
 
-  // console.log("Start " + currentNode.value)
-  // console.log(currentNode.left)
-  // console.log(currentNode.right)
-
   while (currentNode) {
+    // identify the node we want to remove
     nodes.current.update({
       id: currentNode.id,
-      color: { background: "red" },
+      color: { background: colors.redAnimate },
     });
     await sleep(500);
     nodes.current.update({
       id: currentNode.id,
-      color: { background: "#97C2FC" },
+      color: { background: colors.defaultBlue },
     });
 
     currentNode = nodes.current.get(currentNode.id) as TreeNode;
 
-    console.log("value " + value + " current node id " + currentNode);
-
+    // standard bst logic
     if (value < currentNode.value) {
       if (currentNode.left) {
         parentNode = currentNode;
@@ -69,19 +71,25 @@ export const removeNode = async (
     } else {
       break;
     }
+
+    // reset values
+    if (network) {
+      network.stabilize();
+      network.selectNodes([root.current.id]);
+      network.selectNodes([]);
+      network.setOptions({ physics: false });
+    }
   }
 
-  console.log("After initial iteration");
-  console.log(currentNode);
-
+  // if it was never found... throw an error
   if (!currentNode) {
     alert("Value not in tree");
     return;
   }
 
+  // if it has no children case
   if (!currentNode.left && !currentNode.right) {
-    console.log("Here rn");
-    console.log(parentNode);
+    // make sure parents point accordingly
     if (parentNode) {
       if (isLeftChild || parentNode.left == currentNode.id) {
         parentNode.left = null;
@@ -93,19 +101,43 @@ export const removeNode = async (
       root.current = null;
     }
 
+    // display a different color as visual indicator of being deleted
+    nodes.current.update({
+      id: currentNode.id,
+      color: { background: colors.greenFinal },
+    });
+
+    // reset values
+    if (network) {
+      network.stabilize();
+      if (root.current) {
+        network.selectNodes([root.current.id]);
+        network.selectNodes([]);
+      }
+      network.setOptions({ physics: false });
+    }
+
+    await sleep(500);
+    nodes.current.update({
+      id: currentNode.id,
+      color: { background: colors.defaultBlue },
+    });
+
+    // bye bye!
     nodes.current.remove(currentNode.id);
     edges.current.remove(
       edges.current.getIds({ filter: (edge) => edge.to === currentNode.id }),
     );
   }
-  // else if (currentNode.left && currentNode.right) {
-  //   alert("Uh oh, removing a node with two children is not supported yet.");
-  //   return;
-  // }
+
+  // case with children
   else {
     let childNode: TreeNode | null = null;
+
     let more = false;
 
+    // main thing here is finding the predecessor (if there is one), or sucessor otherwise
+    // the "more" flag is if we go "more" than one step away from a given node, as that affects pointer logic later on
     if (currentNode.left !== null) {
       parentNode = currentNode;
       let leftChild = nodes.current.get(currentNode.left) as TreeNode;
@@ -127,28 +159,18 @@ export const removeNode = async (
       childNode = rightChild;
     }
 
-    console.log("Current Current Node");
-    console.log(currentNode);
-    console.log("Current child Node");
-    console.log(childNode);
-
     if (childNode) {
       // make them both yellow and swap values visually
-      const tempCurrentNodeID = currentNode.id;
 
-      console.log(currentNode);
-      console.log(childNode);
-      console.log(nodes.current.get());
-
+      // bunch of pointer logic to ensure this works!
       if (!more) {
         if (currentNode.value > childNode.value) {
           nodes.current.update({
             id: currentNode.id,
             label: childNode.label,
             value: childNode.value,
-            // right: childNode.right,
             left: childNode.id,
-            color: { background: "#e6dd21" },
+            color: { background: colors.yellowSwap },
           });
         } else {
           nodes.current.update({
@@ -156,8 +178,7 @@ export const removeNode = async (
             label: childNode.label,
             value: childNode.value,
             right: childNode.id,
-            // left: childNode.id,
-            color: { background: "#e6dd21" },
+            color: { background: colors.yellowSwap },
           });
         }
       } else {
@@ -165,74 +186,45 @@ export const removeNode = async (
           id: currentNode.id,
           label: childNode.label,
           value: childNode.value,
-          color: { background: "#e6dd21" },
+          color: { background: colors.yellowSwap },
         });
       }
 
-      // console.log(nodes.current.get());
-
-      console.log(childNode.id);
       nodes.current.update({
         id: childNode.id,
         label: currentNode.label,
         value: currentNode.value,
-        // right: null,
-        // left: null,
-        color: { background: "#e6dd21" },
+
+        color: { background: colors.yellowSwap },
       });
 
-      console.log(nodes.current.get());
-
-      // if(currentNode.label > childNode.label) {
-      //   console.log("yay?")
-      //   nodes.current.update({
-      //     id: childNode.id,
-      //     left: tempCurrentNodeID,
-      //   });
-      // }
-      // else {
-      //   nodes.current.update({
-      //     id: childNode.id,
-      //     right: tempCurrentNodeID,
-      //   });
-      // }
-
-      console.log("Pre stuff current " + currentNode.left + "  " + currentNode);
-
-      console.log(nodes.current.get());
+      // reset values
+      if (network) {
+        network.stabilize();
+        if (root) {
+          network.selectNodes([root.current.id]);
+          network.selectNodes([]);
+        }
+        network.setOptions({ physics: false });
+      }
 
       await sleep(500);
 
+      // bring back to blue
+
       nodes.current.update({
         id: childNode.id,
-        color: { background: "#97C2FC" },
+        color: { background: colors.defaultBlue },
       });
-
-      console.log("Post stuff child " + childNode.left + "  " + currentNode);
 
       nodes.current.update({
         id: currentNode.id,
-        color: { background: "#97C2FC" },
+        color: { background: colors.defaultBlue },
       });
 
-      // nodes.current.update({
-      //   id: currentNode.id,
-      //   label: currentNode.value.toString(),
-      //   value: currentNode.value,
-      // });
-
-      console.log("About to remove...: ");
-      console.log(childNode);
-
-      console.log(tempCurrentNodeID + "  " + childNode.id);
-
+      // if the node has any child, we have to do a recursive call
       if (currentNode.left || currentNode.right) {
-        console.log("should be the recursive case");
-        console.log(nodes.current.get());
-        console.log(currentNode.id + "  " + currentNode.value);
-        // nodes.current.update(currentNode);
-        // nodes.current.update(childNode);
-        await sleep(1000);
+        // call the function with the new values
         if (parentNode) {
           removeNode(
             childNode.id,
@@ -244,34 +236,35 @@ export const removeNode = async (
             network,
           );
         }
-        console.log(nodes.current.get());
+        // reset values
+        if (network) {
+          network.stabilize();
+          if (root) {
+            network.selectNodes([root.current.id]);
+            network.selectNodes([]);
+          }
+          network.setOptions({ physics: false });
+        }
         return;
       }
 
-      console.log(nodes.current.get());
-      await sleep(1000);
-
-      console.log("Current Node " + currentNode.value);
-
-      console.log("Child Node " + childNode.value);
-
+      // otherwise, lets just delete the node
       nodes.current.remove(currentNode.id);
-      await sleep(1000);
-      console.log(parentNode);
+
+      // adjust parents accordingly
       if (parentNode) {
         if (parentNode.left === childNode.id) {
           parentNode.left = null;
         } else if (parentNode.right === childNode.id) {
           parentNode.right = null;
         }
-
-        console.log(currentNode.left);
-
-        childNode.left = currentNode.left;
-        childNode.right = currentNode.right;
       }
 
       nodes.current.update(currentNode);
+      if (network) {
+        network.stabilize();
+        network.setOptions({ physics: false });
+      }
 
       const childEdgeIds = edges.current.getIds({
         filter: (edge) => edge.to === childNode.id,
@@ -280,10 +273,13 @@ export const removeNode = async (
     }
   }
 
-  console.log(nodes.current.get());
-
+  // checker to make sure points do not look ugly
   if (network) {
     network.stabilize();
+    if (root.current) {
+      network.selectNodes([root.current.id]);
+      network.selectNodes([]);
+    }
     network.setOptions({ physics: false });
   }
 };
