@@ -161,7 +161,6 @@ export const removeNode = async (
 
     if (childNode) {
       // make them both yellow and swap values visually
-      const tempCurrentNodeID = currentNode.id;
 
       // bunch of pointer logic to ensure this works!
       if (!more) {
