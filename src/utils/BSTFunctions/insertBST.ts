@@ -74,6 +74,7 @@ export const insertNode = async (
     } else if (value > currentNode.value) {
       if (currentNode.right === null) {
         isLeftChild = false;
+
         break;
       }
       currentNode = nodes.current.get(currentNode.right) as TreeNode;
