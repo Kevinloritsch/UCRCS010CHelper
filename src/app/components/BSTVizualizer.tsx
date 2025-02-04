@@ -45,7 +45,7 @@ const BSTVisualizer = () => {
           arrows: "to",
         },
         physics: {
-          enabled: true,
+          enabled: false,
         },
         interaction: {
           dragNodes: false,
