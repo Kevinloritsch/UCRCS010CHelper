@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useRef, useState } from "react";
 import { insertNode } from "@/utils/BSTFunctions/insertBST";
-import { removeNode } from "@/utils/BSTFunctions/removeBST";
+// import { removeNode } from "@/utils/BSTFunctions/removeBST";
 import { Play, Pause, RefreshCcw } from "lucide-react";
 
 import {
