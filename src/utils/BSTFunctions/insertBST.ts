@@ -18,6 +18,19 @@ export const insertNode = async (
   maxEdgeId: React.MutableRefObject<number>,
   network: Network | null,
 ) => {
+  const animationStates: {
+    nodes: TreeNode[];
+    edges: { id?: number; from: number; to: number }[];
+  }[] = [];
+
+  const snapshot = () => {
+    const currentNodes = [...nodes.current.get()]; // Get the current nodes
+    const currentEdges = [...edges.current.get()]; // Get the current edges
+    animationStates.push({ nodes: currentNodes, edges: currentEdges }); // Store both nodes and edges
+  };
+
+  snapshot();
+
   if (!root.current) {
     const newNode: TreeNode = {
       id: 1,
@@ -40,6 +53,7 @@ export const insertNode = async (
       }
       network.setOptions({ physics: false });
     }
+    snapshot();
     return;
   }
 
@@ -58,10 +72,12 @@ export const insertNode = async (
       color: { background: "red" },
     });
     await sleep(500);
+    snapshot();
     nodes.current.update({
       id: currentNode.id,
       color: { background: "#97C2FC" },
     });
+    snapshot();
 
     currentNode = nodes.current.get(currentNode.id) as TreeNode;
 
@@ -118,6 +134,7 @@ export const insertNode = async (
 
   const edgeId = ++maxEdgeId.current;
   edges.current.add({ id: edgeId, from: parentId!, to: newId });
+  snapshot();
 
   if (network) {
     network.stabilize();
@@ -127,4 +144,28 @@ export const insertNode = async (
     network.selectNodes([]);
     console.log(nodes.current.get());
   }
+
+  const initialState = animationStates[0]; // The initial state captured at the start
+  nodes.current.clear(); // Clear all nodes
+  edges.current.clear(); // Clear all edges
+
+  // Restore nodes
+  initialState.nodes.forEach((node) => {
+    nodes.current.add(node); // Add all the nodes from the initial state
+  });
+
+  // Restore edges
+  initialState.edges.forEach((edge) => {
+    edges.current.add(edge); // Add all the edges from the initial state
+  });
+
+  // Optionally reset node positions or any other properties
+  if (network) {
+    network.stabilize();
+    network.setOptions({ physics: false });
+    network.selectNodes([root.current.id]);
+    network.selectNodes([]);
+  }
+
+  return animationStates;
 };
