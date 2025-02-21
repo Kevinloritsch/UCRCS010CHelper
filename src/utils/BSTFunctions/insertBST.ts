@@ -26,9 +26,11 @@ export const insertNode = async (
   const snapshot = () => {
     const currentNodes = [...nodes.current.get()]; // Get the current nodes
     const currentEdges = [...edges.current.get()]; // Get the current edges
+    // console.log(currentNodes)
     animationStates.push({ nodes: currentNodes, edges: currentEdges }); // Store both nodes and edges
   };
 
+  // console.log(nodes.current.get())
   snapshot();
 
   if (!root.current) {
@@ -54,7 +56,9 @@ export const insertNode = async (
       network.setOptions({ physics: false });
     }
     snapshot();
-    return;
+
+    console.log(animationStates);
+    return animationStates;
   }
 
   let currentNode = root.current;

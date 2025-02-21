@@ -78,7 +78,7 @@ const BSTVisualizer = () => {
           if (prev < animationStates.length - 1) {
             return prev + 1;
           } else {
-            setIsPlaying(false); // Stop animation when last step is reached
+            setIsPlaying(false);
             return prev;
           }
         });
