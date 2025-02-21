@@ -30,7 +30,6 @@ export const insertNode = async (
     animationStates.push({ nodes: currentNodes, edges: currentEdges }); // Store both nodes and edges
   };
 
-  // console.log(nodes.current.get())
   snapshot();
 
   if (!root.current) {
@@ -55,9 +54,9 @@ export const insertNode = async (
       }
       network.setOptions({ physics: false });
     }
+
     snapshot();
 
-    console.log(animationStates);
     return animationStates;
   }
 
@@ -70,17 +69,17 @@ export const insertNode = async (
     parentId = currentNode.id;
     depth++;
 
-    // "animation"
     nodes.current.update({
       id: currentNode.id,
       color: { background: "red" },
     });
-    // await sleep(500);
+
     snapshot();
     nodes.current.update({
       id: currentNode.id,
       color: { background: "#97C2FC" },
     });
+
     snapshot();
 
     currentNode = nodes.current.get(currentNode.id) as TreeNode;
@@ -138,6 +137,7 @@ export const insertNode = async (
 
   const edgeId = ++maxEdgeId.current;
   edges.current.add({ id: edgeId, from: parentId!, to: newId });
+
   snapshot();
 
   if (network) {

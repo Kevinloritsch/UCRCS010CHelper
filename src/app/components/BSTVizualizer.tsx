@@ -66,6 +66,18 @@ const BSTVisualizer = () => {
       edges.current.clear();
       nodes.current.add(newNodes);
       edges.current.add(newEdges);
+
+      console.log(animationStates);
+
+      if (network && animationStates[currentStep].nodes.length > 0) {
+        network.stabilize();
+        network.setOptions({ physics: false });
+
+        if (root.current) {
+          network.selectNodes([root.current.id]);
+          setTimeout(() => network.selectNodes([]), 50); // Delay deselecting for stability
+        }
+      }
     }
   }, [currentStep, animationStates]);
 
