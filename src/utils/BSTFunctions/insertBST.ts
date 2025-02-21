@@ -71,7 +71,7 @@ export const insertNode = async (
       id: currentNode.id,
       color: { background: "red" },
     });
-    await sleep(500);
+    // await sleep(500);
     snapshot();
     nodes.current.update({
       id: currentNode.id,

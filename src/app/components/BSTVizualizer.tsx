@@ -72,16 +72,21 @@ const BSTVisualizer = () => {
   useEffect(() => {
     let interval: ReturnType<typeof setInterval> | null = null;
 
-    if (isPlaying && animationStates && animationStates.length > 0) {
+    if (isPlaying && animationStates.length > 0) {
       interval = setInterval(() => {
-        setCurrentStep((prev) =>
-          prev < animationStates.length - 1 ? prev + 1 : prev,
-        );
+        setCurrentStep((prev) => {
+          if (prev < animationStates.length - 1) {
+            return prev + 1;
+          } else {
+            setIsPlaying(false); // Stop animation when last step is reached
+            return prev;
+          }
+        });
       }, 500);
     }
 
     return () => {
-      if (interval !== null) clearInterval(interval); // ✅ Ensure `interval` is not null before clearing
+      if (interval !== null) clearInterval(interval);
     };
   }, [isPlaying, animationStates]);
 
@@ -108,6 +113,8 @@ const BSTVisualizer = () => {
             );
             // Ensure newAnimationStates is not undefined by providing a fallback empty array
             setAnimationStates(newAnimationStates || []);
+            setIsPlaying(true);
+            setCurrentStep(0);
           } else {
             console.error("Network is not available.");
           }
@@ -120,7 +127,12 @@ const BSTVisualizer = () => {
       <button onClick={() => setIsPlaying(!isPlaying)}>
         {isPlaying ? <Pause /> : <Play />}
       </button>
-      <button onClick={() => setCurrentStep(0)}>
+      <button
+        onClick={() => {
+          setIsPlaying(true);
+          setCurrentStep(0);
+        }}
+      >
         <RefreshCcw />
       </button>
       <div
