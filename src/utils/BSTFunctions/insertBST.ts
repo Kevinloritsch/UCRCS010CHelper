@@ -25,18 +25,18 @@ export const insertNode = async (
   }[] = [];
 
   const snapshot = () => {
-    const currentNodes = [...nodes.current.get()]
-    const currentEdges = [...edges.current.get()]
+    const currentNodes = [...nodes.current.get()];
+    const currentEdges = [...edges.current.get()];
     if (network) {
-      network.stabilize()
+      network.stabilize();
       if (root.current) {
-        network.selectNodes([root.current.id])
-        network.selectNodes([])
-        network.selectEdges([])
+        network.selectNodes([root.current.id]);
+        network.selectNodes([]);
+        network.selectEdges([]);
       }
-      network.setOptions({ physics: false })
+      network.setOptions({ physics: false });
     }
-    animationStates.push({ nodes: currentNodes, edges: currentEdges })
+    animationStates.push({ nodes: currentNodes, edges: currentEdges });
   };
 
   snapshot();
@@ -142,8 +142,7 @@ export const insertNode = async (
   });
 
   // Restore edges
-  initialState.edges.forEach((edge) => {
-  });
+  initialState.edges.forEach((edge) => {});
 
   return animationStates;
 };

@@ -315,12 +315,12 @@ export const removeNode = async (
 
   // Restore nodes
   initialState.nodes.forEach((node) => {
-    nodes.current.add(node); 
+    nodes.current.add(node);
   });
 
   // Restore edges
   initialState.edges.forEach((edge) => {
-    edges.current.add(edge); 
+    edges.current.add(edge);
   });
 
   return animationStates;

@@ -209,7 +209,7 @@ const BSTVisualizer = () => {
 
       <button
         onClick={() => {
-          setSpeed((prevSpeed) => Math.min(prevSpeed * 2, 1000)); 
+          setSpeed((prevSpeed) => Math.min(prevSpeed * 2, 1000));
         }}
         className="mx-3"
       >
