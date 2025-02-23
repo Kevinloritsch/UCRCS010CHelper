@@ -10,6 +10,7 @@
 ![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-2088FF?style=for-the-badge&logo=github-actions&logoColor=white)
 
 ## Purpose
+
 This website was developed to primarily assist with the teaching of CS010C, Introduction to Data Structures and Algorithms, at the University of California, Riverside. The site can easily be abstracted for any data structures class, providing efficient visualizations and descriptions for a variety of introductory topics, including Trees, Sorting, and an introduction to Asymptotic Notation.
 
 ## Figma
@@ -23,7 +24,6 @@ This website runs on Node.js Version 20.10.0 and higher. Please ensure you have 
 ## Next.js
 
 This project is built using [Next.js](https://nextjs.org), a React framework. Next.js is automatically installed when you install all dependencies for this project.
-
 
 ## Commands
 
