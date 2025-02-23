@@ -2,7 +2,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { insertNode } from "@/utils/BSTFunctions/insertBST";
 // import { removeNode } from "@/utils/BSTFunctions/removeBST";
-import { Play, Pause, RefreshCcw } from "lucide-react";
+import { Play, Pause, RefreshCcw, FastForward } from "lucide-react";
 
 import {
   DataSet,
@@ -41,6 +41,8 @@ const BSTVisualizer = () => {
   const [animationStates, setAnimationStates] = useState<AnimationState[]>([]);
   const [currentStep, setCurrentStep] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isInserting, setIsInserting] = useState(false);
+  const [speed, setSpeed] = useState(500);
 
   useEffect(() => {
     if (networkContainer.current) {
@@ -52,6 +54,11 @@ const BSTVisualizer = () => {
             nodes: { shape: "circle", color: "#97C2FC" },
             edges: { arrows: "to" },
             physics: { enabled: false },
+            interaction: {
+              dragNodes: false,
+              dragView: true,
+              zoomView: true,
+            },
           },
         ),
       );
@@ -75,7 +82,7 @@ const BSTVisualizer = () => {
 
         if (root.current) {
           network.selectNodes([root.current.id]);
-          setTimeout(() => network.selectNodes([]), 50); // Delay deselecting for stability
+          network.selectNodes([]); // Delay deselecting for stability
         }
       }
     }
@@ -91,16 +98,17 @@ const BSTVisualizer = () => {
             return prev + 1;
           } else {
             setIsPlaying(false);
+            setIsInserting(false);
             return prev;
           }
         });
-      }, 500);
+      }, speed);
     }
 
     return () => {
       if (interval !== null) clearInterval(interval);
     };
-  }, [isPlaying, animationStates]);
+  }, [isPlaying, animationStates, speed]);
 
   return (
     <div>
@@ -112,6 +120,9 @@ const BSTVisualizer = () => {
         onChange={(e) => setValue(e.target.value)}
       />
       <button
+        className={`relative flex flex-col items-center rounded border px-4 py-2 ${
+          isInserting ? "cursor-not-allowed opacity-50" : "cursor-pointer"
+        }`}
         onClick={async () => {
           if (network) {
             const newAnimationStates = await insertNode(
@@ -123,30 +134,58 @@ const BSTVisualizer = () => {
               maxEdgeId,
               network,
             );
-            // Ensure newAnimationStates is not undefined by providing a fallback empty array
             setAnimationStates(newAnimationStates || []);
             setIsPlaying(true);
+            setIsInserting(true);
             setCurrentStep(0);
           } else {
             console.error("Network is not available.");
           }
         }}
+        disabled={isInserting || value === ""}
       >
+        {isInserting && (
+          <div className="absolute -top-6 flex h-6 w-6 items-center justify-center rounded-full bg-red-500">
+            <span className="font-bold text-white">|</span>
+          </div>
+        )}
         Insert
       </button>
 
       <br />
-      <button onClick={() => setIsPlaying(!isPlaying)}>
+      <button onClick={() => setIsPlaying(!isPlaying)} className="mx-3">
         {isPlaying ? <Pause /> : <Play />}
       </button>
       <button
         onClick={() => {
           setIsPlaying(true);
+          setIsInserting(true);
           setCurrentStep(0);
         }}
+        className="mx-3"
       >
         <RefreshCcw />
       </button>
+
+      <button
+        onClick={() => {
+          setSpeed((prevSpeed) => Math.max(prevSpeed / 2, 30));
+        }}
+        className="mx-3"
+      >
+        <FastForward />
+      </button>
+
+      <button
+        onClick={() => {
+          setSpeed((prevSpeed) => Math.min(prevSpeed * 2, 1000)); // Limit speed to 1000ms
+        }}
+        className="mx-3"
+      >
+        {/* You can add an icon for the slow down button */}
+        <FastForward style={{ transform: "rotate(180deg)" }} />
+      </button>
+
       <div
         ref={networkContainer}
         style={{

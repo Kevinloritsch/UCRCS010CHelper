@@ -3,6 +3,7 @@ import {
   Network,
 } from "vis-network/standalone/umd/vis-network.min.js";
 import { TreeNode } from "@/app/components/BSTVizualizer";
+import colors from "@/styles/colors";
 
 export const sleep = (ms: number) =>
   new Promise((resolve) => setTimeout(resolve, ms));
@@ -26,7 +27,17 @@ export const insertNode = async (
   const snapshot = () => {
     const currentNodes = [...nodes.current.get()]; // Get the current nodes
     const currentEdges = [...edges.current.get()]; // Get the current edges
-    // console.log(currentNodes)
+    if (network) {
+      network.stabilize();
+      if (root.current) {
+        network.selectNodes([root.current.id]);
+        network.selectNodes([]);
+        network.selectEdges([]);
+
+        network.redraw();
+      }
+      network.setOptions({ physics: false });
+    }
     animationStates.push({ nodes: currentNodes, edges: currentEdges }); // Store both nodes and edges
   };
 
@@ -46,14 +57,6 @@ export const insertNode = async (
     nodes.current.add(newNode);
     ++maxNodeId.current;
     // reset values
-    if (network) {
-      network.stabilize();
-      if (root) {
-        network.selectNodes([root.current.id]);
-        network.selectNodes([]);
-      }
-      network.setOptions({ physics: false });
-    }
 
     snapshot();
 
@@ -71,13 +74,13 @@ export const insertNode = async (
 
     nodes.current.update({
       id: currentNode.id,
-      color: { background: "red" },
+      color: { background: colors.redAnimate },
     });
 
     snapshot();
     nodes.current.update({
       id: currentNode.id,
-      color: { background: "#97C2FC" },
+      color: { background: colors.defaultBlue },
     });
 
     snapshot();
@@ -99,15 +102,6 @@ export const insertNode = async (
       currentNode = nodes.current.get(currentNode.right) as TreeNode;
     } else {
       alert("Value already exists in the tree.");
-      // reset values
-      if (network) {
-        network.stabilize();
-        if (root) {
-          network.selectNodes([root.current.id]);
-          network.selectNodes([]);
-        }
-        network.setOptions({ physics: false });
-      }
       return;
     }
   }
@@ -140,14 +134,15 @@ export const insertNode = async (
 
   snapshot();
 
-  if (network) {
-    network.stabilize();
-    network.setOptions({ physics: false });
-    network.moveNode(newId, newX, newY);
-    network.selectNodes([root.current.id]);
-    network.selectNodes([]);
-    console.log(nodes.current.get());
-  }
+  // if (network) {
+  //   network.stabilize();
+  //   network.setOptions({ physics: false });
+  //   network.moveNode(newId, newX, newY);
+  //   network.selectNodes([root.current.id]);
+  //   network.selectNodes([]);
+  //   network.selectEdges([]);
+  //   console.log(nodes.current.get());
+  // }
 
   const initialState = animationStates[0]; // The initial state captured at the start
   nodes.current.clear(); // Clear all nodes
@@ -164,12 +159,13 @@ export const insertNode = async (
   });
 
   // Optionally reset node positions or any other properties
-  if (network) {
-    network.stabilize();
-    network.setOptions({ physics: false });
-    network.selectNodes([root.current.id]);
-    network.selectNodes([]);
-  }
+  // if (network) {
+  //   network.stabilize();
+  //   network.setOptions({ physics: false });
+  //   network.selectNodes([root.current.id]);
+  //   network.selectNodes([]);
+  //   network.selectEdges([]);
+  // }
 
   return animationStates;
 };
