@@ -3,6 +3,7 @@ import {
   Network,
 } from "vis-network/standalone/umd/vis-network.min.js";
 import { TreeNode } from "@/app/components/BSTVizualizer";
+import colors from "@/styles/colors";
 
 export const sleep = (ms: number) =>
   new Promise((resolve) => setTimeout(resolve, ms));
@@ -18,6 +19,28 @@ export const insertNode = async (
   maxEdgeId: React.MutableRefObject<number>,
   network: Network | null,
 ) => {
+  const animationStates: {
+    nodes: TreeNode[];
+    edges: { id?: number; from: number; to: number }[];
+  }[] = [];
+
+  const snapshot = () => {
+    const currentNodes = [...nodes.current.get()];
+    const currentEdges = [...edges.current.get()];
+    if (network) {
+      network.stabilize();
+      if (root.current) {
+        network.selectNodes([root.current.id]);
+        network.selectNodes([]);
+        network.selectEdges([]);
+      }
+      network.setOptions({ physics: false });
+    }
+    animationStates.push({ nodes: currentNodes, edges: currentEdges });
+  };
+
+  snapshot();
+
   if (!root.current) {
     const newNode: TreeNode = {
       id: 1,
@@ -32,15 +55,10 @@ export const insertNode = async (
     nodes.current.add(newNode);
     ++maxNodeId.current;
     // reset values
-    if (network) {
-      network.stabilize();
-      if (root) {
-        network.selectNodes([root.current.id]);
-        network.selectNodes([]);
-      }
-      network.setOptions({ physics: false });
-    }
-    return;
+
+    snapshot();
+
+    return animationStates;
   }
 
   let currentNode = root.current;
@@ -52,16 +70,18 @@ export const insertNode = async (
     parentId = currentNode.id;
     depth++;
 
-    // "animation"
     nodes.current.update({
       id: currentNode.id,
-      color: { background: "red" },
+      color: { background: colors.redAnimate },
     });
-    await sleep(500);
+
+    snapshot();
     nodes.current.update({
       id: currentNode.id,
-      color: { background: "#97C2FC" },
+      color: { background: colors.defaultBlue },
     });
+
+    snapshot();
 
     currentNode = nodes.current.get(currentNode.id) as TreeNode;
 
@@ -80,16 +100,7 @@ export const insertNode = async (
       currentNode = nodes.current.get(currentNode.right) as TreeNode;
     } else {
       alert("Value already exists in the tree.");
-      // reset values
-      if (network) {
-        network.stabilize();
-        if (root) {
-          network.selectNodes([root.current.id]);
-          network.selectNodes([]);
-        }
-        network.setOptions({ physics: false });
-      }
-      return;
+      return animationStates;
     }
   }
 
@@ -119,12 +130,21 @@ export const insertNode = async (
   const edgeId = ++maxEdgeId.current;
   edges.current.add({ id: edgeId, from: parentId!, to: newId });
 
-  if (network) {
-    network.stabilize();
-    network.setOptions({ physics: false });
-    network.moveNode(newId, newX, newY);
-    network.selectNodes([root.current.id]);
-    network.selectNodes([]);
-    console.log(nodes.current.get());
-  }
+  snapshot();
+
+  const initialState = animationStates[0];
+  nodes.current.clear();
+  edges.current.clear();
+
+  // Restore nodes
+  initialState.nodes.forEach((node) => {
+    nodes.current.add(node);
+  });
+
+  // Restore edges
+  initialState.edges.forEach((edge) => {
+    edges.current.add(edge);
+  });
+
+  return animationStates;
 };
