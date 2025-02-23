@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useRef, useState } from "react";
 import { insertNode } from "@/utils/BSTFunctions/insertBST";
-// import { removeNode } from "@/utils/BSTFunctions/removeBST";
+import { removeNode } from "@/utils/BSTFunctions/removeBST";
 import { Play, Pause, RefreshCcw, FastForward } from "lucide-react";
 
 import {
@@ -112,45 +112,63 @@ const BSTVisualizer = () => {
 
   return (
     <div>
-      <h1>Binary Search Tree Visualizer</h1>
+      <h1 className="m-2">Binary Search Tree Visualizer</h1>
       <input
         type="number"
-        className="border-1 border border-black"
+        className="border-1 m-2 border border-black"
         value={value}
         onChange={(e) => setValue(e.target.value)}
       />
-      <button
-        className={`relative flex flex-col items-center rounded border px-4 py-2 ${
-          isInserting ? "cursor-not-allowed opacity-50" : "cursor-pointer"
-        }`}
-        onClick={async () => {
-          if (network) {
-            const newAnimationStates = await insertNode(
-              parseInt(value),
-              root,
-              nodes,
-              edges,
-              maxNodeId,
-              maxEdgeId,
-              network,
-            );
-            setAnimationStates(newAnimationStates || []);
-            setIsPlaying(true);
-            setIsInserting(true);
-            setCurrentStep(0);
-          } else {
-            console.error("Network is not available.");
+      <div className="flex">
+        <button
+          className={`relative m-3 flex flex-col items-center rounded border px-4 py-2 ${
+            isInserting ? "cursor-not-allowed opacity-50" : "cursor-pointer"
+          }`}
+          onClick={async () => {
+            if (network) {
+              const newAnimationStates = await insertNode(
+                parseInt(value),
+                root,
+                nodes,
+                edges,
+                maxNodeId,
+                maxEdgeId,
+                network,
+              );
+              setAnimationStates(newAnimationStates || []);
+              setIsPlaying(true);
+              setIsInserting(true);
+              setCurrentStep(0);
+            } else {
+              console.error("Network is not available.");
+            }
+          }}
+          disabled={isInserting || value === ""}
+        >
+          {isInserting && (
+            <div className="absolute flex h-6 w-6 items-center justify-center rounded-full bg-red-500">
+              <span className="font-bold text-white">|</span>
+            </div>
+          )}
+          Insert
+        </button>
+
+        <button
+          className={`relative m-3 flex flex-col items-center rounded border px-4 py-2 ${
+            isInserting ? "cursor-not-allowed opacity-50" : "cursor-pointer"
+          }`}
+          onClick={() =>
+            removeNode(1, parseInt(value), 0, root, nodes, edges, network)
           }
-        }}
-        disabled={isInserting || value === ""}
-      >
-        {isInserting && (
-          <div className="absolute -top-6 flex h-6 w-6 items-center justify-center rounded-full bg-red-500">
-            <span className="font-bold text-white">|</span>
-          </div>
-        )}
-        Insert
-      </button>
+        >
+          {isInserting && (
+            <div className="absolute flex h-6 w-6 items-center justify-center rounded-full bg-red-500">
+              <span className="font-bold text-white">|</span>
+            </div>
+          )}
+          Remove
+        </button>
+      </div>
 
       <br />
       <button onClick={() => setIsPlaying(!isPlaying)} className="mx-3">
