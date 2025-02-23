@@ -31,8 +31,8 @@ export const removeNode = async (
   }[] = [];
 
   const snapshot = () => {
-    const currentNodes = [...nodes.current.get()]; // Get the current nodes
-    const currentEdges = [...edges.current.get()]; // Get the current edges
+    const currentNodes = [...nodes.current.get()];
+    const currentEdges = [...edges.current.get()];
     if (network) {
       network.stabilize();
       if (root.current) {
@@ -44,7 +44,7 @@ export const removeNode = async (
       }
       network.setOptions({ physics: false });
     }
-    animationStates.push({ nodes: currentNodes, edges: currentEdges }); // Store both nodes and edges
+    animationStates.push({ nodes: currentNodes, edges: currentEdges });
   };
 
   snapshot();
@@ -270,16 +270,6 @@ export const removeNode = async (
             network,
           );
         }
-        // reset values
-        // if (network) {
-        //   network.stabilize();
-        //   if (root) {
-        //     network.selectNodes([root.current.id]);
-        //     network.selectNodes([]);
-        //   }
-        //   network.setOptions({ physics: false });
-        // }
-        // return animationStates;
       }
 
       // otherwise, lets just delete the node
@@ -319,18 +309,18 @@ export const removeNode = async (
 
   snapshot();
 
-  const initialState = animationStates[0]; // The initial state captured at the start
-  nodes.current.clear(); // Clear all nodes
-  edges.current.clear(); // Clear all edges
+  const initialState = animationStates[0];
+  nodes.current.clear();
+  edges.current.clear();
 
   // Restore nodes
   initialState.nodes.forEach((node) => {
-    nodes.current.add(node); // Add all the nodes from the initial state
+    nodes.current.add(node); 
   });
 
   // Restore edges
   initialState.edges.forEach((edge) => {
-    edges.current.add(edge); // Add all the edges from the initial state
+    edges.current.add(edge); 
   });
 
   return animationStates;

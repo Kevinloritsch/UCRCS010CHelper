@@ -25,20 +25,18 @@ export const insertNode = async (
   }[] = [];
 
   const snapshot = () => {
-    const currentNodes = [...nodes.current.get()]; // Get the current nodes
-    const currentEdges = [...edges.current.get()]; // Get the current edges
+    const currentNodes = [...nodes.current.get()]
+    const currentEdges = [...edges.current.get()]
     if (network) {
-      network.stabilize();
+      network.stabilize()
       if (root.current) {
-        network.selectNodes([root.current.id]);
-        network.selectNodes([]);
-        network.selectEdges([]);
-
-        network.redraw();
+        network.selectNodes([root.current.id])
+        network.selectNodes([])
+        network.selectEdges([])
       }
-      network.setOptions({ physics: false });
+      network.setOptions({ physics: false })
     }
-    animationStates.push({ nodes: currentNodes, edges: currentEdges }); // Store both nodes and edges
+    animationStates.push({ nodes: currentNodes, edges: currentEdges })
   };
 
   snapshot();
@@ -102,7 +100,7 @@ export const insertNode = async (
       currentNode = nodes.current.get(currentNode.right) as TreeNode;
     } else {
       alert("Value already exists in the tree.");
-      return;
+      return animationStates;
     }
   }
 
@@ -134,38 +132,18 @@ export const insertNode = async (
 
   snapshot();
 
-  // if (network) {
-  //   network.stabilize();
-  //   network.setOptions({ physics: false });
-  //   network.moveNode(newId, newX, newY);
-  //   network.selectNodes([root.current.id]);
-  //   network.selectNodes([]);
-  //   network.selectEdges([]);
-  //   console.log(nodes.current.get());
-  // }
-
-  const initialState = animationStates[0]; // The initial state captured at the start
-  nodes.current.clear(); // Clear all nodes
-  edges.current.clear(); // Clear all edges
+  const initialState = animationStates[0];
+  nodes.current.clear();
+  edges.current.clear();
 
   // Restore nodes
   initialState.nodes.forEach((node) => {
-    nodes.current.add(node); // Add all the nodes from the initial state
+    nodes.current.add(node);
   });
 
   // Restore edges
   initialState.edges.forEach((edge) => {
-    edges.current.add(edge); // Add all the edges from the initial state
   });
-
-  // Optionally reset node positions or any other properties
-  // if (network) {
-  //   network.stabilize();
-  //   network.setOptions({ physics: false });
-  //   network.selectNodes([root.current.id]);
-  //   network.selectNodes([]);
-  //   network.selectEdges([]);
-  // }
 
   return animationStates;
 };

@@ -67,7 +67,6 @@ const BSTVisualizer = () => {
 
   useEffect(() => {
     if (animationStates && animationStates.length > 0) {
-      // Update the nodes and edges based on the current step
       const { nodes: newNodes, edges: newEdges } = animationStates[currentStep];
       nodes.current.clear();
       edges.current.clear();
@@ -82,7 +81,7 @@ const BSTVisualizer = () => {
 
         if (root.current) {
           network.selectNodes([root.current.id]);
-          network.selectNodes([]); // Delay deselecting for stability
+          network.selectNodes([]);
         }
       }
     }
@@ -210,11 +209,10 @@ const BSTVisualizer = () => {
 
       <button
         onClick={() => {
-          setSpeed((prevSpeed) => Math.min(prevSpeed * 2, 1000)); // Limit speed to 1000ms
+          setSpeed((prevSpeed) => Math.min(prevSpeed * 2, 1000)); 
         }}
         className="mx-3"
       >
-        {/* You can add an icon for the slow down button */}
         <FastForward style={{ transform: "rotate(180deg)" }} />
       </button>
 
