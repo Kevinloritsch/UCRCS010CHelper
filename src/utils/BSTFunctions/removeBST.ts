@@ -9,6 +9,11 @@ import colors from "@/styles/colors";
 export const sleep = (ms: number) =>
   new Promise((resolve) => setTimeout(resolve, ms));
 
+type AnimationState = {
+  nodes: TreeNode[];
+  edges: { id?: number; from: number; to: number }[];
+};
+
 export const removeNode = async (
   nodeId: number,
   value: number,
@@ -19,7 +24,7 @@ export const removeNode = async (
     DataSet<{ id?: number; from: number; to: number }>
   >,
   network: Network | null,
-) => {
+): Promise<AnimationState[]> => {
   const animationStates: {
     nodes: TreeNode[];
     edges: { id?: number; from: number; to: number }[];
