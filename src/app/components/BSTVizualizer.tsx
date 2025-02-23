@@ -157,9 +157,23 @@ const BSTVisualizer = () => {
           className={`relative m-3 flex flex-col items-center rounded border px-4 py-2 ${
             isInserting ? "cursor-not-allowed opacity-50" : "cursor-pointer"
           }`}
-          onClick={() =>
-            removeNode(1, parseInt(value), 0, root, nodes, edges, network)
-          }
+          onClick={async () => {
+            if (network) {
+              const newAnimationStates = await removeNode(
+                1,
+                parseInt(value),
+                0,
+                root,
+                nodes,
+                edges,
+                network,
+              );
+              setAnimationStates(newAnimationStates || []);
+              setIsPlaying(true);
+              setIsInserting(true);
+              setCurrentStep(0);
+            }
+          }}
         >
           {isInserting && (
             <div className="absolute flex h-6 w-6 items-center justify-center rounded-full bg-red-500">

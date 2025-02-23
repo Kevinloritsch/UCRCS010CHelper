@@ -20,10 +20,35 @@ export const removeNode = async (
   >,
   network: Network | null,
 ) => {
+  const animationStates: {
+    nodes: TreeNode[];
+    edges: { id?: number; from: number; to: number }[];
+  }[] = [];
+
+  const snapshot = () => {
+    const currentNodes = [...nodes.current.get()]; // Get the current nodes
+    const currentEdges = [...edges.current.get()]; // Get the current edges
+    if (network) {
+      network.stabilize();
+      if (root.current) {
+        network.selectNodes([root.current.id]);
+        network.selectNodes([]);
+        network.selectEdges([]);
+
+        network.redraw();
+      }
+      network.setOptions({ physics: false });
+    }
+    animationStates.push({ nodes: currentNodes, edges: currentEdges }); // Store both nodes and edges
+  };
+
+  snapshot();
   // can't remove from an empty tree
   if (!root.current) {
     alert("Tree is Empty");
-    return;
+    snapshot();
+
+    return animationStates;
   }
 
   // iterator
@@ -43,11 +68,12 @@ export const removeNode = async (
       id: currentNode.id,
       color: { background: colors.redAnimate },
     });
-    await sleep(500);
+    snapshot();
     nodes.current.update({
       id: currentNode.id,
       color: { background: colors.defaultBlue },
     });
+    snapshot();
 
     currentNode = nodes.current.get(currentNode.id) as TreeNode;
 
@@ -84,7 +110,7 @@ export const removeNode = async (
   // if it was never found... throw an error
   if (!currentNode) {
     alert("Value not in tree");
-    return;
+    return animationStates;
   }
 
   // if it has no children case
@@ -117,11 +143,12 @@ export const removeNode = async (
       network.setOptions({ physics: false });
     }
 
-    await sleep(500);
+    snapshot();
     nodes.current.update({
       id: currentNode.id,
       color: { background: colors.defaultBlue },
     });
+    snapshot();
 
     // bye bye!
     nodes.current.remove(currentNode.id);
@@ -208,7 +235,7 @@ export const removeNode = async (
         network.setOptions({ physics: false });
       }
 
-      await sleep(500);
+      snapshot();
 
       // bring back to blue
 
@@ -221,12 +248,14 @@ export const removeNode = async (
         id: currentNode.id,
         color: { background: colors.defaultBlue },
       });
+      snapshot();
 
       // if the node has any child, we have to do a recursive call
       if (currentNode.left || currentNode.right) {
         // call the function with the new values
         if (parentNode) {
-          removeNode(
+          snapshot();
+          return removeNode(
             childNode.id,
             currentNode.value,
             parentNode.id,
@@ -237,15 +266,15 @@ export const removeNode = async (
           );
         }
         // reset values
-        if (network) {
-          network.stabilize();
-          if (root) {
-            network.selectNodes([root.current.id]);
-            network.selectNodes([]);
-          }
-          network.setOptions({ physics: false });
-        }
-        return;
+        // if (network) {
+        //   network.stabilize();
+        //   if (root) {
+        //     network.selectNodes([root.current.id]);
+        //     network.selectNodes([]);
+        //   }
+        //   network.setOptions({ physics: false });
+        // }
+        // return animationStates;
       }
 
       // otherwise, lets just delete the node
@@ -282,4 +311,22 @@ export const removeNode = async (
     }
     network.setOptions({ physics: false });
   }
+
+  snapshot();
+
+  const initialState = animationStates[0]; // The initial state captured at the start
+  nodes.current.clear(); // Clear all nodes
+  edges.current.clear(); // Clear all edges
+
+  // Restore nodes
+  initialState.nodes.forEach((node) => {
+    nodes.current.add(node); // Add all the nodes from the initial state
+  });
+
+  // Restore edges
+  initialState.edges.forEach((edge) => {
+    edges.current.add(edge); // Add all the edges from the initial state
+  });
+
+  return animationStates;
 };
