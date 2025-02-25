@@ -259,8 +259,7 @@ export const removeNode = async (
       if (currentNode.left || currentNode.right) {
         // call the function with the new values
         if (parentNode) {
-          snapshot();
-          return removeNode(
+          const recursiveStates = await removeNode(
             childNode.id,
             currentNode.value,
             parentNode.id,
@@ -269,6 +268,7 @@ export const removeNode = async (
             edges,
             network,
           );
+          return animationStates.concat(recursiveStates);
         }
       }
 
