@@ -25,7 +25,7 @@ export const removeNode = async (
   >,
   network: Network | null,
 ): Promise<AnimationState[]> => {
-  let tempRoot = root.current
+  const tempRoot = root.current
     ? (nodes.current.get(1) as TreeNode | null)
     : null;
   const animationStates: {
