@@ -25,6 +25,9 @@ export const removeNode = async (
   >,
   network: Network | null,
 ): Promise<AnimationState[]> => {
+  let tempRoot = root.current
+    ? (nodes.current.get(1) as TreeNode | null)
+    : null;
   const animationStates: {
     nodes: TreeNode[];
     edges: { id?: number; from: number; to: number }[];
@@ -35,8 +38,8 @@ export const removeNode = async (
     const currentEdges = [...edges.current.get()];
     if (network) {
       network.stabilize();
-      if (root.current) {
-        network.selectNodes([root.current.id]);
+      if (root.current && tempRoot) {
+        network.selectNodes([tempRoot.id]);
         network.selectNodes([]);
         network.selectEdges([]);
 
@@ -51,7 +54,6 @@ export const removeNode = async (
   // can't remove from an empty tree
   if (!root.current) {
     alert("Tree is Empty");
-    snapshot();
 
     return animationStates;
   }

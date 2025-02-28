@@ -2,6 +2,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import { insertNode } from "@/utils/BSTFunctions/insertBST";
 import { removeNode } from "@/utils/BSTFunctions/removeBST";
+import { maxNode } from "@/utils/BSTFunctions/maxBST";
+import { minNode } from "@/utils/BSTFunctions/minBST";
 import { Play, Pause, RefreshCcw, FastForward } from "lucide-react";
 
 import {
@@ -43,6 +45,8 @@ const BSTVisualizer = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isInserting, setIsInserting] = useState(false);
   const [speed, setSpeed] = useState(500);
+  const [maxValue, setMaxValue] = useState<number | null>(null);
+  const [minValue, setMinValue] = useState<number | null>(null);
 
   useEffect(() => {
     if (networkContainer.current) {
@@ -173,6 +177,7 @@ const BSTVisualizer = () => {
               setCurrentStep(0);
             }
           }}
+          disabled={isInserting}
         >
           {isInserting && (
             <div className="absolute flex h-6 w-6 items-center justify-center rounded-full bg-red-500">
@@ -180,6 +185,64 @@ const BSTVisualizer = () => {
             </div>
           )}
           Remove
+        </button>
+
+        <button
+          className={`relative m-3 flex flex-col items-center rounded border px-4 py-2 ${
+            isInserting ? "cursor-not-allowed opacity-50" : "cursor-pointer"
+          }`}
+          onClick={async () => {
+            if (network) {
+              const { animationStates, maxValue } = await maxNode(
+                root,
+                nodes,
+                edges,
+                network,
+              );
+              setAnimationStates(animationStates || []);
+              setMaxValue(maxValue);
+              setIsPlaying(true);
+              setIsInserting(true);
+              setCurrentStep(0);
+            }
+          }}
+          disabled={isInserting}
+        >
+          {isInserting && (
+            <div className="absolute flex h-6 w-6 items-center justify-center rounded-full bg-red-500">
+              <span className="font-bold text-white">|</span>
+            </div>
+          )}
+          Max
+        </button>
+
+        <button
+          className={`relative m-3 flex flex-col items-center rounded border px-4 py-2 ${
+            isInserting ? "cursor-not-allowed opacity-50" : "cursor-pointer"
+          }`}
+          onClick={async () => {
+            if (network) {
+              const { animationStates, minValue } = await minNode(
+                root,
+                nodes,
+                edges,
+                network,
+              );
+              setAnimationStates(animationStates || []);
+              setMinValue(minValue);
+              setIsPlaying(true);
+              setIsInserting(true);
+              setCurrentStep(0);
+            }
+          }}
+          disabled={isInserting}
+        >
+          {isInserting && (
+            <div className="absolute flex h-6 w-6 items-center justify-center rounded-full bg-red-500">
+              <span className="font-bold text-white">|</span>
+            </div>
+          )}
+          Min
         </button>
       </div>
 
@@ -224,6 +287,13 @@ const BSTVisualizer = () => {
           border: "1px solid lightgray",
         }}
       ></div>
+
+      <div className="m-3 rounded border p-2">
+        <div> Max Node Value: {maxValue !== null ? maxValue : "None"}</div>
+      </div>
+      <div className="m-3 rounded border p-2">
+        <div> Min Node Value: {minValue !== null ? minValue : "None"}</div>
+      </div>
     </div>
   );
 };
