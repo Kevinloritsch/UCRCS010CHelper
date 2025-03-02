@@ -213,7 +213,7 @@ const BSTVisualizer = () => {
             }`}
             onClick={async () => {
               if (network) {
-                const { animationStates, maxValue } = await maxNode(
+                const { animationStates } = await maxNode(
                   root,
                   nodes,
                   edges,
@@ -241,7 +241,7 @@ const BSTVisualizer = () => {
             }`}
             onClick={async () => {
               if (network) {
-                const { animationStates, minValue } = await minNode(
+                const { animationStates } = await minNode(
                   root,
                   nodes,
                   edges,
