@@ -265,22 +265,42 @@ const BSTVisualizer = () => {
 
           <div className="my-2 mr-8 flex flex-grow justify-end">
             <div className="rounded bg-green-600">
-              <button onClick={() => setIsPlaying(!isPlaying)} className="mx-3">
+              <button
+                onClick={() => {
+                  if (animationStates.length > 0) {
+                    setIsPlaying(!isPlaying);
+                  }
+                }}
+                className="mx-3"
+              >
                 {isPlaying ? (
-                  <Pause color="white" fill="white" />
+                  <Pause
+                    color="white"
+                    fill="white"
+                    style={{ transform: "rotate(360deg)" }}
+                  />
                 ) : (
-                  <Play color="white" fill="white" />
+                  <Play
+                    color="white"
+                    fill="white"
+                    style={{ transform: "rotate(360deg)" }}
+                  />
                 )}
               </button>
               <button
                 onClick={() => {
-                  setIsPlaying(true);
-                  setIsInserting(true);
-                  setCurrentStep(0);
+                  if (animationStates.length > 0) {
+                    setIsPlaying(true);
+                    setIsInserting(true);
+                    setCurrentStep(0);
+                  }
                 }}
                 className="mx-3"
               >
-                <RefreshCcw color="white" />
+                <RefreshCcw
+                  color="white"
+                  style={{ transform: "rotate(360deg)" }}
+                />
               </button>
 
               <button
@@ -302,14 +322,18 @@ const BSTVisualizer = () => {
                 }}
                 className="mx-3"
               >
-                <FastForward color="white" fill="white" />
+                <FastForward
+                  color="white"
+                  fill="white"
+                  style={{ transform: "rotate(360deg)" }}
+                />
               </button>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="mx-3 w-[98%] rounded border px-2">
+      <div className="mx-auto rounded border px-2" style={{ width: "98%" }}>
         <div className="flex">
           <div>PRINT</div>
           <button
