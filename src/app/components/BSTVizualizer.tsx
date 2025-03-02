@@ -4,6 +4,7 @@ import { insertNode } from "@/utils/BSTFunctions/insertBST";
 import { removeNode } from "@/utils/BSTFunctions/removeBST";
 import { maxNode } from "@/utils/BSTFunctions/maxBST";
 import { minNode } from "@/utils/BSTFunctions/minBST";
+import { inOrderTraversal } from "@/utils/BSTFunctions/inOrderBST";
 import { Play, Pause, RefreshCcw, FastForward } from "lucide-react";
 
 import {
@@ -47,6 +48,7 @@ const BSTVisualizer = () => {
   const [speed, setSpeed] = useState(500);
   const [maxValue, setMaxValue] = useState<number | null>(null);
   const [minValue, setMinValue] = useState<number | null>(null);
+  const [inOrder, setInOrder] = useState<number | null>(null);
 
   useEffect(() => {
     if (networkContainer.current) {
@@ -115,12 +117,15 @@ const BSTVisualizer = () => {
 
   return (
     <div>
-      <h1 className="m-2">Binary Search Tree Visualizer</h1>
+      <h1 className="m-2 text-center text-2xl">
+        Binary Search Tree Visualizer
+      </h1>
       <input
         type="number"
         className="border-1 m-2 border border-black"
         value={value}
         onChange={(e) => setValue(e.target.value)}
+        placeholder="Enter Value Here"
       />
       <div className="flex">
         <button
@@ -186,113 +191,156 @@ const BSTVisualizer = () => {
           )}
           Remove
         </button>
-
-        <button
-          className={`relative m-3 flex flex-col items-center rounded border px-4 py-2 ${
-            isInserting ? "cursor-not-allowed opacity-50" : "cursor-pointer"
-          }`}
-          onClick={async () => {
-            if (network) {
-              const { animationStates, maxValue } = await maxNode(
-                root,
-                nodes,
-                edges,
-                network,
-              );
-              setAnimationStates(animationStates || []);
-              setMaxValue(maxValue);
-              setIsPlaying(true);
-              setIsInserting(true);
-              setCurrentStep(0);
-            }
-          }}
-          disabled={isInserting}
-        >
-          {isInserting && (
-            <div className="absolute flex h-6 w-6 items-center justify-center rounded-full bg-red-500">
-              <span className="font-bold text-white">|</span>
-            </div>
-          )}
-          Max
-        </button>
-
-        <button
-          className={`relative m-3 flex flex-col items-center rounded border px-4 py-2 ${
-            isInserting ? "cursor-not-allowed opacity-50" : "cursor-pointer"
-          }`}
-          onClick={async () => {
-            if (network) {
-              const { animationStates, minValue } = await minNode(
-                root,
-                nodes,
-                edges,
-                network,
-              );
-              setAnimationStates(animationStates || []);
-              setMinValue(minValue);
-              setIsPlaying(true);
-              setIsInserting(true);
-              setCurrentStep(0);
-            }
-          }}
-          disabled={isInserting}
-        >
-          {isInserting && (
-            <div className="absolute flex h-6 w-6 items-center justify-center rounded-full bg-red-500">
-              <span className="font-bold text-white">|</span>
-            </div>
-          )}
-          Min
-        </button>
       </div>
 
       <br />
-      <button onClick={() => setIsPlaying(!isPlaying)} className="mx-3">
-        {isPlaying ? <Pause /> : <Play />}
-      </button>
-      <button
-        onClick={() => {
-          setIsPlaying(true);
-          setIsInserting(true);
-          setCurrentStep(0);
-        }}
-        className="mx-3"
-      >
-        <RefreshCcw />
-      </button>
 
-      <button
-        onClick={() => {
-          setSpeed((prevSpeed) => Math.max(prevSpeed / 2, 30));
-        }}
-        className="mx-3"
-      >
-        <FastForward />
-      </button>
+      <div className="min-h-[400px]">
+        <div className="flex place-content-center">
+          <div
+            ref={networkContainer}
+            style={{
+              width: "98%",
+              height: "400px",
+              border: "1px solid lightgray",
+            }}
+            className="absolute"
+          ></div>
+        </div>
 
-      <button
-        onClick={() => {
-          setSpeed((prevSpeed) => Math.min(prevSpeed * 2, 1000));
-        }}
-        className="mx-3"
-      >
-        <FastForward style={{ transform: "rotate(180deg)" }} />
-      </button>
+        <div className="flex">
+          <button
+            className={`relative my-2 ml-8 mr-3 flex flex-col items-center rounded bg-amber-900 px-4 py-0 text-white ${
+              isInserting ? "cursor-not-allowed opacity-50" : "cursor-pointer"
+            }`}
+            onClick={async () => {
+              if (network) {
+                const { animationStates, maxValue } = await maxNode(
+                  root,
+                  nodes,
+                  edges,
+                  network,
+                );
+                setAnimationStates(animationStates || []);
+                setMaxValue(maxValue);
+                setIsPlaying(true);
+                setIsInserting(true);
+                setCurrentStep(0);
+              }
+            }}
+            disabled={isInserting}
+          >
+            {isInserting && (
+              <div className="absolute flex h-6 w-6 items-center justify-center rounded-full bg-red-500">
+                <span className="font-bold text-white">|</span>
+              </div>
+            )}
+            Largest
+          </button>
 
-      <div
-        ref={networkContainer}
-        style={{
-          width: "100%",
-          height: "600px",
-          border: "1px solid lightgray",
-        }}
-      ></div>
+          <button
+            className={`relative mx-3 my-2 flex flex-col items-center rounded border bg-amber-900 px-4 py-0 text-white ${
+              isInserting ? "cursor-not-allowed opacity-50" : "cursor-pointer"
+            }`}
+            onClick={async () => {
+              if (network) {
+                const { animationStates, minValue } = await minNode(
+                  root,
+                  nodes,
+                  edges,
+                  network,
+                );
+                setAnimationStates(animationStates || []);
+                setMinValue(minValue);
+                setIsPlaying(true);
+                setIsInserting(true);
+                setCurrentStep(0);
+              }
+            }}
+            disabled={isInserting}
+          >
+            {isInserting && (
+              <div className="absolute flex h-6 w-6 items-center justify-center rounded-full bg-red-500">
+                <span className="font-bold text-white">|</span>
+              </div>
+            )}
+            Smallest
+          </button>
 
-      <div className="m-3 rounded border p-2">
-        <div> Max Node Value: {maxValue !== null ? maxValue : "None"}</div>
+          <div className="flex flex-grow justify-end mr-8 my-2">
+            <div className="bg-green-600 rounded">
+            <button onClick={() => setIsPlaying(!isPlaying)} className="mx-3">
+              {isPlaying ? <Pause color="white" fill="white" /> : <Play color="white" fill="white" />}
+            </button>
+            <button
+              onClick={() => {
+                setIsPlaying(true);
+                setIsInserting(true);
+                setCurrentStep(0);
+              }}
+              className="mx-3"
+            >
+              <RefreshCcw color="white" />
+            </button>
+
+            <button
+              onClick={() => {
+                setSpeed((prevSpeed) => Math.min(prevSpeed * 2, 1000));
+              }}
+              className="mx-3"
+            >
+              <FastForward color="white" fill="white" style={{ transform: "rotate(180deg)" }} />
+            </button>
+
+            <button
+              onClick={() => {
+                setSpeed((prevSpeed) => Math.max(prevSpeed / 2, 30));
+              }}
+              className="mx-3"
+            >
+              <FastForward color="white" fill="white" />
+            </button>
+            </div>
+
+            
+          </div>
+        </div>
       </div>
-      <div className="m-3 rounded border p-2">
-        <div> Min Node Value: {minValue !== null ? minValue : "None"}</div>
+
+      <div className="mx-3 rounded border px-2 w-[98%]">
+        <div className="flex">
+          <div>PRINT</div>
+        <button
+          className={`relative m-3 flex flex-col items-center rounded border px-4 py-2 ${
+            isInserting ? "cursor-not-allowed opacity-50" : "cursor-pointer"
+          }`}
+          onClick={async () => {
+            if (network) {
+              const { animationStates, inOrder } = await inOrderTraversal(
+                root,
+                nodes,
+                edges,
+                network,
+              );
+              setAnimationStates(animationStates || []);
+              setInOrder(inOrder);
+              setIsPlaying(true);
+              setIsInserting(true);
+              setCurrentStep(0);
+            }
+          }}
+          disabled={isInserting}
+        >
+          {isInserting && (
+            <div className="absolute flex h-6 w-6 items-center justify-center rounded-full bg-red-500">
+              <span className="font-bold text-white">|</span>
+            </div>
+          )}
+          In Order Traversal
+        </button>
+
+        </div>
+        <div> In Order Traversal: {inOrder !== null ? inOrder : "None"}</div>
       </div>
     </div>
   );

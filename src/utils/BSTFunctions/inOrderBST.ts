@@ -5,7 +5,7 @@ import {
 import { TreeNode } from "@/app/components/BSTVizualizer";
 import colors from "@/styles/colors";
 
-export const maxNode = async (
+export const inOrderTraversal = async (
   root: React.MutableRefObject<TreeNode | null>,
   nodes: React.MutableRefObject<DataSet<TreeNode>>,
   edges: React.MutableRefObject<
@@ -40,11 +40,11 @@ export const maxNode = async (
   if (!tempRoot) {
     snapshot();
 
-    return { animationStates, maxValue: null };
+    return { animationStates, inOrder: null };
   }
 
   let currentNode = tempRoot;
-  let maxValue = currentNode.value;
+  let inOrder = currentNode.value;
 
   while (currentNode) {
     nodes.current.update({
@@ -61,28 +61,14 @@ export const maxNode = async (
 
     snapshot();
 
-    maxValue = currentNode.value;
+    inOrder = currentNode.value;
 
-    if (currentNode.right === null) {
-      nodes.current.update({
-        id: currentNode.id,
-        color: { background: colors.yellowSwap },
-      });
-
-      snapshot();
-
-      nodes.current.update({
-        id: currentNode.id,
-        color: { background: colors.defaultBlue },
-      });
-
-      snapshot();
-
-      return { animationStates, maxValue };
+    if (currentNode.left === null) {
+      return { animationStates, inOrder };
     }
 
-    currentNode = nodes.current.get(currentNode.right) as TreeNode;
+    currentNode = nodes.current.get(currentNode.left) as TreeNode;
   }
 
-  return { animationStates, maxValue };
+  return { animationStates, inOrder };
 };

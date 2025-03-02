@@ -64,6 +64,20 @@ export const minNode = async (
     minValue = currentNode.value;
 
     if (currentNode.left === null) {
+      nodes.current.update({
+        id: currentNode.id,
+        color: { background: colors.yellowSwap },
+      });
+
+      snapshot();
+
+      nodes.current.update({
+        id: currentNode.id,
+        color: { background: colors.defaultBlue },
+      });
+
+      snapshot();
+
       return { animationStates, minValue };
     }
 
