@@ -46,8 +46,6 @@ const BSTVisualizer = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isInserting, setIsInserting] = useState(false);
   const [speed, setSpeed] = useState(500);
-  const [maxValue, setMaxValue] = useState<number | null>(null);
-  const [minValue, setMinValue] = useState<number | null>(null);
   const [inOrder, setInOrder] = useState<number | null>(null);
 
   useEffect(() => {
@@ -222,7 +220,6 @@ const BSTVisualizer = () => {
                   network,
                 );
                 setAnimationStates(animationStates || []);
-                setMaxValue(maxValue);
                 setIsPlaying(true);
                 setIsInserting(true);
                 setCurrentStep(0);
@@ -251,7 +248,6 @@ const BSTVisualizer = () => {
                   network,
                 );
                 setAnimationStates(animationStates || []);
-                setMinValue(minValue);
                 setIsPlaying(true);
                 setIsInserting(true);
                 setCurrentStep(0);
