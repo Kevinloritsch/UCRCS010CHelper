@@ -267,78 +267,83 @@ const BSTVisualizer = () => {
             Smallest
           </button>
 
-          <div className="flex flex-grow justify-end mr-8 my-2">
-            <div className="bg-green-600 rounded">
-            <button onClick={() => setIsPlaying(!isPlaying)} className="mx-3">
-              {isPlaying ? <Pause color="white" fill="white" /> : <Play color="white" fill="white" />}
-            </button>
-            <button
-              onClick={() => {
-                setIsPlaying(true);
-                setIsInserting(true);
-                setCurrentStep(0);
-              }}
-              className="mx-3"
-            >
-              <RefreshCcw color="white" />
-            </button>
+          <div className="my-2 mr-8 flex flex-grow justify-end">
+            <div className="rounded bg-green-600">
+              <button onClick={() => setIsPlaying(!isPlaying)} className="mx-3">
+                {isPlaying ? (
+                  <Pause color="white" fill="white" />
+                ) : (
+                  <Play color="white" fill="white" />
+                )}
+              </button>
+              <button
+                onClick={() => {
+                  setIsPlaying(true);
+                  setIsInserting(true);
+                  setCurrentStep(0);
+                }}
+                className="mx-3"
+              >
+                <RefreshCcw color="white" />
+              </button>
 
-            <button
-              onClick={() => {
-                setSpeed((prevSpeed) => Math.min(prevSpeed * 2, 1000));
-              }}
-              className="mx-3"
-            >
-              <FastForward color="white" fill="white" style={{ transform: "rotate(180deg)" }} />
-            </button>
+              <button
+                onClick={() => {
+                  setSpeed((prevSpeed) => Math.min(prevSpeed * 2, 1000));
+                }}
+                className="mx-3"
+              >
+                <FastForward
+                  color="white"
+                  fill="white"
+                  style={{ transform: "rotate(180deg)" }}
+                />
+              </button>
 
-            <button
-              onClick={() => {
-                setSpeed((prevSpeed) => Math.max(prevSpeed / 2, 30));
-              }}
-              className="mx-3"
-            >
-              <FastForward color="white" fill="white" />
-            </button>
+              <button
+                onClick={() => {
+                  setSpeed((prevSpeed) => Math.max(prevSpeed / 2, 30));
+                }}
+                className="mx-3"
+              >
+                <FastForward color="white" fill="white" />
+              </button>
             </div>
-
-            
           </div>
         </div>
       </div>
 
-      <div className="mx-3 rounded border px-2 w-[98%]">
+      <div className="mx-3 w-[98%] rounded border px-2">
         <div className="flex">
           <div>PRINT</div>
-        <button
-          className={`relative m-3 flex flex-col items-center rounded border px-4 py-2 ${
-            isInserting ? "cursor-not-allowed opacity-50" : "cursor-pointer"
-          }`}
-          onClick={async () => {
-            if (network) {
-              const { animationStates, inOrder } = await inOrderTraversal(
-                root,
-                nodes,
-                edges,
-                network,
-              );
-              setAnimationStates(animationStates || []);
-              setInOrder(inOrder);
-              setIsPlaying(true);
-              setIsInserting(true);
-              setCurrentStep(0);
-            }
-          }}
-          disabled={isInserting}
-        >
-          {isInserting && (
-            <div className="absolute flex h-6 w-6 items-center justify-center rounded-full bg-red-500">
-              <span className="font-bold text-white">|</span>
-            </div>
-          )}
-          In Order Traversal
-        </button>
-
+          <button
+            className={`relative m-3 flex flex-col items-center rounded border px-4 py-2 ${
+              isInserting ? "cursor-not-allowed opacity-50" : "cursor-pointer"
+            }`}
+            onClick={async () => {
+              if (network) {
+                const { animationStates, inOrder } = await inOrderTraversal(
+                  root,
+                  nodes,
+                  edges,
+                  network,
+                );
+                setAnimationStates(animationStates || []);
+                setInOrder(inOrder);
+                setIsPlaying(true);
+                setIsInserting(true);
+                setCurrentStep(0);
+              }
+            }}
+            disabled={isInserting}
+          >
+            {isInserting && (
+              <div className="absolute flex h-6 w-6 items-center justify-center rounded-full bg-red-500">
+                <span className="font-bold text-white">|</span>
+              </div>
+            )}
+            In Order Traversal
+          </button>
         </div>
         <div> In Order Traversal: {inOrder !== null ? inOrder : "None"}</div>
       </div>
