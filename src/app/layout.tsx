@@ -24,7 +24,7 @@ export default function RootLayout({ children }: LayoutProps) {
           {" "}
           <SidebarProvider>
             <AppSidebar />
-            <main>
+            <main className="w-full">
               <SidebarTrigger />
               {children}
             </main>
