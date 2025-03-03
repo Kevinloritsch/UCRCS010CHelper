@@ -1,4 +1,4 @@
-name: ACM UCR Website
+name: 10C UCR Website
 on:
   pull_request:
     branches: [main, dev]
