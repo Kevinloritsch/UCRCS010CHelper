@@ -156,9 +156,9 @@ const BSTVisualizer = () => {
           }`}
           onClick={async () => {
             console.log("hi");
-            let arr = [];
+            const arr = [];
             while (arr.length < 10) {
-              var r = Math.floor(Math.random() * 300) - 149;
+              const r = Math.floor(Math.random() * 300) - 149;
               if (arr.indexOf(r) === -1) arr.push(r);
             }
             let counter = 0;
