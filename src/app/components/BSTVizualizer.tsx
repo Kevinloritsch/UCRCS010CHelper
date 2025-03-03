@@ -5,6 +5,9 @@ import { removeNode } from "@/utils/BSTFunctions/removeBST";
 import { maxNode } from "@/utils/BSTFunctions/maxBST";
 import { minNode } from "@/utils/BSTFunctions/minBST";
 import { inOrderTraversal } from "@/utils/BSTFunctions/inOrderBST";
+import { preOrderTraversal } from "@/utils/BSTFunctions/preOrderBST";
+import { postOrderTraversal } from "@/utils/BSTFunctions/postOrderBST";
+
 import { Play, Pause, RefreshCcw, FastForward } from "lucide-react";
 
 import {
@@ -46,7 +49,7 @@ const BSTVisualizer = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isInserting, setIsInserting] = useState(false);
   const [speed, setSpeed] = useState(500);
-  const [inOrder, setInOrder] = useState<number | null>(null);
+  const [printValue, setPrintValue] = useState<string | null>(null);
 
   useEffect(() => {
     if (networkContainer.current) {
@@ -342,14 +345,17 @@ const BSTVisualizer = () => {
             }`}
             onClick={async () => {
               if (network) {
-                const { animationStates, inOrder } = await inOrderTraversal(
-                  root,
+                const { animationStates, printValue } = await preOrderTraversal(
+                  1,
                   nodes,
                   edges,
                   network,
                 );
                 setAnimationStates(animationStates || []);
-                setInOrder(inOrder);
+                if (printValue) {
+                  const trimmedValue = printValue.replace(/,\s*$/, "");
+                  setPrintValue("Post Order: " + trimmedValue);
+                }
                 setIsPlaying(true);
                 setIsInserting(true);
                 setCurrentStep(0);
@@ -362,10 +368,68 @@ const BSTVisualizer = () => {
                 <span className="font-bold text-white">|</span>
               </div>
             )}
-            In Order Traversal
+            Pre Order
+          </button>
+          <button
+            className={`relative m-3 flex flex-col items-center rounded border px-4 py-2 ${
+              isInserting ? "cursor-not-allowed opacity-50" : "cursor-pointer"
+            }`}
+            onClick={async () => {
+              if (network) {
+                const { animationStates, printValue } = await inOrderTraversal(
+                  1,
+                  nodes,
+                  edges,
+                  network,
+                );
+                setAnimationStates(animationStates || []);
+                if (printValue) {
+                  const trimmedValue = printValue.replace(/,\s*$/, "");
+                  setPrintValue("Post Order: " + trimmedValue);
+                }
+                setIsPlaying(true);
+                setIsInserting(true);
+                setCurrentStep(0);
+              }
+            }}
+            disabled={isInserting}
+          >
+            {isInserting && (
+              <div className="absolute flex h-6 w-6 items-center justify-center rounded-full bg-red-500">
+                <span className="font-bold text-white">|</span>
+              </div>
+            )}
+            In Order
+          </button>
+          <button
+            className={`relative m-3 flex flex-col items-center rounded border px-4 py-2 ${
+              isInserting ? "cursor-not-allowed opacity-50" : "cursor-pointer"
+            }`}
+            onClick={async () => {
+              if (network) {
+                const { animationStates, printValue } =
+                  await postOrderTraversal(1, nodes, edges, network);
+                if (printValue) {
+                  const trimmedValue = printValue.replace(/,\s*$/, "");
+                  setPrintValue("Post Order: " + trimmedValue);
+                }
+                setAnimationStates(animationStates || []);
+                setIsPlaying(true);
+                setIsInserting(true);
+                setCurrentStep(0);
+              }
+            }}
+            disabled={isInserting}
+          >
+            {isInserting && (
+              <div className="absolute flex h-6 w-6 items-center justify-center rounded-full bg-red-500">
+                <span className="font-bold text-white">|</span>
+              </div>
+            )}
+            Post Order
           </button>
         </div>
-        <div> In Order Traversal: {inOrder !== null ? inOrder : "None"}</div>
+        <div> Traversal: {printValue !== null ? printValue : ""}</div>
       </div>
     </div>
   );

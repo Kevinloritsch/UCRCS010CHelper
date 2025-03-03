@@ -5,7 +5,7 @@ import {
 import { TreeNode } from "@/app/components/BSTVizualizer";
 import colors from "@/styles/colors";
 
-export const inOrderTraversal = async (
+export const preOrderTraversal = async (
   nodeId: number,
   nodes: React.MutableRefObject<DataSet<TreeNode>>,
   edges: React.MutableRefObject<
@@ -58,18 +58,6 @@ export const inOrderTraversal = async (
 
   snapshot();
 
-  if (currentNode.left !== null) {
-    const recursiveStates = await inOrderTraversal(
-      currentNode.left,
-      nodes,
-      edges,
-      network,
-    );
-    console.log(recursiveStates.animationStates);
-    animationStates = animationStates.concat(recursiveStates.animationStates);
-    printValue += recursiveStates.printValue;
-  }
-
   nodes.current.update({
     id: currentNode.id,
     color: { background: colors.yellowSwap },
@@ -86,8 +74,20 @@ export const inOrderTraversal = async (
 
   printValue += currentNode.value + ", ";
 
+  if (currentNode.left !== null) {
+    const recursiveStates = await preOrderTraversal(
+      currentNode.left,
+      nodes,
+      edges,
+      network,
+    );
+    console.log(recursiveStates.animationStates);
+    animationStates = animationStates.concat(recursiveStates.animationStates);
+    printValue += recursiveStates.printValue;
+  }
+
   if (currentNode.right !== null) {
-    const recursiveStates = await inOrderTraversal(
+    const recursiveStates = await preOrderTraversal(
       currentNode.right,
       nodes,
       edges,

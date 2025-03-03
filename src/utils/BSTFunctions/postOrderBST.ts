@@ -5,7 +5,7 @@ import {
 import { TreeNode } from "@/app/components/BSTVizualizer";
 import colors from "@/styles/colors";
 
-export const inOrderTraversal = async (
+export const postOrderTraversal = async (
   nodeId: number,
   nodes: React.MutableRefObject<DataSet<TreeNode>>,
   edges: React.MutableRefObject<
@@ -59,7 +59,7 @@ export const inOrderTraversal = async (
   snapshot();
 
   if (currentNode.left !== null) {
-    const recursiveStates = await inOrderTraversal(
+    const recursiveStates = await postOrderTraversal(
       currentNode.left,
       nodes,
       edges,
@@ -67,6 +67,19 @@ export const inOrderTraversal = async (
     );
     console.log(recursiveStates.animationStates);
     animationStates = animationStates.concat(recursiveStates.animationStates);
+    printValue += recursiveStates.printValue;
+  }
+
+  if (currentNode.right !== null) {
+    const recursiveStates = await postOrderTraversal(
+      currentNode.right,
+      nodes,
+      edges,
+      network,
+    );
+
+    animationStates = animationStates.concat(recursiveStates.animationStates);
+
     printValue += recursiveStates.printValue;
   }
 
@@ -85,19 +98,6 @@ export const inOrderTraversal = async (
   snapshot();
 
   printValue += currentNode.value + ", ";
-
-  if (currentNode.right !== null) {
-    const recursiveStates = await inOrderTraversal(
-      currentNode.right,
-      nodes,
-      edges,
-      network,
-    );
-
-    animationStates = animationStates.concat(recursiveStates.animationStates);
-
-    printValue += recursiveStates.printValue;
-  }
 
   return { animationStates, printValue };
 };
