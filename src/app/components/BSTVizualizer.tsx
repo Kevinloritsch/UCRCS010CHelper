@@ -96,7 +96,7 @@ const BSTVisualizer = () => {
       )
         network.selectNodes([root.current.id]);
 
-        if(currentStep%25 == 0) network?.stabilize();
+      if (currentStep % 25 == 0) network?.stabilize();
 
       if (
         currentStep == animationStates.length - 1 &&
@@ -142,32 +142,31 @@ const BSTVisualizer = () => {
         Binary Search Tree Visualizer
       </h1>
       <div className="flex">
-      <input
-        type="number"
-        className="border-1 m-2 border border-black"
-        value={value}
-        onChange={(e) => setValue(e.target.value)}
-        placeholder="Enter Value Here"
-      />
+        <input
+          type="number"
+          className="border-1 m-2 border border-black"
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          placeholder="Enter Value Here"
+        />
 
-<button
+        <button
           className={`relative m-3 flex flex-col items-center rounded border px-4 py-2 ${
             isInserting ? "cursor-not-allowed opacity-50" : "cursor-pointer"
           }`}
           onClick={async () => {
-            console.log("hi")
+            console.log("hi");
             var arr = [];
-            while(arr.length < 10){
-                var r = Math.floor(Math.random() * 300) - 149;
-                if(arr.indexOf(r) === -1) arr.push(r);
+            while (arr.length < 10) {
+              var r = Math.floor(Math.random() * 300) - 149;
+              if (arr.indexOf(r) === -1) arr.push(r);
             }
             let counter = 0;
             let newAnimationStates: {
               nodes: TreeNode[];
               edges: { id?: number; from: number; to: number }[];
             }[] = [];
-            while(counter < arr.length) {
-              
+            while (counter < arr.length) {
               let states = await insertNode(
                 arr[counter],
                 root,
@@ -178,7 +177,8 @@ const BSTVisualizer = () => {
                 network,
               );
               newAnimationStates = newAnimationStates.concat(states);
-              const lastValue = newAnimationStates[newAnimationStates.length - 1];
+              const lastValue =
+                newAnimationStates[newAnimationStates.length - 1];
 
               const { nodes: newNodes, edges: newEdges } = lastValue;
               nodes.current.clear();
@@ -193,8 +193,8 @@ const BSTVisualizer = () => {
             setIsPlaying(true);
             setIsInserting(true);
             setCurrentStep(0);
-            console.log(arr)
-            console.log(newAnimationStates)
+            console.log(arr);
+            console.log(newAnimationStates);
           }}
           disabled={isInserting}
         >
@@ -207,32 +207,30 @@ const BSTVisualizer = () => {
         </button>
 
         <button
-  onClick={() => {
-    nodes.current.clear();
-    edges.current.clear();
+          onClick={() => {
+            nodes.current.clear();
+            edges.current.clear();
 
-    root.current = null;
-    maxNodeId.current = 0;
-    maxEdgeId.current = 0;
+            root.current = null;
+            maxNodeId.current = 0;
+            maxEdgeId.current = 0;
 
-    setAnimationStates([]);
-    setCurrentStep(0);
-    setIsPlaying(false);
-    setIsInserting(false);
-    setPrintValue(null);
+            setAnimationStates([]);
+            setCurrentStep(0);
+            setIsPlaying(false);
+            setIsInserting(false);
+            setPrintValue(null);
 
-    if (network) {
-      network.setData({ nodes: nodes.current, edges: edges.current });
-      network.redraw();
-    }
-  }}
-  className="mx-3"
->
-  <Trash2 color="black" style={{ transform: "rotate(360deg)" }} />
-</button>
-
-
-        </div>
+            if (network) {
+              network.setData({ nodes: nodes.current, edges: edges.current });
+              network.redraw();
+            }
+          }}
+          className="mx-3"
+        >
+          <Trash2 color="black" style={{ transform: "rotate(360deg)" }} />
+        </button>
+      </div>
       <div className="flex">
         <button
           className={`relative m-3 flex flex-col items-center rounded border px-4 py-2 ${
