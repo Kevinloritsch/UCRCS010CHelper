@@ -8,7 +8,7 @@ import { inOrderTraversal } from "@/utils/BSTFunctions/inOrderBST";
 import { preOrderTraversal } from "@/utils/BSTFunctions/preOrderBST";
 import { postOrderTraversal } from "@/utils/BSTFunctions/postOrderBST";
 
-import { Play, Pause, RefreshCcw, FastForward } from "lucide-react";
+import { Play, Pause, RefreshCcw, FastForward, Trash2 } from "lucide-react";
 
 import {
   DataSet,
@@ -96,6 +96,8 @@ const BSTVisualizer = () => {
       )
         network.selectNodes([root.current.id]);
 
+      if (currentStep % 25 == 0) network?.stabilize();
+
       if (
         currentStep == animationStates.length - 1 &&
         network &&
@@ -139,13 +141,96 @@ const BSTVisualizer = () => {
       <h1 className="m-2 text-center text-2xl">
         Binary Search Tree Visualizer
       </h1>
-      <input
-        type="number"
-        className="border-1 m-2 border border-black"
-        value={value}
-        onChange={(e) => setValue(e.target.value)}
-        placeholder="Enter Value Here"
-      />
+      <div className="flex">
+        <input
+          type="number"
+          className="border-1 m-2 border border-black"
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          placeholder="Enter Value Here"
+        />
+
+        <button
+          className={`relative m-3 flex flex-col items-center rounded border px-4 py-2 ${
+            isInserting ? "cursor-not-allowed opacity-50" : "cursor-pointer"
+          }`}
+          onClick={async () => {
+            console.log("hi");
+            const arr = [];
+            while (arr.length < 10) {
+              const r = Math.floor(Math.random() * 300) - 149;
+              if (arr.indexOf(r) === -1) arr.push(r);
+            }
+            let counter = 0;
+            let newAnimationStates: {
+              nodes: TreeNode[];
+              edges: { id?: number; from: number; to: number }[];
+            }[] = [];
+            while (counter < arr.length) {
+              const states = await insertNode(
+                arr[counter],
+                root,
+                nodes,
+                edges,
+                maxNodeId,
+                maxEdgeId,
+                network,
+              );
+              newAnimationStates = newAnimationStates.concat(states);
+              const lastValue =
+                newAnimationStates[newAnimationStates.length - 1];
+
+              const { nodes: newNodes, edges: newEdges } = lastValue;
+              nodes.current.clear();
+              edges.current.clear();
+              nodes.current.add(newNodes);
+              edges.current.add(newEdges);
+
+              counter = counter + 1;
+            }
+
+            setAnimationStates(newAnimationStates || []);
+            setIsPlaying(true);
+            setIsInserting(true);
+            setCurrentStep(0);
+            console.log(arr);
+            console.log(newAnimationStates);
+          }}
+          disabled={isInserting}
+        >
+          {isInserting && (
+            <div className="absolute flex h-6 w-6 items-center justify-center rounded-full bg-red-500">
+              <span className="font-bold text-white">|</span>
+            </div>
+          )}
+          Insert Many
+        </button>
+
+        <button
+          onClick={() => {
+            nodes.current.clear();
+            edges.current.clear();
+
+            root.current = null;
+            maxNodeId.current = 0;
+            maxEdgeId.current = 0;
+
+            setAnimationStates([]);
+            setCurrentStep(0);
+            setIsPlaying(false);
+            setIsInserting(false);
+            setPrintValue(null);
+
+            if (network) {
+              network.setData({ nodes: nodes.current, edges: edges.current });
+              network.redraw();
+            }
+          }}
+          className="mx-3"
+        >
+          <Trash2 color="black" style={{ transform: "rotate(360deg)" }} />
+        </button>
+      </div>
       <div className="flex">
         <button
           className={`relative m-3 flex flex-col items-center rounded border px-4 py-2 ${
@@ -154,7 +239,7 @@ const BSTVisualizer = () => {
           onClick={async () => {
             if (network) {
               const newAnimationStates = await insertNode(
-                parseInt(value),
+                parseFloat(value),
                 root,
                 nodes,
                 edges,
@@ -188,7 +273,7 @@ const BSTVisualizer = () => {
             if (network) {
               const newAnimationStates = await removeNode(
                 1,
-                parseInt(value),
+                parseFloat(value),
                 0,
                 root,
                 nodes,
@@ -214,13 +299,13 @@ const BSTVisualizer = () => {
 
       <br />
 
-      <div className="min-h-[400px]">
+      <div className="min-h-[500px]">
         <div className="flex place-content-center">
           <div
             ref={networkContainer}
             style={{
               width: "98%",
-              height: "400px",
+              height: "500px",
               border: "1px solid lightgray",
             }}
             className="absolute"
