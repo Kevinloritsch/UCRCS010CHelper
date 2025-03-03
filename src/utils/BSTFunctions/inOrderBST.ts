@@ -41,7 +41,7 @@ export const inOrderTraversal = async (
     return { animationStates, printValue: null };
   }
 
-  let currentNode = tempRoot;
+  const currentNode = tempRoot;
   let printValue = "";
 
   nodes.current.update({
