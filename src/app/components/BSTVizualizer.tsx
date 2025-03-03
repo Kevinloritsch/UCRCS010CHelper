@@ -156,7 +156,7 @@ const BSTVisualizer = () => {
           }`}
           onClick={async () => {
             console.log("hi");
-            var arr = [];
+            let arr = [];
             while (arr.length < 10) {
               var r = Math.floor(Math.random() * 300) - 149;
               if (arr.indexOf(r) === -1) arr.push(r);
@@ -167,7 +167,7 @@ const BSTVisualizer = () => {
               edges: { id?: number; from: number; to: number }[];
             }[] = [];
             while (counter < arr.length) {
-              let states = await insertNode(
+              const states = await insertNode(
                 arr[counter],
                 root,
                 nodes,
