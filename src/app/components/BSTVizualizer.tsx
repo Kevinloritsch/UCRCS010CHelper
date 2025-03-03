@@ -50,6 +50,7 @@ const BSTVisualizer = () => {
   const [isInserting, setIsInserting] = useState(false);
   const [speed, setSpeed] = useState(500);
   const [printValue, setPrintValue] = useState<string | null>(null);
+  const [isPrinting, setIsPrinting] = useState(false);
 
   useEffect(() => {
     if (networkContainer.current) {
@@ -58,8 +59,15 @@ const BSTVisualizer = () => {
           networkContainer.current,
           { nodes: nodes.current, edges: edges.current },
           {
-            nodes: { shape: "circle", color: "#97C2FC" },
-            edges: { arrows: "to" },
+            nodes: {
+              shape: "circle",
+              color: { background: "#97C2FC", border: "#97C2FC" }, // Ensures no change on selection
+              size: 30,
+              scaling: { min: 30, max: 30 },
+              fixed: { x: true, y: true },
+              chosen: false, // Disables selection highlighting
+            },
+            edges: { arrows: "to", chosen: false },
             physics: { enabled: false },
             interaction: {
               dragNodes: false,
@@ -82,7 +90,18 @@ const BSTVisualizer = () => {
 
       console.log(animationStates);
 
-      if (network && animationStates[currentStep].nodes.length > 0) {
+      if (
+        network &&
+        root.current &&
+        animationStates[currentStep].nodes.length > 0
+      )
+        network.selectNodes([root.current.id]);
+
+      if (
+        currentStep == animationStates.length - 1 &&
+        network &&
+        animationStates[currentStep].nodes.length > 0
+      ) {
         network.stabilize();
         network.setOptions({ physics: false });
 
@@ -144,6 +163,7 @@ const BSTVisualizer = () => {
                 maxEdgeId,
                 network,
               );
+              setIsPrinting(false);
               setAnimationStates(newAnimationStates || []);
               setIsPlaying(true);
               setIsInserting(true);
@@ -177,6 +197,7 @@ const BSTVisualizer = () => {
                 edges,
                 network,
               );
+              setIsPrinting(false);
               setAnimationStates(newAnimationStates || []);
               setIsPlaying(true);
               setIsInserting(true);
@@ -222,6 +243,7 @@ const BSTVisualizer = () => {
                   edges,
                   network,
                 );
+                setIsPrinting(false);
                 setAnimationStates(animationStates || []);
                 setIsPlaying(true);
                 setIsInserting(true);
@@ -250,6 +272,7 @@ const BSTVisualizer = () => {
                   edges,
                   network,
                 );
+                setIsPrinting(false);
                 setAnimationStates(animationStates || []);
                 setIsPlaying(true);
                 setIsInserting(true);
@@ -354,8 +377,9 @@ const BSTVisualizer = () => {
                 setAnimationStates(animationStates || []);
                 if (printValue) {
                   const trimmedValue = printValue.replace(/,\s*$/, "");
-                  setPrintValue("Post Order: " + trimmedValue);
+                  setPrintValue("Pre Order: " + trimmedValue);
                 }
+                setIsPrinting(true);
                 setIsPlaying(true);
                 setIsInserting(true);
                 setCurrentStep(0);
@@ -385,8 +409,9 @@ const BSTVisualizer = () => {
                 setAnimationStates(animationStates || []);
                 if (printValue) {
                   const trimmedValue = printValue.replace(/,\s*$/, "");
-                  setPrintValue("Post Order: " + trimmedValue);
+                  setPrintValue("In Order: " + trimmedValue);
                 }
+                setIsPrinting(true);
                 setIsPlaying(true);
                 setIsInserting(true);
                 setCurrentStep(0);
@@ -413,6 +438,7 @@ const BSTVisualizer = () => {
                   const trimmedValue = printValue.replace(/,\s*$/, "");
                   setPrintValue("Post Order: " + trimmedValue);
                 }
+                setIsPrinting(true);
                 setAnimationStates(animationStates || []);
                 setIsPlaying(true);
                 setIsInserting(true);
