@@ -29,12 +29,12 @@ export const insertNode = async (
     const currentEdges = [...edges.current.get()];
     if (network) {
       network.stabilize();
-      if (root.current) {
-        network.selectNodes([root.current.id]);
-        network.selectNodes([]);
-        network.selectEdges([]);
-      }
-      network.setOptions({ physics: false });
+      // if (root.current) {
+      //   network.selectNodes([root.current.id]);
+      //   network.selectNodes([]);
+      //   network.selectEdges([]);
+      // }
+      // network.setOptions({ physics: false });
     }
     animationStates.push({ nodes: currentNodes, edges: currentEdges });
   };
