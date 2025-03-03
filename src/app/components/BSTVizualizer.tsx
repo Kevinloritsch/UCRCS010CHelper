@@ -50,7 +50,6 @@ const BSTVisualizer = () => {
   const [isInserting, setIsInserting] = useState(false);
   const [speed, setSpeed] = useState(500);
   const [printValue, setPrintValue] = useState<string | null>(null);
-  const [isPrinting, setIsPrinting] = useState(false);
 
   useEffect(() => {
     if (networkContainer.current) {
@@ -163,7 +162,6 @@ const BSTVisualizer = () => {
                 maxEdgeId,
                 network,
               );
-              setIsPrinting(false);
               setAnimationStates(newAnimationStates || []);
               setIsPlaying(true);
               setIsInserting(true);
@@ -197,7 +195,6 @@ const BSTVisualizer = () => {
                 edges,
                 network,
               );
-              setIsPrinting(false);
               setAnimationStates(newAnimationStates || []);
               setIsPlaying(true);
               setIsInserting(true);
@@ -243,7 +240,6 @@ const BSTVisualizer = () => {
                   edges,
                   network,
                 );
-                setIsPrinting(false);
                 setAnimationStates(animationStates || []);
                 setIsPlaying(true);
                 setIsInserting(true);
@@ -272,7 +268,6 @@ const BSTVisualizer = () => {
                   edges,
                   network,
                 );
-                setIsPrinting(false);
                 setAnimationStates(animationStates || []);
                 setIsPlaying(true);
                 setIsInserting(true);
@@ -379,7 +374,6 @@ const BSTVisualizer = () => {
                   const trimmedValue = printValue.replace(/,\s*$/, "");
                   setPrintValue("Pre Order: " + trimmedValue);
                 }
-                setIsPrinting(true);
                 setIsPlaying(true);
                 setIsInserting(true);
                 setCurrentStep(0);
@@ -411,7 +405,6 @@ const BSTVisualizer = () => {
                   const trimmedValue = printValue.replace(/,\s*$/, "");
                   setPrintValue("In Order: " + trimmedValue);
                 }
-                setIsPrinting(true);
                 setIsPlaying(true);
                 setIsInserting(true);
                 setCurrentStep(0);
@@ -438,7 +431,6 @@ const BSTVisualizer = () => {
                   const trimmedValue = printValue.replace(/,\s*$/, "");
                   setPrintValue("Post Order: " + trimmedValue);
                 }
-                setIsPrinting(true);
                 setAnimationStates(animationStates || []);
                 setIsPlaying(true);
                 setIsInserting(true);
