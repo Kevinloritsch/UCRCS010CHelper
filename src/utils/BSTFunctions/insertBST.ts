@@ -1,6 +1,5 @@
 import {
   DataSet,
-  Network,
 } from "vis-network/standalone/umd/vis-network.min.js";
 import { TreeNode } from "@/app/components/BSTVizualizer";
 import colors from "@/styles/colors";
@@ -105,8 +104,6 @@ export const insertNode = async (
   const newY = currentNode!.y + 100;
 
   const newId = ++maxNodeId.current;
-
-  let label = value + "";
 
   const newNode: TreeNode = {
     id: newId,

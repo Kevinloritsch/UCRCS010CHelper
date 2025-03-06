@@ -287,7 +287,7 @@ const BSTVisualizer = () => {
             isInserting ? "cursor-not-allowed opacity-50" : "cursor-pointer"
           }`}
           onClick={async () => {
-            let valueToInsert =
+            const valueToInsert =
               !intOrLetter && /^[A-Z]$/.test(value)
                 ? value.charCodeAt(0) - 64
                 : parseFloat(value);
@@ -295,7 +295,7 @@ const BSTVisualizer = () => {
             if (network) {
               // console.log()
               const newAnimationStates = await insertNode(
-                parseFloat(valueToInsert),
+                valueToInsert,
                 root,
                 nodes,
                 edges,
