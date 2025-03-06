@@ -42,11 +42,9 @@ export const insertNode = async (
       y: 0,
       label: "",
     };
-    if(!intOrLetter) {
+    if (!intOrLetter) {
       newNode.label = String.fromCharCode(value + 64);
-      
-    }
-    else {
+    } else {
       newNode.label = value.toString();
     }
     root.current = newNode;
@@ -120,15 +118,11 @@ export const insertNode = async (
     label: "",
   };
 
-
-  if(!intOrLetter) {
+  if (!intOrLetter) {
     newNode.label = String.fromCharCode(value + 64);
-    
-  }
-  else {
+  } else {
     newNode.label = value.toString();
   }
-
 
   nodes.current.add(newNode);
 
