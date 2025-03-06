@@ -1,6 +1,4 @@
-import {
-  DataSet,
-} from "vis-network/standalone/umd/vis-network.min.js";
+import { DataSet } from "vis-network/standalone/umd/vis-network.min.js";
 import { TreeNode } from "@/app/components/BSTVizualizer";
 import colors from "@/styles/colors";
 
