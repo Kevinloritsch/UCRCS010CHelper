@@ -17,7 +17,7 @@ export const insertNode = async (
   >,
   maxNodeId: React.MutableRefObject<number>,
   maxEdgeId: React.MutableRefObject<number>,
-  network: Network | null,
+  intOrLetter: boolean,
 ) => {
   const animationStates: {
     nodes: TreeNode[];
@@ -27,15 +27,6 @@ export const insertNode = async (
   const snapshot = () => {
     const currentNodes = [...nodes.current.get()];
     const currentEdges = [...edges.current.get()];
-    if (network) {
-      network.stabilize();
-      // if (root.current) {
-      //   network.selectNodes([root.current.id]);
-      //   network.selectNodes([]);
-      //   network.selectEdges([]);
-      // }
-      // network.setOptions({ physics: false });
-    }
     animationStates.push({ nodes: currentNodes, edges: currentEdges });
   };
 
@@ -49,8 +40,15 @@ export const insertNode = async (
       right: null,
       x: 0,
       y: 0,
-      label: value.toString(),
+      label: "",
     };
+    if(!intOrLetter) {
+      newNode.label = String.fromCharCode(value + 64);
+      
+    }
+    else {
+      newNode.label = value.toString();
+    }
     root.current = newNode;
     nodes.current.add(newNode);
     ++maxNodeId.current;
@@ -109,6 +107,9 @@ export const insertNode = async (
   const newY = currentNode!.y + 100;
 
   const newId = ++maxNodeId.current;
+
+  let label = value + "";
+
   const newNode: TreeNode = {
     id: newId,
     value,
@@ -116,8 +117,18 @@ export const insertNode = async (
     right: null,
     x: newX,
     y: newY,
-    label: value.toString(),
+    label: "",
   };
+
+
+  if(!intOrLetter) {
+    newNode.label = String.fromCharCode(value + 64);
+    
+  }
+  else {
+    newNode.label = value.toString();
+  }
+
 
   nodes.current.add(newNode);
 

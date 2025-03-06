@@ -72,7 +72,7 @@ export const preOrderTraversal = async (
 
   snapshot();
 
-  printValue += currentNode.value + ", ";
+  printValue += currentNode.label + ", ";
 
   if (currentNode.left !== null) {
     const recursiveStates = await preOrderTraversal(

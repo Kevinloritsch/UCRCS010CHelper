@@ -84,7 +84,7 @@ export const inOrderTraversal = async (
 
   snapshot();
 
-  printValue += currentNode.value + ", ";
+  printValue += currentNode.label + ", ";
 
   if (currentNode.right !== null) {
     const recursiveStates = await inOrderTraversal(
