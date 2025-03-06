@@ -50,6 +50,7 @@ const BSTVisualizer = () => {
   const [isInserting, setIsInserting] = useState(false);
   const [speed, setSpeed] = useState(500);
   const [printValue, setPrintValue] = useState<string | null>(null);
+  const [intOrLetter, setIntOrLetter] = useState(true);
 
   useEffect(() => {
     if (networkContainer.current) {
@@ -60,11 +61,11 @@ const BSTVisualizer = () => {
           {
             nodes: {
               shape: "circle",
-              color: { background: "#97C2FC", border: "#97C2FC" }, // Ensures no change on selection
+              color: { background: "#97C2FC", border: "#97C2FC" },
               size: 30,
               scaling: { min: 30, max: 30 },
               fixed: { x: true, y: true },
-              chosen: false, // Disables selection highlighting
+              chosen: false,
             },
             edges: { arrows: "to", chosen: false },
             physics: { enabled: false },
@@ -143,11 +144,27 @@ const BSTVisualizer = () => {
       </h1>
       <div className="flex">
         <input
-          type="number"
+          type={intOrLetter ? "number" : "text"} // Toggle between 'number' and 'text'
           className="border-1 m-2 border border-black"
           value={value}
-          onChange={(e) => setValue(e.target.value)}
-          placeholder="Enter Value Here"
+          onChange={(e) => {
+            const newValue = e.target.value;
+
+            if (intOrLetter) {
+              // Allow only integers when intOrLetter is true
+              if (/^\d*\.?\d*$/.test(newValue)) {
+                setValue(newValue);
+              }
+            } else {
+              // Allow only a single letter when intOrLetter is false
+              if (newValue.length <= 1 && /^[a-zA-Z]*$/.test(newValue)) {
+                setValue(newValue.toUpperCase()); // Auto capitalize
+              }
+            }
+          }}
+          placeholder={
+            intOrLetter ? "Enter Integer Here" : "Enter Single Letter Here"
+          }
         />
 
         <button
@@ -155,11 +172,15 @@ const BSTVisualizer = () => {
             isInserting ? "cursor-not-allowed opacity-50" : "cursor-pointer"
           }`}
           onClick={async () => {
-            console.log("hi");
             const arr = [];
             while (arr.length < 10) {
-              const r = Math.floor(Math.random() * 300) - 149;
-              if (arr.indexOf(r) === -1) arr.push(r);
+              if (intOrLetter) {
+                const r = Math.floor(Math.random() * 300) - 149;
+                if (arr.indexOf(r) === -1) arr.push(r);
+              } else {
+                const r = Math.floor(Math.random() * 25) + 1;
+                if (arr.indexOf(r) === -1) arr.push(r);
+              }
             }
             let counter = 0;
             let newAnimationStates: {
@@ -174,7 +195,7 @@ const BSTVisualizer = () => {
                 edges,
                 maxNodeId,
                 maxEdgeId,
-                network,
+                intOrLetter,
               );
               newAnimationStates = newAnimationStates.concat(states);
               const lastValue =
@@ -193,8 +214,7 @@ const BSTVisualizer = () => {
             setIsPlaying(true);
             setIsInserting(true);
             setCurrentStep(0);
-            console.log(arr);
-            console.log(newAnimationStates);
+            setValue("");
           }}
           disabled={isInserting}
         >
@@ -204,6 +224,35 @@ const BSTVisualizer = () => {
             </div>
           )}
           Insert Many
+        </button>
+
+        <button
+          onClick={async () => {
+            setIntOrLetter(!intOrLetter);
+
+            nodes.current.clear();
+            edges.current.clear();
+
+            root.current = null;
+            maxNodeId.current = 0;
+            maxEdgeId.current = 0;
+
+            setAnimationStates([]);
+            setCurrentStep(0);
+            setIsPlaying(false);
+            setIsInserting(false);
+            setPrintValue(null);
+            setValue("");
+
+            if (network) {
+              network.setData({ nodes: nodes.current, edges: edges.current });
+              network.redraw();
+            }
+            console.log("clicked");
+            // Any async tasks can go here
+          }}
+        >
+          Toggle Input Type
         </button>
 
         <button
@@ -220,6 +269,7 @@ const BSTVisualizer = () => {
             setIsPlaying(false);
             setIsInserting(false);
             setPrintValue(null);
+            setValue("");
 
             if (network) {
               network.setData({ nodes: nodes.current, edges: edges.current });
@@ -237,20 +287,27 @@ const BSTVisualizer = () => {
             isInserting ? "cursor-not-allowed opacity-50" : "cursor-pointer"
           }`}
           onClick={async () => {
+            const valueToInsert =
+              !intOrLetter && /^[A-Z]$/.test(value)
+                ? value.charCodeAt(0) - 64
+                : parseFloat(value);
+            console.log(valueToInsert);
             if (network) {
+              // console.log()
               const newAnimationStates = await insertNode(
-                parseFloat(value),
+                valueToInsert,
                 root,
                 nodes,
                 edges,
                 maxNodeId,
                 maxEdgeId,
-                network,
+                intOrLetter,
               );
               setAnimationStates(newAnimationStates || []);
               setIsPlaying(true);
               setIsInserting(true);
               setCurrentStep(0);
+              setValue("");
             } else {
               console.error("Network is not available.");
             }
@@ -284,6 +341,7 @@ const BSTVisualizer = () => {
               setIsPlaying(true);
               setIsInserting(true);
               setCurrentStep(0);
+              setValue("");
             }
           }}
           disabled={isInserting}

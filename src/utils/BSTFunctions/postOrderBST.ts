@@ -97,7 +97,7 @@ export const postOrderTraversal = async (
 
   snapshot();
 
-  printValue += currentNode.value + ", ";
+  printValue += currentNode.label + ", ";
 
   return { animationStates, printValue };
 };
