@@ -1,9 +1,9 @@
-import BSTVizualizer from "@/components/BSTVisualizer";
+import AVLVizualizer from "@/components/AVLVisualizer";
 
 const Home = () => {
   return (
     <div>
-      <BSTVizualizer />
+      <AVLVizualizer />
     </div>
   );
 };
