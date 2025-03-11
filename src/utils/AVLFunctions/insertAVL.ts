@@ -7,7 +7,7 @@ export const sleep = (ms: number) =>
 
 export const getNodeHeight = (
   nodeId: number,
-  nodes: React.MutableRefObject<DataSet<TreeNode>>
+  nodes: React.MutableRefObject<DataSet<TreeNode>>,
 ): number => {
   const node = nodes.current.get(nodeId) as TreeNode | undefined;
   if (!node) return -1;
@@ -15,8 +15,12 @@ export const getNodeHeight = (
   const getHeight = (currentNode: TreeNode | null): number => {
     if (!currentNode) return -1;
 
-    const leftChild = currentNode.left ? nodes.current.get(currentNode.left) as TreeNode | null : null;
-    const rightChild = currentNode.right ? nodes.current.get(currentNode.right) as TreeNode | null : null;
+    const leftChild = currentNode.left
+      ? (nodes.current.get(currentNode.left) as TreeNode | null)
+      : null;
+    const rightChild = currentNode.right
+      ? (nodes.current.get(currentNode.right) as TreeNode | null)
+      : null;
 
     const leftHeight = getHeight(leftChild);
     const rightHeight = getHeight(rightChild);
@@ -30,7 +34,9 @@ export const getNodeHeight = (
 const rotateLeft = (
   nodeId: number,
   nodes: React.MutableRefObject<DataSet<TreeNode>>,
-  edges: React.MutableRefObject<DataSet<{ id?: number; from: number; to: number }>>
+  edges: React.MutableRefObject<
+    DataSet<{ id?: number; from: number; to: number }>
+  >,
 ) => {
   const tempRoot = nodes.current.get(1) as TreeNode | null;
   if (!tempRoot) {
@@ -44,7 +50,9 @@ const rotateLeft = (
   const newRoot = nodes.current.get(node.right) as TreeNode | undefined;
   if (!newRoot) return;
 
-  const parent = node.parent ? (nodes.current.get(node.parent) as TreeNode | null) : null;
+  const parent = node.parent
+    ? (nodes.current.get(node.parent) as TreeNode | null)
+    : null;
   const isLeftChild = parent ? parent.left === nodeId : false;
 
   node.right = newRoot.left;
@@ -88,27 +96,33 @@ const rotateLeft = (
     if (rightChild) {
       rightChild.x = newRoot.x + xOffset;
       rightChild.y = newRoot.y + 100;
-      nodes.current.update({ id: rightChild.id, x: rightChild.x, y: rightChild.y });
+      nodes.current.update({
+        id: rightChild.id,
+        x: rightChild.x,
+        y: rightChild.y,
+      });
     }
   }
 
   nodes.current.update([
-    { id: node.id, parent: node.parent, right: node.right, x: node.x, y: node.y },
-    { id: newRoot.id, parent: newRoot.parent, left: newRoot.left, x: newRoot.x, y: newRoot.y }
+    {
+      id: node.id,
+      parent: node.parent,
+      right: node.right,
+      x: node.x,
+      y: node.y,
+    },
+    {
+      id: newRoot.id,
+      parent: newRoot.parent,
+      left: newRoot.left,
+      x: newRoot.x,
+      y: newRoot.y,
+    },
   ]);
-  
 
   console.log(`Performed left rotation on node ${nodeId}`);
 };
-
-
-
-
-
-
-
-
-
 
 export const insertNode = async (
   value: number,
@@ -227,7 +241,10 @@ export const insertNode = async (
   snapshot();
 
   // Update balance factors and check for imbalance
-  let parentNode = parentId !== null ? nodes.current.get(parentId) as TreeNode | undefined : undefined;
+  let parentNode =
+    parentId !== null
+      ? (nodes.current.get(parentId) as TreeNode | undefined)
+      : undefined;
   while (parentNode) {
     const leftHeight = parentNode.left
       ? getNodeHeight(parentNode.left, nodes)
@@ -242,7 +259,9 @@ export const insertNode = async (
 
     // If the balance factor indicates a right-heavy imbalance, perform left rotation
     if (parentNodeBf > 1) {
-      console.log(`Imbalance detected at node ${parentNode.value}, performing left rotation.`);
+      console.log(
+        `Imbalance detected at node ${parentNode.value}, performing left rotation.`,
+      );
       rotateLeft(parentNode.id, nodes, edges);
       snapshot();
     }
