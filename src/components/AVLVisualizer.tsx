@@ -20,6 +20,7 @@ export type TreeNode = {
   value: number;
   left: number | null;
   right: number | null;
+  parent: number | null;
   x: number;
   y: number;
   label: string;
@@ -33,7 +34,7 @@ export type AnimationState = {
   edges: { id?: number; from: number; to: number }[];
 };
 
-const BSTVisualizer = () => {
+const AVLVisualizer = () => {
   const networkContainer = useRef(null);
   const [network, setNetwork] = useState<Network | null>(null);
   const nodes = useRef<DataSet<TreeNode>>(new DataSet([]));
@@ -594,4 +595,4 @@ const BSTVisualizer = () => {
   );
 };
 
-export default BSTVisualizer;
+export default AVLVisualizer;
