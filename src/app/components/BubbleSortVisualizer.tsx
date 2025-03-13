@@ -55,33 +55,74 @@ const BubbleSortVisualizer = () => {
 
   const isValidArray = array.length > 0 && !array.some((num) => isNaN(num));
 
+  // const handleBubbleSort = () => {
+  //   setIsSorting(true);
+  //   const arr = [...array];
+  //   let i = 0;
+  //   let j = 0;
+
+  //   const intervalId = setInterval(() => {
+  //     if (i < arr.length) {
+  //       if (j < arr.length - 1 - i) {
+  //         setCurrIndexes({ i, j }); // to highlight current indexes being compared
+
+  //         if (arr[j] > arr[j + 1]) {
+  //           [arr[j], arr[j + 1]] = [arr[j + 1], arr[j]];
+
+  //           setTimeout(() => {
+  //             j++;
+  //           }, 500); // Adjust delay time as needed
+  //         }
+  //         else {
+  //           setArray([...arr]); // update array
+  //           j++;
+  //         }
+  //       } else {
+  //         j = 0;
+  //         i++;
+  //       }
+  //       setCurrStep(currStep + 1);
+  //     } else {
+  //       clearInterval(intervalId); // stop sorting when done
+  //       setIsSorting(false);
+  //     }
+  //   }, 750);
+  // };
+
   const handleBubbleSort = () => {
     setIsSorting(true);
     const arr = [...array];
-    let i = 0;
-    let j = 0;
-
-    const intervalId = setInterval(() => {
-      if (i < arr.length) {
-        if (j < arr.length - 1 - i) {
-          setCurrIndexes({ i, j }); // to highlight current indexes being compared
-
-          if (arr[j] > arr[j + 1]) {
-            [arr[j], arr[j + 1]] = [arr[j + 1], arr[j]];
-          }
-
-          setArray([...arr]); // update array
-          j++;
-        } else {
-          j = 0;
-          i++;
-        }
-        setCurrStep(currStep + 1);
-      } else {
-        clearInterval(intervalId); // stop sorting when done
-        setIsSorting(false);
+  
+    const bubbleSortStep = (i: number, j: number) => {
+      if (i >= arr.length - 1) {
+        setIsSorting(false); // Sorting complete
+        return;
       }
-    }, 750);
+  
+      setCurrIndexes({ i, j }); // Highlight current indexes being compared
+  
+      setTimeout(() => {
+        if (j < arr.length - 1 - i) {
+          if (arr[j] > arr[j + 1]) {
+            // Swap elements AFTER the delay, so users see the comparison first
+            [arr[j], arr[j + 1]] = [arr[j + 1], arr[j]];
+            setArray([...arr]); // Update array to reflect swap
+  
+            // Add another delay after the swap so users see it
+            setTimeout(() => {
+              bubbleSortStep(i, j + 1);
+            }, 750);
+          } else {
+            bubbleSortStep(i, j + 1); // Move to next comparison
+          }
+        } else {
+          // Move to next pass
+          bubbleSortStep(i + 1, 0);
+        }
+      }, 750); // Delay before swap to show comparison
+    };
+  
+    bubbleSortStep(0, 0);
   };
 
   return (
