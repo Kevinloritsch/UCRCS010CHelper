@@ -5,7 +5,9 @@ import React, { useEffect, useState } from "react";
 const BubbleSortVisualizer = () => {
   const [value, setValue] = useState("");
   const [array, setArray] = useState<number[]>([]);
+  const isValidArray = (array.length > 0) && !(array.some((num) => isNaN(num)));
   const [isSorting, setIsSorting] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
   const [currStep, setCurrStep] = useState(0);
   const [currIndexes, setCurrIndexes] = useState<{ i: number; j: number }>({
     i: -1,
@@ -15,6 +17,11 @@ const BubbleSortVisualizer = () => {
   useEffect(() => {}, []);
 
   const handleRandomizer = () => {
+    //if currently sorting, stop sorting
+    if (isSorting) {
+      setIsSorting(false);
+    }
+
     const minLength = 5;
     const maxLength = 10;
     const randomLength = Math.floor(
@@ -53,76 +60,45 @@ const BubbleSortVisualizer = () => {
     }
   };
 
-  const isValidArray = array.length > 0 && !array.some((num) => isNaN(num));
-
-  // const handleBubbleSort = () => {
-  //   setIsSorting(true);
-  //   const arr = [...array];
-  //   let i = 0;
-  //   let j = 0;
-
-  //   const intervalId = setInterval(() => {
-  //     if (i < arr.length) {
-  //       if (j < arr.length - 1 - i) {
-  //         setCurrIndexes({ i, j }); // to highlight current indexes being compared
-
-  //         if (arr[j] > arr[j + 1]) {
-  //           [arr[j], arr[j + 1]] = [arr[j + 1], arr[j]];
-
-  //           setTimeout(() => {
-  //             j++;
-  //           }, 500); // Adjust delay time as needed
-  //         }
-  //         else {
-  //           setArray([...arr]); // update array
-  //           j++;
-  //         }
-  //       } else {
-  //         j = 0;
-  //         i++;
-  //       }
-  //       setCurrStep(currStep + 1);
-  //     } else {
-  //       clearInterval(intervalId); // stop sorting when done
-  //       setIsSorting(false);
-  //     }
-  //   }, 750);
-  // };
-
   const handleBubbleSort = () => {
     setIsSorting(true);
     const arr = [...array];
-  
-    const bubbleSortStep = (i: number, j: number) => {
-      if (i >= arr.length - 1) {
-        setIsSorting(false); // Sorting complete
+
+    // recursive func to do bubble sort w delays between swaps
+    const doBubbleSort = (i: number, j: number) => {
+      if (i >= (arr.length - 1) ) {
+        setIsSorting(false); // sorting complete
         return;
       }
-  
-      setCurrIndexes({ i, j }); // Highlight current indexes being compared
-  
+
+      setCurrIndexes({ i, j }); // highlight current indexes being compared
+
+      // delay before swap
       setTimeout(() => {
-        if (j < arr.length - 1 - i) {
+        if (j < (arr.length - 1 - i) ) {
           if (arr[j] > arr[j + 1]) {
-            // Swap elements AFTER the delay, so users see the comparison first
             [arr[j], arr[j + 1]] = [arr[j + 1], arr[j]];
-            setArray([...arr]); // Update array to reflect swap
-  
-            // Add another delay after the swap so users see it
+            setArray([...arr]); // update arr post swap
+
+            // add delay after swap so users can comprehend process
             setTimeout(() => {
-              bubbleSortStep(i, j + 1);
+              doBubbleSort(i, j + 1);
             }, 750);
           } else {
-            bubbleSortStep(i, j + 1); // Move to next comparison
+            doBubbleSort(i, j + 1); // move to next comparison
           }
         } else {
-          // Move to next pass
-          bubbleSortStep(i + 1, 0);
+          // move to next pass
+          doBubbleSort(i + 1, 0);
         }
-      }, 750); // Delay before swap to show comparison
+      }, 750);
     };
-  
-    bubbleSortStep(0, 0);
+
+    doBubbleSort(0, 0);
+  };
+
+  const handlePause = () => {
+    setIsPaused(true);
   };
 
   return (
@@ -134,39 +110,41 @@ const BubbleSortVisualizer = () => {
         onChange={(e) => setValue(e.target.value)}
       />
 
-      <button
-        onClick={handleRandomizer}
-        style={{
-          margin: "25px",
-        }}
-      >
-        {" "}
-        Randomize
-      </button>
+      <div className = "flex grid grid-cols-4 justify-items-start gap-2 w-3/5" >
+        <button 
+          onClick={handleRandomizer}
+        >
+          Randomize
+        </button>
 
-      <button
-        onClick={handleGenerate}
-        style={{
-          margin: "25px",
-        }}
-      >
-        {" "}
-        Submit
-      </button>
+        <button
+          onClick={handleGenerate}
+        >
+          Submit
+        </button>
 
-      <button
-        onClick={handleBubbleSort}
-        style={{
-          margin: "25px",
-          color: !isValidArray || isSorting ? "grey" : "black", // grey out button when disabled
-        }}
-        disabled={!isValidArray || isSorting}
-      >
-        {" "}
-        Bubble Sort
-      </button>
+        <button
+          onClick={handleBubbleSort}
+          style={{
+            color: !isValidArray || isSorting ? "grey" : "black", // grey out button when disabled
+          }}
+          disabled={!isValidArray || isSorting}
+        >
+          Bubble Sort
+        </button>
 
-      <div
+        <button
+          onClick={handlePause}
+          style={{
+            color: !isSorting? "grey" : "black", // grey out button when disabled
+          }}
+          disabled={!isSorting}
+        >
+          Pause
+        </button>
+      </div>
+
+      <div 
         style={{
           marginTop: "20px",
           display: "flex",
@@ -175,7 +153,7 @@ const BubbleSortVisualizer = () => {
         }}
       >
         {array.map((num, index) => (
-          <div
+          <div //className = "flex"
             key={index}
             style={{
               width: "65px",
@@ -183,9 +161,9 @@ const BubbleSortVisualizer = () => {
               height: `${num * 5}px`, // scaled to value
               backgroundColor:
                 index === currIndexes.j && isSorting
-                  ? "orange"
+                  ? "red"
                   : index === currIndexes.j + 1 && isSorting
-                    ? "brown"
+                    ? "lime"
                     : !isSorting
                       ? "grey"
                       : "black",
@@ -207,3 +185,4 @@ const BubbleSortVisualizer = () => {
 export default BubbleSortVisualizer;
 
 // bug: if already sorting, randomizing or trying to generate a new array does not stop sorting
+// make pause button
