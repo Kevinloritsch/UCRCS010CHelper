@@ -33,93 +33,129 @@ export const getNodeHeight = (
 
 const rotateLeft = (
   nodeId: number,
+  depth: number,
+  root: React.MutableRefObject<TreeNode | null>,
   nodes: React.MutableRefObject<DataSet<TreeNode>>,
   edges: React.MutableRefObject<
     DataSet<{ id?: number; from: number; to: number }>
   >,
 ) => {
-  const tempRoot = nodes.current.get(1) as TreeNode | null;
-  if (!tempRoot) {
-    console.error("Error: Root node (id: 1) is missing.");
-    return;
-  }
-
   const node = nodes.current.get(nodeId) as TreeNode | undefined;
-  if (!node || node.right === null) return; // No right child, cannot rotate left
+  if (!node || !node.right) return;
 
-  const newRoot = nodes.current.get(node.right) as TreeNode | undefined;
-  if (!newRoot) return;
+  const rightChild = nodes.current.get(node.right) as TreeNode | undefined;
+  if (!rightChild) return;
 
-  const parent = node.parent
-    ? (nodes.current.get(node.parent) as TreeNode | null)
+  const wasRoot = root.current?.id === nodeId;
+  const parentNode = node.parent
+    ? (nodes.current.get(node.parent) as TreeNode | undefined)
     : null;
-  const isLeftChild = parent ? parent.left === nodeId : false;
 
-  node.right = newRoot.left;
-  if (newRoot.left !== null) {
-    const leftChild = nodes.current.get(newRoot.left) as TreeNode | undefined;
-    if (leftChild) leftChild.parent = node.id;
-  }
-
-  newRoot.left = nodeId;
-  newRoot.parent = node.parent;
-  node.parent = newRoot.id;
-
-  if (parent) {
-    if (isLeftChild) parent.left = newRoot.id;
-    else parent.right = newRoot.id;
-  }
-
-  if (newRoot.id === 1) {
-    newRoot.parent = null;
-  }
-
-  edges.current.remove({ from: nodeId, to: newRoot.id });
-  edges.current.add({ from: newRoot.id, to: nodeId });
-
-  if (node.right !== null) {
-    edges.current.remove({ from: nodeId, to: node.right });
-    edges.current.add({ from: nodeId, to: node.right });
-  }
-
-  // calc
-  const depth = 0;
-  const xOffset = 500 * Math.pow(2, -depth - 1);
-
-  newRoot.x = node.x;
-  newRoot.y = node.y;
-  node.x = newRoot.x - xOffset;
-  node.y = newRoot.y + 100;
-
-  if (newRoot.right !== null) {
-    const rightChild = nodes.current.get(newRoot.right) as TreeNode | undefined;
-    if (rightChild) {
-      rightChild.x = newRoot.x + xOffset;
-      rightChild.y = newRoot.y + 100;
-      nodes.current.update({
-        id: rightChild.id,
-        x: rightChild.x,
-        y: rightChild.y,
-      });
+  if (wasRoot) {
+    root.current = rightChild;
+  } else if (parentNode) {
+    // Update the parent's reference to point to the new subtree root
+    if (parentNode.left === nodeId) {
+      parentNode.left = rightChild.id;
+    } else if (parentNode.right === nodeId) {
+      parentNode.right = rightChild.id;
     }
+    nodes.current.update({ id: parentNode.id });
   }
 
+  // Store old right child's left subtree
+  const rightLeftSubtree = rightChild.left;
+
+  // Move `nodeId` down to the left
+  const newX = node.x - 500 * Math.pow(2, -depth - 1);
+  const newY = node.y + 100;
+
+  edges.current.remove(
+    edges.current.getIds().filter((id) => {
+      const edge = edges.current.get(id);
+      return edge?.from === nodeId && edge?.to === node.right;
+    }),
+  );
+
+  // Update node positions and relationships
   nodes.current.update([
     {
-      id: node.id,
-      parent: node.parent,
-      right: node.right,
+      id: nodeId,
+      x: newX,
+      y: newY,
+      parent: rightChild.id,
+      right: rightLeftSubtree,
+    }, // Update node
+    {
+      id: rightChild.id,
       x: node.x,
       y: node.y,
-    },
-    {
-      id: newRoot.id,
-      parent: newRoot.parent,
-      left: newRoot.left,
-      x: newRoot.x,
-      y: newRoot.y,
-    },
+      parent: node.parent,
+      left: nodeId,
+    }, // Update rightChild
   ]);
+
+  console.log("test " + nodeId);
+
+  console.log("right " + rightChild.id + " node " + nodeId);
+
+  // Add new edges
+  edges.current.add([
+    { from: rightChild.id, to: nodeId }, // New edge from rightChild to node
+  ]);
+
+  if (node.right) {
+    // edges.current.add({ from: nodeId, to: node.right }); // New edge from node to its new right child
+  }
+  if (rightChild.parent) {
+    // edges.current.add({ from: rightChild.parent, to: rightChild.id }); // New edge from rightChild's parent to rightChild
+  }
+
+  // Update left subtree positions (move down)
+  const updateLeftSubtree = (
+    currentNodeId: number | null,
+    currentDepth: number,
+  ) => {
+    if (!currentNodeId) return;
+    const currentNode = nodes.current.get(currentNodeId) as
+      | TreeNode
+      | undefined;
+    if (!currentNode) return;
+
+    nodes.current.update({
+      id: currentNode.id,
+      x: 500 * Math.pow(2, -currentDepth) - currentNode.x,
+      y: currentNode.y + 100,
+    });
+
+    updateLeftSubtree(currentNode.left, currentDepth + 1);
+    updateLeftSubtree(currentNode.right, currentDepth + 1);
+  };
+
+  updateLeftSubtree(node.left, depth + 1);
+
+  // Update right subtree positions (move up)
+  const updateRightSubtree = (
+    currentNodeId: number | null,
+    currentDepth: number,
+  ) => {
+    if (!currentNodeId) return;
+    const currentNode = nodes.current.get(currentNodeId) as
+      | TreeNode
+      | undefined;
+    if (!currentNode) return;
+
+    nodes.current.update({
+      id: currentNode.id,
+      x: -500 * Math.pow(2, -(currentDepth + 2)) * 2 + currentNode.x,
+      y: currentNode.y - 100,
+    });
+
+    updateRightSubtree(currentNode.left, currentDepth + 1);
+    updateRightSubtree(currentNode.right, currentDepth + 1);
+  };
+
+  updateRightSubtree(rightChild.right, depth + 1);
 
   console.log(`Performed left rotation on node ${nodeId}`);
 };
@@ -262,12 +298,13 @@ export const insertNode = async (
       console.log(
         `Imbalance detected at node ${parentNode.value}, performing left rotation.`,
       );
-      rotateLeft(parentNode.id, nodes, edges);
+      rotateLeft(parentNode.id, depth - 1, root, nodes, edges);
       snapshot();
     }
 
     if (!parentNode.parent) break;
     parentNode = nodes.current.get(parentNode.parent) as TreeNode | undefined;
+    depth = depth - 1;
   }
 
   const initialState = animationStates[0];
