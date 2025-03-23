@@ -25,7 +25,10 @@ const BubbleSortVisualizer = () => {
 
   const handleRandomizer = () => {
     // if currently sorting, stop sorting
-    if (isSortingRef.current) setIsSorting(false);
+    if (isSortingRef.current) {
+      // isSortingRef.current = false; // update immediately
+      setIsSorting(false);
+    }
     
     const minLength = 5;
     const maxLength = 10;
@@ -124,6 +127,13 @@ const BubbleSortVisualizer = () => {
 
   const handlePause = () => {
     setIsPaused(true);
+    setIsSorting(false);
+  };
+
+  const handleResume = () => {
+    setIsPaused(false);
+    setIsSorting(true);
+    
   };
 
   return (
@@ -159,13 +169,16 @@ const BubbleSortVisualizer = () => {
         </button>
 
         <button
-          onClick={handlePause}
+          onClick={() => {
+            if (!isPaused) handlePause();
+            else handleResume();
+          }}
           style={{
             color: !isSorting? "grey" : "black", // grey out button when disabled
           }}
           disabled={!isSorting}
         >
-          Pause
+          {!isSorting? "Pause" : "Resume"}
         </button>
       </div>
 
