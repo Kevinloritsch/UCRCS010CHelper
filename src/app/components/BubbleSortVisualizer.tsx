@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 
 const BubbleSortVisualizer = () => {
   const [value, setValue] = useState("");
@@ -14,14 +14,17 @@ const BubbleSortVisualizer = () => {
     j: -1,
   });
 
-  useEffect(() => {}, []);
+  // ref to track latest value of isPaused
+  const isPausedRef = useRef(isPaused);
+
+  useEffect(() => {
+    isPausedRef.current = isPaused;
+  }, [isPaused]);
 
   const handleRandomizer = () => {
-    //if currently sorting, stop sorting
-    if (isSorting) {
-      setIsSorting(false);
-    }
-
+    // if currently sorting, stop sorting
+    if (isSorting) setIsSorting(false);
+    
     const minLength = 5;
     const maxLength = 10;
     const randomLength = Math.floor(
@@ -34,47 +37,58 @@ const BubbleSortVisualizer = () => {
     setArray(randomNums);
     setCurrStep(0); // reset currStep every time a new array is generated
     setCurrIndexes({ i: -1, j: -1 }); // reset indices
+    //setIsPaused(false);
   };
 
   const handleGenerate = () => {
+    // if input empty send alert
     if (!value) {
       alert("You have not inputted any values");
       return;
-    } else {
-      const newArray = value
-        .split(",")
-        .map((num) => num.trim())
-        .filter((num) => {
-          const isValidNumber = /^-?\d+$/.test(num); // check if it has valid integers (ex. no "2a")
-          if (!isValidNumber) {
-            alert(`"${num}" is not a valid integer!`);
-          }
-
-          return isValidNumber;
-        })
-        .map((num) => parseInt(num, 10));
-
-      setArray(newArray);
-      setCurrStep(0); // reset currStep every time a new array is generated
-      setCurrIndexes({ i: -1, j: -1 }); // reset indices
     }
+    const newArray = value
+      .split(",")
+      .map((num) => num.trim())
+      .filter((num) => {
+        const isValidNumber = /^-?\d+$/.test(num); // check if it has valid integers (ex. no "2a")
+        if (!isValidNumber) {
+          alert(`"${num}" is not a valid integer!`);
+        }
+
+        return isValidNumber;
+      })
+      .map((num) => parseInt(num, 10));
+
+    setArray(newArray);
+    setCurrStep(0); // reset currStep every time a new array is generated
+    setCurrIndexes({ i: -1, j: -1 }); // reset indices
+    //setIsPaused(false);
   };
 
   const handleBubbleSort = () => {
+    if (isSorting) return;
+    setIsPaused(false);
     setIsSorting(true);
     const arr = [...array];
 
+    isPausedRef.current = isPaused;
+
     // recursive func to do bubble sort w delays between swaps
     const doBubbleSort = (i: number, j: number) => {
-      if (i >= (arr.length - 1) ) {
+      // base case: return if sorting is paused or complete
+      if ( (i >= arr.length - 1 ) || isPaused ) {
+        if (isPausedRef.current) return; // paused but not complete
         setIsSorting(false); // sorting complete
         return;
       }
 
-      setCurrIndexes({ i, j }); // highlight current indexes being compared
+      setCurrIndexes({ i, j }); // current indexes being compared
 
-      // delay before swap
+      // delay before comparison
       setTimeout(() => {
+        // check for pause before continuing
+        if (isPausedRef.current) return;
+
         if (j < (arr.length - 1 - i) ) {
           if (arr[j] > arr[j + 1]) {
             [arr[j], arr[j + 1]] = [arr[j + 1], arr[j]];
@@ -82,18 +96,21 @@ const BubbleSortVisualizer = () => {
 
             // add delay after swap so users can comprehend process
             setTimeout(() => {
-              doBubbleSort(i, j + 1);
+              // continue if not paused
+              if (!isPausedRef.current) doBubbleSort(i, j + 1);
             }, 750);
           } else {
-            doBubbleSort(i, j + 1); // move to next comparison
+            // continue if not paused
+            if (!isPausedRef.current) doBubbleSort(i, j + 1); 
           }
         } else {
-          // move to next pass
-          doBubbleSort(i + 1, 0);
+          // continue to next pass if not paused
+          if (!isPausedRef.current) doBubbleSort(i + 1, 0);
         }
       }, 750);
     };
 
+    // call recursive bubblesort func
     doBubbleSort(0, 0);
   };
 
