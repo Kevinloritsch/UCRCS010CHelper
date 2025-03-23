@@ -14,16 +14,18 @@ const BubbleSortVisualizer = () => {
     j: -1,
   });
 
-  // ref to track latest value of isPaused
+  // ref to track states
   const isPausedRef = useRef(isPaused);
+  const isSortingRef = useRef(isSorting);
 
   useEffect(() => {
     isPausedRef.current = isPaused;
-  }, [isPaused]);
+    isSortingRef.current = isSorting;
+  }, [isPaused, isSorting]);
 
   const handleRandomizer = () => {
     // if currently sorting, stop sorting
-    if (isSorting) setIsSorting(false);
+    if (isSortingRef.current) setIsSorting(false);
     
     const minLength = 5;
     const maxLength = 10;
@@ -46,6 +48,10 @@ const BubbleSortVisualizer = () => {
       alert("You have not inputted any values");
       return;
     }
+
+    // if currently sorting, stop sorting
+    if (isSortingRef.current) setIsSorting(false);
+
     const newArray = value
       .split(",")
       .map((num) => num.trim())
@@ -66,12 +72,14 @@ const BubbleSortVisualizer = () => {
   };
 
   const handleBubbleSort = () => {
-    if (isSorting) return;
+    isPausedRef.current = isPaused;
+    isSortingRef.current = isSorting;
+
+    if (isSortingRef.current) return;
+
     setIsPaused(false);
     setIsSorting(true);
     const arr = [...array];
-
-    isPausedRef.current = isPaused;
 
     // recursive func to do bubble sort w delays between swaps
     const doBubbleSort = (i: number, j: number) => {
@@ -87,7 +95,7 @@ const BubbleSortVisualizer = () => {
       // delay before comparison
       setTimeout(() => {
         // check for pause before continuing
-        if (isPausedRef.current) return;
+        if (isPausedRef.current || !isSortingRef.current) return;
 
         if (j < (arr.length - 1 - i) ) {
           if (arr[j] > arr[j + 1]) {
@@ -200,6 +208,3 @@ const BubbleSortVisualizer = () => {
 };
 
 export default BubbleSortVisualizer;
-
-// bug: if already sorting, randomizing or trying to generate a new array does not stop sorting
-// make pause button
