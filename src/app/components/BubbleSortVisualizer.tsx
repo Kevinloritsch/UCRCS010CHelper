@@ -4,8 +4,9 @@ import React, { useEffect, useState, useRef } from "react";
 
 const BubbleSortVisualizer = () => {
   const [value, setValue] = useState("");
-  const [array, setArray] = useState<number[]>([]);
-  const isValidArray = (array.length > 0) && !(array.some((num) => isNaN(num)));
+  const [origArr, setOrigArr] = useState<number[]>([]);
+  const [cpyArr, setCpyArr] = useState<number[]>([]);
+  const isValidArray = (origArr.length > 0) && !(origArr.some((num) => isNaN(num)));
   const [isSorting, setIsSorting] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [currStep, setCurrStep] = useState(0);
@@ -39,7 +40,9 @@ const BubbleSortVisualizer = () => {
       { length: randomLength },
       () => Math.floor(Math.random() * 99) + 1,
     );
-    setArray(randomNums);
+
+    setOrigArr(randomNums);
+    setCpyArr(randomNums);
     setCurrStep(0); // reset currStep every time a new array is generated
     setCurrIndexes({ i: -1, j: -1 }); // reset indices
     //setIsPaused(false);
@@ -68,10 +71,41 @@ const BubbleSortVisualizer = () => {
       })
       .map((num) => parseInt(num, 10));
 
-    setArray(newArray);
+    setOrigArr(newArray);
+    setCpyArr(newArray);
     setCurrStep(0); // reset currStep every time a new array is generated
     setCurrIndexes({ i: -1, j: -1 }); // reset indices
     //setIsPaused(false);
+  };
+
+  const handlePause = () => {
+    setIsPaused(true);
+    setIsSorting(false);
+
+    console.log(currIndexes.i);
+    console.log(currIndexes.j);
+  };
+
+  const handleResume = () => {
+    setIsPaused(false);
+    isPausedRef.current = false;
+    setIsSorting(true);
+    isSortingRef.current = true;
+    
+    doBubbleSort([...cpyArr], currIndexes.i, currIndexes.j);
+
+    if (!isPausedRef.current) console.log("HE");
+    if (isSortingRef.current) console.log("qere");
+  };
+
+  const handleReset = () => {
+    if (isSortingRef.current) {
+      // isSortingRef.current = false; // update immediately
+      setIsSorting(false);
+    }
+    
+    setCpyArr(origArr);
+    // doBubbleSort([...cpyArr], 0, 0);
   };
 
   const handleBubbleSort = () => {
@@ -82,59 +116,53 @@ const BubbleSortVisualizer = () => {
 
     setIsPaused(false);
     setIsSorting(true);
-    const arr = [...array];
-
-    // recursive func to do bubble sort w delays between swaps
-    const doBubbleSort = (i: number, j: number) => {
-      // base case: return if sorting is paused or complete
-      if ( (i >= arr.length - 1 ) || isPaused ) {
-        if (isPausedRef.current) return; // paused but not complete
-        setIsSorting(false); // sorting complete
-        return;
-      }
-
-      setCurrIndexes({ i, j }); // current indexes being compared
-
-      // delay before comparison
-      setTimeout(() => {
-        // check for pause before continuing
-        if (isPausedRef.current || !isSortingRef.current) return;
-
-        if (j < (arr.length - 1 - i) ) {
-          if (arr[j] > arr[j + 1]) {
-            [arr[j], arr[j + 1]] = [arr[j + 1], arr[j]];
-            setArray([...arr]); // update arr post swap
-
-            // add delay after swap so users can comprehend process
-            setTimeout(() => {
-              // continue if not paused
-              if (!isPausedRef.current) doBubbleSort(i, j + 1);
-            }, 750);
-          } else {
-            // continue if not paused
-            if (!isPausedRef.current) doBubbleSort(i, j + 1); 
-          }
-        } else {
-          // continue to next pass if not paused
-          if (!isPausedRef.current) doBubbleSort(i + 1, 0);
-        }
-      }, 750);
-    };
+    // const arr = [...array];
 
     // call recursive bubblesort func
-    doBubbleSort(0, 0);
+    doBubbleSort([...cpyArr], 0, 0);
   };
 
-  const handlePause = () => {
-    setIsPaused(true);
-    setIsSorting(false);
+  // recursive bubble helper
+  const doBubbleSort = (arr: number[], i: number, j: number) => {
+    // base case: return if sorting is paused or complete
+    if ( (i >= arr.length - 1 ) || isPaused ) {
+      if (isPausedRef.current) return; // paused but not complete
+      setIsSorting(false); // sorting complete
+      return;
+    }
+
+    setCurrIndexes({ i, j }); // current indexes being compared
+
+    // delay before comparison
+    setTimeout(() => {
+      // check for pause before continuing
+      if (isPausedRef.current || !isSortingRef.current) return;
+      else console.log("EEEHEH");
+
+      if (j < (arr.length - 1 - i) ) {
+        if (arr[j] > arr[j + 1]) {
+          [arr[j], arr[j + 1]] = [arr[j + 1], arr[j]];
+          setCpyArr([...arr]); // update arr post swap
+
+          // add delay after swap so users can comprehend process
+          setTimeout(() => {
+            // continue if not paused
+            if (!isPausedRef.current) doBubbleSort(arr, i, j + 1);
+          }, 750);
+        } else {
+          // continue if not paused
+          if (!isPausedRef.current) doBubbleSort(arr, i, j + 1); 
+        }
+      } else {
+        // continue to next pass if not paused
+        if (!isPausedRef.current) doBubbleSort(arr, i + 1, 0);
+      }
+    }, 750);
   };
 
-  const handleResume = () => {
-    setIsPaused(false);
-    setIsSorting(true);
-    
-  };
+  // add get faster / get slower button
+  // fix pause and resume
+  // step-back / reset whole process
 
   return (
     <div>
@@ -145,7 +173,7 @@ const BubbleSortVisualizer = () => {
         onChange={(e) => setValue(e.target.value)}
       />
 
-      <div className = "flex grid grid-cols-4 justify-items-start gap-2 w-3/5" >
+      <div className = "flex grid grid-cols-5 justify-items-start gap-2 w-3/5" >
         <button 
           onClick={handleRandomizer}
         >
@@ -174,11 +202,17 @@ const BubbleSortVisualizer = () => {
             else handleResume();
           }}
           style={{
-            color: !isSorting? "grey" : "black", // grey out button when disabled
+            color: !isSorting && !isPaused? "grey" : "black", // grey out button when disabled
           }}
-          disabled={!isSorting}
+          disabled={!isSorting && !isPaused}
         >
-          {!isSorting? "Pause" : "Resume"}
+          {!isPaused? "Pause" : "Resume"}
+        </button>
+
+        <button
+          onClick={handleReset}
+        >
+          Reset
         </button>
       </div>
 
@@ -190,7 +224,7 @@ const BubbleSortVisualizer = () => {
           alignItems: "flex-end",
         }}
       >
-        {array.map((num, index) => (
+        {cpyArr.map((num, index) => (
           <div //className = "flex"
             key={index}
             style={{
