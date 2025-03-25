@@ -63,20 +63,16 @@ const rotateLeft = (
   if (wasRoot) {
     root.current = rightChild;
   } else if (parentNode) {
-    // Update the parent's reference to point to the new subtree root
     if (parentNode.left === nodeId) {
       parentNode.left = rightChild.id;
     } else if (parentNode.right === nodeId) {
       parentNode.right = rightChild.id;
     }
     nodes.current.update({ id: parentNode.id });
-    console.log("parent " + parentNode.id);
   }
 
-  // Store old right child's left subtree
   const rightLeftSubtree = rightChild.left;
 
-  // Move `nodeId` down to the left
   const newX = node.x - 500 * Math.pow(2, -depth - 1);
   const newY = node.y + 100;
 
@@ -93,7 +89,6 @@ const rotateLeft = (
     }),
   );
 
-  // Update node positions and relationships
   nodes.current.update([
     {
       id: nodeId,
@@ -101,31 +96,24 @@ const rotateLeft = (
       y: newY,
       parent: rightChild.id,
       right: rightLeftSubtree,
-    }, // Update node
+    },
     {
       id: rightChild.id,
       x: node.x,
       y: node.y,
       parent: node.parent,
       left: nodeId,
-    }, // Update rightChild
+    },
   ]);
 
-  // Add new edges
-  edges.current.add([
-    { from: rightChild.id, to: nodeId }, // New edge from rightChild to node
-  ]);
+  edges.current.add([{ from: rightChild.id, to: nodeId }]);
 
   if (parentNode) {
-    edges.current.add([
-      { from: parentNode.id, to: rightChild.id }, // New edge from rightChild to node
-    ]);
+    edges.current.add([{ from: parentNode.id, to: rightChild.id }]);
   }
 
   if (hasRightChildLeft && rightChildLeft) {
-    edges.current.add([
-      { from: nodeId, to: rightChildLeft.id }, // New edge from rightChild to node
-    ]);
+    edges.current.add([{ from: nodeId, to: rightChildLeft.id }]);
 
     nodes.current.update({
       id: rightChildLeft.id,
@@ -147,21 +135,18 @@ const rotateLeft = (
       ? (nodes.current.get(node.parent) as TreeNode | undefined)
       : null;
 
-    // Calculate new position based on parent and depth
     const xOffset = 500 * Math.pow(2, -currentDepth + 1);
     let newX, newY;
 
     if (parentNode) {
       const isLeftChild = node.value < parentNode.value;
       newX = parentNode.x + (isLeftChild ? -xOffset : xOffset);
-      newY = parentNode.y + 100; // Fixed vertical spacing
+      newY = parentNode.y + 100;
     } else {
-      // For root node (shouldn't happen in subtree updates)
       newX = node.x;
       newY = node.y;
     }
 
-    // Only update if position changed
     if (node.x !== newX || node.y !== newY) {
       nodes.current.update({
         id: nodeId,
@@ -170,7 +155,6 @@ const rotateLeft = (
       });
     }
 
-    // Recursively update children
     updateSubtreePositions(node.left, nodes, currentDepth + 1);
     updateSubtreePositions(node.right, nodes, currentDepth + 1);
   };
@@ -192,7 +176,6 @@ const rotateLeft = (
       ? (nodes.current.get(node.parent) as TreeNode | undefined)
       : null;
 
-    // Calculate new position based on parent and depth
     const xOffset = 500 * Math.pow(2, -currentDepth - 1);
     let newX;
 
@@ -200,17 +183,14 @@ const rotateLeft = (
       const isLeftChild = node.value < parentNode.value;
       newX = parentNode.x + (isLeftChild ? -xOffset : xOffset);
     } else {
-      // For root node
       newX = -node.x;
     }
 
-    // Update the node's position
     nodes.current.update({
       id: rootId,
       x: newX,
     });
 
-    // Recursively flip children with proper parameters
     if (node.left) flipSubtreeX(node.left, nodes, currentDepth + 1);
     if (node.right) flipSubtreeX(node.right, nodes, currentDepth + 1);
   };
