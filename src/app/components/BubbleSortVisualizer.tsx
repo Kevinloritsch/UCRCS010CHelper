@@ -19,11 +19,13 @@ const BubbleSortVisualizer = () => {
   const [playSpeed, setPlaySpeed] = useState<number>(750);
 
   // ref to track states
+  const currArrRef = useRef(cpyArr);
   const isPausedRef = useRef(isPaused);
   const isSortingRef = useRef(isSorting);
   const playSpeedRef = useRef(playSpeed);
 
   useEffect(() => {
+    // currArrRef.current = cpyArr;
     isPausedRef.current = isPaused;
     isSortingRef.current = isSorting;
     playSpeedRef.current = playSpeed;
@@ -89,10 +91,12 @@ const BubbleSortVisualizer = () => {
 
   const handlePause = () => {
     setIsPaused(true);
+    isPausedRef.current = true;
     setIsSorting(false);
+    isSortingRef.current = false;
 
-    console.log(currIndexes.i);
-    console.log(currIndexes.j);
+    // console.log(currIndexes.i);
+    // console.log(currIndexes.j);
   };
 
   const handleResume = () => {
@@ -101,10 +105,10 @@ const BubbleSortVisualizer = () => {
     setIsSorting(true);
     isSortingRef.current = true;
     
-    doBubbleSort([...cpyArr], currIndexes.i, currIndexes.j);
+    doBubbleSort([...currArrRef.current], currIndexes.i, currIndexes.j);
 
-    if (!isPausedRef.current) console.log("HE");
-    if (isSortingRef.current) console.log("qere");
+    // if (!isPausedRef.current) console.log("HE");
+    // if (isSortingRef.current) console.log("qere");
   };
 
   const handleReset = () => {
@@ -138,20 +142,27 @@ const BubbleSortVisualizer = () => {
 
   // recursive bubble helper
   const doBubbleSort = (arr: number[], i: number, j: number) => {
+    currArrRef.current = arr;
+
     // base case: return if sorting is paused or complete
-    if ( (i >= arr.length - 1 ) || isPaused ) {
-      if (isPausedRef.current) return; // paused but not complete
+    if (i >= arr.length - 1) {
+      // if (isPausedRef.current) return; // paused but not complete
       setIsSorting(false); // sorting complete
       return;
     }
 
     setCurrIndexes({ i, j }); // current indexes being compared
 
+    if (isPausedRef.current) {
+      setTimeout(() => doBubbleSort(arr, i, j), 100);
+      return;
+    }
+
     // delay before comparison
     setTimeout(() => {
       // check for pause before continuing
       if (isPausedRef.current || !isSortingRef.current) return;
-      else console.log("EEEHEH");
+      // else console.log("EEEHEH");
 
       if (j < (arr.length - 1 - i) ) {
         if (arr[j] > arr[j + 1]) {
@@ -242,36 +253,19 @@ const BubbleSortVisualizer = () => {
         </button>
       </div>
 
-      <div>Current Speed: {playSpeed} ms delay </div>
-
       <div
         style={{
           display: "flex",
           flexDirection: "column",
-          gap: "20px",
+          gap: "5px",
         }}
       >
+        <div>Current Speed: {playSpeed} ms delay </div>
         <div>
-          <h3>Your Original Array:</h3>
-          <div style={{ 
-            padding: "10px", 
-            backgroundColor: "#f0f0f0", 
-            borderRadius: "5px",
-            fontFamily: "monospace"
-          }}>
-            [{origArr.join(", ")}]
-          </div>
+          <h3>Your Original Array: [{origArr.join(", ")}]</h3>
         </div>
         <div>
-          <h3>Your Original Array Sorted:</h3>
-          <div style={{ 
-            padding: "10px", 
-            backgroundColor: "#f0f0f0", 
-            borderRadius: "5px",
-            fontFamily: "monospace"
-          }}>
-            [{sortedArr.join(", ")}]
-          </div>
+          <h3>Your Original Array Sorted: [{sortedArr.join(", ")}]</h3>
         </div>
       </div>   
 
