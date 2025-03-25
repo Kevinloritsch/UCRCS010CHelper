@@ -1,6 +1,8 @@
 import { DataSet } from "vis-network/standalone/umd/vis-network.min.js";
 import { TreeNode } from "@/components/AVLVisualizer";
 
+// Comments explaining the logic are in rotateLeftAVL.ts
+
 export const rotateRight = (
   nodeId: number,
   depth: number,
@@ -170,5 +172,4 @@ export const rotateRight = (
     flipSubtreeX(leftChildRight.id, nodes, depth + 1);
   }
 
-  console.log(`Performed right rotation on node ${nodeId}`);
 };

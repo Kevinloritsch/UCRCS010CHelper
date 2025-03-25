@@ -179,20 +179,50 @@ export const insertNode = async (
       const rightChildBf = rightChildRightHeight - rightChildLeftHeight;
 
       if (rightChildBf < 0) {
-        // Right-Left case
-        console.log(`Right-Left case at node ${parentNode.value}`);
+        nodes.current.update({
+          id: parentNode.right ?? undefined,
+          color: { background: colors.yellowSwap },
+        });
+    
+        snapshot();
+        nodes.current.update({
+          id: parentNode.right ?? undefined,
+          color: { background: colors.defaultBlue },
+        });
+        snapshot();
+
         rotateRight(parentNode.right!, depth, root, nodes, edges);
+        snapshot();
+
+        nodes.current.update({
+          id: parentNode.id ?? undefined,
+          color: { background: colors.yellowSwap },
+        });
+    
+        snapshot();
+        nodes.current.update({
+          id: parentNode.id ?? undefined,
+          color: { background: colors.defaultBlue },
+        });
         snapshot();
         rotateLeft(parentNode.id, depth - 1, root, nodes, edges);
         snapshot();
       } else {
-        // Right-Right case
-        console.log(`Right-Right case at node ${parentNode.value}`);
+        nodes.current.update({
+          id: parentNode.id ?? undefined,
+          color: { background: colors.yellowSwap },
+        });
+    
+        snapshot();
+        nodes.current.update({
+          id: parentNode.id ?? undefined,
+          color: { background: colors.defaultBlue },
+        });
+        snapshot();
         rotateLeft(parentNode.id, depth - 1, root, nodes, edges);
         snapshot();
       }
     } else if (parentNodeBf < -1) {
-      // Left heavy - need to check child's balance factor
       const leftChild = nodes.current.get(parentNode.left!) as TreeNode;
       const leftChildLeftHeight = leftChild.left
         ? getNodeHeight(leftChild.left, nodes)
@@ -203,15 +233,44 @@ export const insertNode = async (
       const leftChildBf = leftChildRightHeight - leftChildLeftHeight;
 
       if (leftChildBf > 0) {
-        // Left-Right case
-        console.log(`Left-Right case at node ${parentNode.value}`);
+        nodes.current.update({
+          id: parentNode.left ?? undefined,
+          color: { background: colors.yellowSwap },
+        });
+    
+        snapshot();
+        nodes.current.update({
+          id: parentNode.left ?? undefined,
+          color: { background: colors.defaultBlue },
+        });
+        snapshot();
         rotateLeft(parentNode.left!, depth, root, nodes, edges);
+        snapshot();
+        nodes.current.update({
+          id: parentNode.id ?? undefined,
+          color: { background: colors.yellowSwap },
+        });
+    
+        snapshot();
+        nodes.current.update({
+          id: parentNode.id ?? undefined,
+          color: { background: colors.defaultBlue },
+        });
         snapshot();
         rotateRight(parentNode.id, depth - 1, root, nodes, edges);
         snapshot();
       } else {
-        // Left-Left case
-        console.log(`Left-Left case at node ${parentNode.value}`);
+        nodes.current.update({
+          id: parentNode.id ?? undefined,
+          color: { background: colors.yellowSwap },
+        });
+    
+        snapshot();
+        nodes.current.update({
+          id: parentNode.id ?? undefined,
+          color: { background: colors.defaultBlue },
+        });
+        snapshot();
         rotateRight(parentNode.id, depth - 1, root, nodes, edges);
         snapshot();
       }

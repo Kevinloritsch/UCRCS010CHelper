@@ -167,5 +167,4 @@ export const rotateLeft = (
   if (hasRightChildLeft && rightChildLeft)
     flipSubtreeX(rightChildLeft.id, nodes, depth + 1);
 
-  console.log(`Performed left rotation on node ${nodeId}`);
 };
