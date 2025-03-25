@@ -32,7 +32,6 @@ const BubbleSortVisualizer = () => {
   const handleRandomizer = () => {
     // if currently sorting, stop sorting
     if (isSortingRef.current) {
-      // isSortingRef.current = false; // update immediately
       setIsSorting(false);
       isSortingRef.current = false;
     }
@@ -151,19 +150,22 @@ const BubbleSortVisualizer = () => {
       if (j < (arr.length - 1 - i) ) {
         if (arr[j] > arr[j + 1]) {
           [arr[j], arr[j + 1]] = [arr[j + 1], arr[j]];
+          
+          if (isPausedRef.current || !isSortingRef.current) return;
+
           setCpyArr([...arr]); // update arr post swap
 
           setTimeout(() => {
-            // continue if not paused
-            if (!isPausedRef.current) doBubbleSort(arr, i, j + 1);
+            // continue if not paused and still sorting
+            if (!isPausedRef.current && isSortingRef.current) doBubbleSort(arr, i, j + 1);
           }, playSpeedRef.current);
         } else {
-          // continue if not paused
-          if (!isPausedRef.current) doBubbleSort(arr, i, j + 1); 
+          // continue if not paused and still sorting
+          if (!isPausedRef.current && isSortingRef.current) doBubbleSort(arr, i, j + 1); 
         }
       } else {
-        // continue to next pass if not paused
-        if (!isPausedRef.current) doBubbleSort(arr, i + 1, 0);
+        // continue to next pass if not paused and still sorting
+        if (!isPausedRef.current && isSortingRef.current) doBubbleSort(arr, i + 1, 0);
       }
     }, playSpeedRef.current);
   };
