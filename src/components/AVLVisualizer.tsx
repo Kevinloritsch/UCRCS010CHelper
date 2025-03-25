@@ -96,9 +96,10 @@ const AVLVisualizer = () => {
         root.current &&
         animationStates[currentStep].nodes.length > 0
       )
-        network.selectNodes([root.current.id]);
+        if (currentStep % 25 == 0)
+          // network.selectNodes([root.current.id]);
 
-      if (currentStep % 25 == 0) network?.stabilize();
+          network?.stabilize();
 
       if (
         currentStep == animationStates.length - 1 &&
