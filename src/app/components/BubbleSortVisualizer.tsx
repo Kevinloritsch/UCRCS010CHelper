@@ -11,7 +11,7 @@ const BubbleSortVisualizer = () => {
   const isValidArray = (origArr.length > 0) && !(origArr.some((num) => isNaN(num)));
   const [isSorting, setIsSorting] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
-  const [currStep, setCurrStep] = useState(0);
+  // const [currStep, setCurrStep] = useState(0);
   const [currIndexes, setCurrIndexes] = useState<{ i: number; j: number }>({
     i: -1,
     j: -1,
@@ -19,13 +19,11 @@ const BubbleSortVisualizer = () => {
   const [playSpeed, setPlaySpeed] = useState<number>(750);
 
   // ref to track states
-  const currArrRef = useRef(cpyArr);
   const isPausedRef = useRef(isPaused);
   const isSortingRef = useRef(isSorting);
   const playSpeedRef = useRef(playSpeed);
 
   useEffect(() => {
-    // currArrRef.current = cpyArr;
     isPausedRef.current = isPaused;
     isSortingRef.current = isSorting;
     playSpeedRef.current = playSpeed;
@@ -36,6 +34,7 @@ const BubbleSortVisualizer = () => {
     if (isSortingRef.current) {
       // isSortingRef.current = false; // update immediately
       setIsSorting(false);
+      isSortingRef.current = false;
     }
     
     const minLength = 5;
@@ -48,13 +47,7 @@ const BubbleSortVisualizer = () => {
       () => Math.floor(Math.random() * 99) + 1,
     );
 
-    setOrigArr(randomNums);
-    setCpyArr(randomNums);
-    setSortedArr(bubbleSort([...randomNums]));
-    setCurrStep(0); // reset currStep every time a new array is generated
-    setCurrIndexes({ i: -1, j: -1 }); // reset indices
-    setPlaySpeed(750);
-    //setIsPaused(false);
+    setVar(randomNums);
   };
 
   const handleGenerate = () => {
@@ -65,7 +58,10 @@ const BubbleSortVisualizer = () => {
     }
 
     // if currently sorting, stop sorting
-    if (isSortingRef.current) setIsSorting(false);
+    if (isSortingRef.current) {
+      setIsSorting(false);
+      isSortingRef.current = false;
+    }
 
     const newArray = value
       .split(",")
@@ -80,13 +76,7 @@ const BubbleSortVisualizer = () => {
       })
       .map((num) => parseInt(num, 10));
 
-    setOrigArr(newArray);
-    setCpyArr(newArray);
-    setSortedArr(bubbleSort([...newArray]));
-    setCurrStep(0); // reset currStep every time a new array is generated
-    setCurrIndexes({ i: -1, j: -1 }); // reset indices
-    setPlaySpeed(750);
-    //setIsPaused(false);
+    setVar(newArray);
   };
 
   const handlePause = () => {
@@ -94,9 +84,6 @@ const BubbleSortVisualizer = () => {
     isPausedRef.current = true;
     setIsSorting(false);
     isSortingRef.current = false;
-
-    // console.log(currIndexes.i);
-    // console.log(currIndexes.j);
   };
 
   const handleResume = () => {
@@ -105,21 +92,15 @@ const BubbleSortVisualizer = () => {
     setIsSorting(true);
     isSortingRef.current = true;
     
-    doBubbleSort([...currArrRef.current], currIndexes.i, currIndexes.j);
-
-    // if (!isPausedRef.current) console.log("HE");
-    // if (isSortingRef.current) console.log("qere");
+    doBubbleSort([...cpyArr], currIndexes.i, currIndexes.j);
   };
 
   const handleReset = () => {
     if (isSortingRef.current) {
-      // isSortingRef.current = false; // update immediately
       setIsSorting(false);
     }
     
-    setCpyArr(origArr);
-    setPlaySpeed(750);
-    // doBubbleSort([...cpyArr], 0, 0);
+    setVar(origArr);
   };
 
   const handleBubbleSort = () => {
@@ -130,7 +111,6 @@ const BubbleSortVisualizer = () => {
 
     setIsPaused(false);
     setIsSorting(true);
-    // const arr = [...array];
 
     // call recursive bubblesort func
     doBubbleSort([...cpyArr], 0, 0);
@@ -140,36 +120,39 @@ const BubbleSortVisualizer = () => {
     setPlaySpeed(newSpeed);
   };
 
+  const setVar = (arrInp: number[]) => {
+    setOrigArr(arrInp);
+    setCpyArr(arrInp);
+    setSortedArr(bubbleSort([...arrInp]));
+    // setCurrStep(0);
+    setCurrIndexes({ i: -1, j: -1 });
+    setPlaySpeed(750);
+    setIsPaused(false);
+    setIsSorting(false);
+  };
+
   // recursive bubble helper
   const doBubbleSort = (arr: number[], i: number, j: number) => {
-    currArrRef.current = arr;
-
-    // base case: return if sorting is paused or complete
+    // base case: return if sorting is complete
     if (i >= arr.length - 1) {
-      // if (isPausedRef.current) return; // paused but not complete
       setIsSorting(false); // sorting complete
       return;
     }
 
     setCurrIndexes({ i, j }); // current indexes being compared
 
+    // stuck in recursion while paused
     if (isPausedRef.current) {
       setTimeout(() => doBubbleSort(arr, i, j), 100);
       return;
     }
 
-    // delay before comparison
     setTimeout(() => {
-      // check for pause before continuing
-      if (isPausedRef.current || !isSortingRef.current) return;
-      // else console.log("EEEHEH");
-
       if (j < (arr.length - 1 - i) ) {
         if (arr[j] > arr[j + 1]) {
           [arr[j], arr[j + 1]] = [arr[j + 1], arr[j]];
           setCpyArr([...arr]); // update arr post swap
 
-          // add delay after swap so users can comprehend process
           setTimeout(() => {
             // continue if not paused
             if (!isPausedRef.current) doBubbleSort(arr, i, j + 1);
@@ -184,10 +167,6 @@ const BubbleSortVisualizer = () => {
       }
     }, playSpeedRef.current);
   };
-
-  // add get faster / get slower button
-  // fix pause and resume
-  // step-back / reset whole process
 
   return (
     <div>
