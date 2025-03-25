@@ -6,6 +6,7 @@ import {
   SidebarHeader,
   SidebarMenuButton,
 } from "@/components/ui/sidebar";
+import Link from "next/link";
 
 export function AppSidebar() {
   return (
@@ -14,14 +15,22 @@ export function AppSidebar() {
       <SidebarContent>
         <SidebarGroup />
         <SidebarMenuButton asChild>
-          <a
-            href="https://ui.shadcn.com/blocks/sidebar"
-            target="_blank"
-            className="font-medium"
-          >
-            the most goated sidebar item
-          </a>
+          <Link href="/" className="">
+            Home
+          </Link>
         </SidebarMenuButton>
+        <SidebarMenuButton asChild>
+          <Link href="/bst" className="">
+            BST
+          </Link>
+        </SidebarMenuButton>
+
+        <SidebarMenuButton asChild>
+          <Link href="/avl" className="">
+            AVL
+          </Link>
+        </SidebarMenuButton>
+
         <SidebarGroup />
       </SidebarContent>
       <SidebarFooter />

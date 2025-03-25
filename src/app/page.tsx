@@ -1,11 +1,5 @@
-import BSTVizualizer from "@/components/BSTVisualizer";
-
 const Home = () => {
-  return (
-    <div>
-      <BSTVizualizer />
-    </div>
-  );
+  return <div>Hello</div>;
 };
 
 export default Home;
