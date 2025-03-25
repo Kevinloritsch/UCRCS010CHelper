@@ -249,7 +249,6 @@ const BSTVisualizer = () => {
               network.redraw();
             }
             console.log("clicked");
-            // Any async tasks can go here
           }}
         >
           Toggle Input Type
