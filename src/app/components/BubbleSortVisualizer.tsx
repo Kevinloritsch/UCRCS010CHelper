@@ -1,11 +1,13 @@
 "use client";
 
 import React, { useEffect, useState, useRef } from "react";
+import { bubbleSort } from './BubbleSort';
 
 const BubbleSortVisualizer = () => {
   const [value, setValue] = useState("");
   const [origArr, setOrigArr] = useState<number[]>([]);
   const [cpyArr, setCpyArr] = useState<number[]>([]);
+  const [sortedArr, setSortedArr] = useState<number[]>([]);
   const isValidArray = (origArr.length > 0) && !(origArr.some((num) => isNaN(num)));
   const [isSorting, setIsSorting] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
@@ -14,15 +16,18 @@ const BubbleSortVisualizer = () => {
     i: -1,
     j: -1,
   });
+  const [playSpeed, setPlaySpeed] = useState<number>(750);
 
   // ref to track states
   const isPausedRef = useRef(isPaused);
   const isSortingRef = useRef(isSorting);
+  const playSpeedRef = useRef(playSpeed);
 
   useEffect(() => {
     isPausedRef.current = isPaused;
     isSortingRef.current = isSorting;
-  }, [isPaused, isSorting]);
+    playSpeedRef.current = playSpeed;
+  }, [isPaused, isSorting, playSpeed]);
 
   const handleRandomizer = () => {
     // if currently sorting, stop sorting
@@ -43,8 +48,10 @@ const BubbleSortVisualizer = () => {
 
     setOrigArr(randomNums);
     setCpyArr(randomNums);
+    setSortedArr(bubbleSort([...randomNums]));
     setCurrStep(0); // reset currStep every time a new array is generated
     setCurrIndexes({ i: -1, j: -1 }); // reset indices
+    setPlaySpeed(750);
     //setIsPaused(false);
   };
 
@@ -73,8 +80,10 @@ const BubbleSortVisualizer = () => {
 
     setOrigArr(newArray);
     setCpyArr(newArray);
+    setSortedArr(bubbleSort([...newArray]));
     setCurrStep(0); // reset currStep every time a new array is generated
     setCurrIndexes({ i: -1, j: -1 }); // reset indices
+    setPlaySpeed(750);
     //setIsPaused(false);
   };
 
@@ -105,6 +114,7 @@ const BubbleSortVisualizer = () => {
     }
     
     setCpyArr(origArr);
+    setPlaySpeed(750);
     // doBubbleSort([...cpyArr], 0, 0);
   };
 
@@ -120,6 +130,10 @@ const BubbleSortVisualizer = () => {
 
     // call recursive bubblesort func
     doBubbleSort([...cpyArr], 0, 0);
+  };
+
+  const handleSpeedChange = (newSpeed: number) => {
+    setPlaySpeed(newSpeed);
   };
 
   // recursive bubble helper
@@ -148,7 +162,7 @@ const BubbleSortVisualizer = () => {
           setTimeout(() => {
             // continue if not paused
             if (!isPausedRef.current) doBubbleSort(arr, i, j + 1);
-          }, 750);
+          }, playSpeedRef.current);
         } else {
           // continue if not paused
           if (!isPausedRef.current) doBubbleSort(arr, i, j + 1); 
@@ -157,7 +171,7 @@ const BubbleSortVisualizer = () => {
         // continue to next pass if not paused
         if (!isPausedRef.current) doBubbleSort(arr, i + 1, 0);
       }
-    }, 750);
+    }, playSpeedRef.current);
   };
 
   // add get faster / get slower button
@@ -214,7 +228,52 @@ const BubbleSortVisualizer = () => {
         >
           Reset
         </button>
+
+        <button
+          onClick={() => handleSpeedChange(Math.max(250, playSpeed - 250))}
+        >
+          Speed Up
+        </button>
+
+        <button
+          onClick={() => handleSpeedChange(Math.min(1250, playSpeed + 250))}
+        >
+          Speed Down
+        </button>
       </div>
+
+      <div>Current Speed: {playSpeed} ms delay </div>
+
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: "20px",
+        }}
+      >
+        <div>
+          <h3>Your Original Array:</h3>
+          <div style={{ 
+            padding: "10px", 
+            backgroundColor: "#f0f0f0", 
+            borderRadius: "5px",
+            fontFamily: "monospace"
+          }}>
+            [{origArr.join(", ")}]
+          </div>
+        </div>
+        <div>
+          <h3>Your Original Array Sorted:</h3>
+          <div style={{ 
+            padding: "10px", 
+            backgroundColor: "#f0f0f0", 
+            borderRadius: "5px",
+            fontFamily: "monospace"
+          }}>
+            [{sortedArr.join(", ")}]
+          </div>
+        </div>
+      </div>   
 
       <div 
         style={{
@@ -249,7 +308,7 @@ const BubbleSortVisualizer = () => {
             {num}
           </div>
         ))}
-      </div>
+      </div> 
     </div>
   );
 };
