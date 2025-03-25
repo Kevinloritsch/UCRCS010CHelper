@@ -1,14 +1,14 @@
 "use client";
 
 import React, { useEffect, useState, useRef } from "react";
-import { bubbleSort } from './BubbleSort';
+import { bubbleSort } from "./BubbleSort";
 
 const BubbleSortVisualizer = () => {
   const [value, setValue] = useState("");
   const [origArr, setOrigArr] = useState<number[]>([]);
   const [cpyArr, setCpyArr] = useState<number[]>([]);
   const [sortedArr, setSortedArr] = useState<number[]>([]);
-  const isValidArray = (origArr.length > 0) && !(origArr.some((num) => isNaN(num)));
+  const isValidArray = origArr.length > 0 && !origArr.some((num) => isNaN(num));
   const [isSorting, setIsSorting] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   // const [currStep, setCurrStep] = useState(0);
@@ -35,7 +35,7 @@ const BubbleSortVisualizer = () => {
       setIsSorting(false);
       isSortingRef.current = false;
     }
-    
+
     const minLength = 5;
     const maxLength = 10;
     const randomLength = Math.floor(
@@ -90,7 +90,7 @@ const BubbleSortVisualizer = () => {
     isPausedRef.current = false;
     setIsSorting(true);
     isSortingRef.current = true;
-    
+
     doBubbleSort([...cpyArr], currIndexes.i, currIndexes.j);
   };
 
@@ -98,7 +98,7 @@ const BubbleSortVisualizer = () => {
     if (isSortingRef.current) {
       setIsSorting(false);
     }
-    
+
     setVar(origArr);
   };
 
@@ -147,25 +147,28 @@ const BubbleSortVisualizer = () => {
     }
 
     setTimeout(() => {
-      if (j < (arr.length - 1 - i) ) {
+      if (j < arr.length - 1 - i) {
         if (arr[j] > arr[j + 1]) {
           [arr[j], arr[j + 1]] = [arr[j + 1], arr[j]];
-          
+
           if (isPausedRef.current || !isSortingRef.current) return;
 
           setCpyArr([...arr]); // update arr post swap
 
           setTimeout(() => {
             // continue if not paused and still sorting
-            if (!isPausedRef.current && isSortingRef.current) doBubbleSort(arr, i, j + 1);
+            if (!isPausedRef.current && isSortingRef.current)
+              doBubbleSort(arr, i, j + 1);
           }, playSpeedRef.current);
         } else {
           // continue if not paused and still sorting
-          if (!isPausedRef.current && isSortingRef.current) doBubbleSort(arr, i, j + 1); 
+          if (!isPausedRef.current && isSortingRef.current)
+            doBubbleSort(arr, i, j + 1);
         }
       } else {
         // continue to next pass if not paused and still sorting
-        if (!isPausedRef.current && isSortingRef.current) doBubbleSort(arr, i + 1, 0);
+        if (!isPausedRef.current && isSortingRef.current)
+          doBubbleSort(arr, i + 1, 0);
       }
     }, playSpeedRef.current);
   };
@@ -179,18 +182,10 @@ const BubbleSortVisualizer = () => {
         onChange={(e) => setValue(e.target.value)}
       />
 
-      <div className = "flex grid grid-cols-5 justify-items-start gap-2 w-3/5" >
-        <button 
-          onClick={handleRandomizer}
-        >
-          Randomize
-        </button>
+      <div className="flex grid w-3/5 grid-cols-5 justify-items-start gap-2">
+        <button onClick={handleRandomizer}>Randomize</button>
 
-        <button
-          onClick={handleGenerate}
-        >
-          Submit
-        </button>
+        <button onClick={handleGenerate}>Submit</button>
 
         <button
           onClick={handleBubbleSort}
@@ -208,18 +203,14 @@ const BubbleSortVisualizer = () => {
             else handleResume();
           }}
           style={{
-            color: !isSorting && !isPaused? "grey" : "black", // grey out button when disabled
+            color: !isSorting && !isPaused ? "grey" : "black", // grey out button when disabled
           }}
           disabled={!isSorting && !isPaused}
         >
-          {!isPaused? "Pause" : "Resume"}
+          {!isPaused ? "Pause" : "Resume"}
         </button>
 
-        <button
-          onClick={handleReset}
-        >
-          Reset
-        </button>
+        <button onClick={handleReset}>Reset</button>
 
         <button
           onClick={() => handleSpeedChange(Math.max(250, playSpeed - 250))}
@@ -248,9 +239,9 @@ const BubbleSortVisualizer = () => {
         <div>
           <h3>Your Original Array Sorted: [{sortedArr.join(", ")}]</h3>
         </div>
-      </div>   
+      </div>
 
-      <div 
+      <div
         style={{
           marginTop: "20px",
           display: "flex",
@@ -283,7 +274,7 @@ const BubbleSortVisualizer = () => {
             {num}
           </div>
         ))}
-      </div> 
+      </div>
     </div>
   );
 };
