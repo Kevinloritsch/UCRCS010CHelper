@@ -99,11 +99,14 @@ const AVLVisualizer = () => {
         try {
           network.selectNodes([root.current.id]);
         } catch {
-          // Fine for silent fail
+          const allNodeIds = animationStates[currentStep].nodes.map(
+            (node) => node.id,
+          );
+
+          // Select all nodes
+          network.selectNodes(allNodeIds);
         }
         if (currentStep % 25 == 0) {
-          network.selectNodes([root.current.id]);
-
           network?.stabilize();
         }
       }

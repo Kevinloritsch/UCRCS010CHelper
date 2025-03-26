@@ -19,6 +19,8 @@ export function AppSidebar() {
             Home
           </Link>
         </SidebarMenuButton>
+
+        <div className="text-center font-bold">Trees</div>
         <SidebarMenuButton asChild>
           <Link href="/bst" className="">
             BST
@@ -28,6 +30,14 @@ export function AppSidebar() {
         <SidebarMenuButton asChild>
           <Link href="/avl" className="">
             AVL
+          </Link>
+        </SidebarMenuButton>
+
+        <div className="text-center font-bold">Sorts</div>
+
+        <SidebarMenuButton asChild>
+          <Link href="/bubble" className="">
+            Bubble Sort
           </Link>
         </SidebarMenuButton>
 
