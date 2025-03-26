@@ -2,7 +2,7 @@ import {
   DataSet,
   Network,
 } from "vis-network/standalone/umd/vis-network.min.js";
-import { TreeNode } from "@/components/BSTVisualizer";
+import { TreeNode } from "@/components/AVLVisualizer";
 import colors from "@/styles/colors";
 
 export const maxNode = async (

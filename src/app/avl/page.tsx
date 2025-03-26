@@ -1,6 +1,6 @@
 import AVLVizualizer from "@/components/AVLVisualizer";
 
-const Home = () => {
+const AVL = () => {
   return (
     <div>
       <AVLVizualizer />
@@ -8,4 +8,4 @@ const Home = () => {
   );
 };
 
-export default Home;
+export default AVL;

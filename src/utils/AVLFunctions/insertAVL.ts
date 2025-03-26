@@ -1,9 +1,37 @@
 import { DataSet } from "vis-network/standalone/umd/vis-network.min.js";
-import { TreeNode } from "@/components/BSTVisualizer";
+import { TreeNode } from "@/components/AVLVisualizer";
+import { rotateLeft } from "@/utils/AVLFunctions/rotateLeftAVL";
+import { rotateRight } from "@/utils/AVLFunctions/rotateRightAVL";
 import colors from "@/styles/colors";
 
 export const sleep = (ms: number) =>
   new Promise((resolve) => setTimeout(resolve, ms));
+
+export const getNodeHeight = (
+  nodeId: number,
+  nodes: React.MutableRefObject<DataSet<TreeNode>>,
+): number => {
+  const node = nodes.current.get(nodeId) as TreeNode | undefined;
+  if (!node) return -1;
+
+  const getHeight = (currentNode: TreeNode | null): number => {
+    if (!currentNode) return -1;
+
+    const leftChild = currentNode.left
+      ? (nodes.current.get(currentNode.left) as TreeNode | null)
+      : null;
+    const rightChild = currentNode.right
+      ? (nodes.current.get(currentNode.right) as TreeNode | null)
+      : null;
+
+    const leftHeight = getHeight(leftChild);
+    const rightHeight = getHeight(rightChild);
+
+    return 1 + Math.max(leftHeight, rightHeight);
+  };
+
+  return getHeight(node);
+};
 
 export const insertNode = async (
   value: number,
@@ -33,24 +61,19 @@ export const insertNode = async (
     const newNode: TreeNode = {
       id: 1,
       value,
+      parent: null,
       left: null,
       right: null,
       x: 0,
       y: 0,
-      label: "",
+      label: intOrLetter ? value.toString() : String.fromCharCode(value + 64),
     };
-    if (!intOrLetter) {
-      newNode.label = String.fromCharCode(value + 64);
-    } else {
-      newNode.label = value.toString();
-    }
+
     root.current = newNode;
     nodes.current.add(newNode);
     ++maxNodeId.current;
-    // reset values
 
     snapshot();
-
     return animationStates;
   }
 
@@ -87,7 +110,6 @@ export const insertNode = async (
     } else if (value > currentNode.value) {
       if (currentNode.right === null) {
         isLeftChild = false;
-
         break;
       }
       currentNode = nodes.current.get(currentNode.right) as TreeNode;
@@ -106,18 +128,13 @@ export const insertNode = async (
   const newNode: TreeNode = {
     id: newId,
     value,
+    parent: parentId,
     left: null,
     right: null,
     x: newX,
     y: newY,
-    label: "",
+    label: intOrLetter ? value.toString() : String.fromCharCode(value + 64),
   };
-
-  if (!intOrLetter) {
-    newNode.label = String.fromCharCode(value + 64);
-  } else {
-    newNode.label = value.toString();
-  }
 
   nodes.current.add(newNode);
 
@@ -131,6 +148,138 @@ export const insertNode = async (
   edges.current.add({ id: edgeId, from: parentId!, to: newId });
 
   snapshot();
+
+  // Update balance factors and check for imbalance
+  let parentNode =
+    parentId !== null
+      ? (nodes.current.get(parentId) as TreeNode | undefined)
+      : undefined;
+  while (parentNode) {
+    const leftHeight = parentNode.left
+      ? getNodeHeight(parentNode.left, nodes)
+      : -1;
+    const rightHeight = parentNode.right
+      ? getNodeHeight(parentNode.right, nodes)
+      : -1;
+    const parentNodeBf = rightHeight - leftHeight;
+    console.log(`Node ${parentNode.value} BF: ${parentNodeBf}`);
+
+    nodes.current.update({ id: parentNode.id });
+
+    // Check for imbalance and perform appropriate rotation
+    if (parentNodeBf > 1) {
+      // Right heavy - need to check child's balance factor
+      const rightChild = nodes.current.get(parentNode.right!) as TreeNode;
+      const rightChildLeftHeight = rightChild.left
+        ? getNodeHeight(rightChild.left, nodes)
+        : -1;
+      const rightChildRightHeight = rightChild.right
+        ? getNodeHeight(rightChild.right, nodes)
+        : -1;
+      const rightChildBf = rightChildRightHeight - rightChildLeftHeight;
+
+      if (rightChildBf < 0) {
+        nodes.current.update({
+          id: parentNode.right ?? undefined,
+          color: { background: colors.yellowSwap },
+        });
+
+        snapshot();
+        nodes.current.update({
+          id: parentNode.right ?? undefined,
+          color: { background: colors.defaultBlue },
+        });
+        snapshot();
+
+        rotateRight(parentNode.right!, depth, root, nodes, edges);
+        snapshot();
+
+        nodes.current.update({
+          id: parentNode.id ?? undefined,
+          color: { background: colors.yellowSwap },
+        });
+
+        snapshot();
+        nodes.current.update({
+          id: parentNode.id ?? undefined,
+          color: { background: colors.defaultBlue },
+        });
+        snapshot();
+        rotateLeft(parentNode.id, depth - 1, root, nodes, edges);
+        snapshot();
+      } else {
+        nodes.current.update({
+          id: parentNode.id ?? undefined,
+          color: { background: colors.yellowSwap },
+        });
+
+        snapshot();
+        nodes.current.update({
+          id: parentNode.id ?? undefined,
+          color: { background: colors.defaultBlue },
+        });
+        snapshot();
+        rotateLeft(parentNode.id, depth - 1, root, nodes, edges);
+        snapshot();
+      }
+    } else if (parentNodeBf < -1) {
+      const leftChild = nodes.current.get(parentNode.left!) as TreeNode;
+      const leftChildLeftHeight = leftChild.left
+        ? getNodeHeight(leftChild.left, nodes)
+        : -1;
+      const leftChildRightHeight = leftChild.right
+        ? getNodeHeight(leftChild.right, nodes)
+        : -1;
+      const leftChildBf = leftChildRightHeight - leftChildLeftHeight;
+
+      if (leftChildBf > 0) {
+        nodes.current.update({
+          id: parentNode.left ?? undefined,
+          color: { background: colors.yellowSwap },
+        });
+
+        snapshot();
+        nodes.current.update({
+          id: parentNode.left ?? undefined,
+          color: { background: colors.defaultBlue },
+        });
+        snapshot();
+        rotateLeft(parentNode.left!, depth, root, nodes, edges);
+        snapshot();
+        nodes.current.update({
+          id: parentNode.id ?? undefined,
+          color: { background: colors.yellowSwap },
+        });
+
+        snapshot();
+        nodes.current.update({
+          id: parentNode.id ?? undefined,
+          color: { background: colors.defaultBlue },
+        });
+        snapshot();
+        rotateRight(parentNode.id, depth - 1, root, nodes, edges);
+        snapshot();
+      } else {
+        nodes.current.update({
+          id: parentNode.id ?? undefined,
+          color: { background: colors.yellowSwap },
+        });
+
+        snapshot();
+        nodes.current.update({
+          id: parentNode.id ?? undefined,
+          color: { background: colors.defaultBlue },
+        });
+        snapshot();
+        rotateRight(parentNode.id, depth - 1, root, nodes, edges);
+        snapshot();
+      }
+    }
+
+    if (!parentNode.parent) break;
+    parentNode = nodes.current.get(parentNode.parent) as TreeNode | undefined;
+    depth--;
+  }
 
   const initialState = animationStates[0];
   nodes.current.clear();

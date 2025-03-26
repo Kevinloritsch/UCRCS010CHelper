@@ -182,7 +182,7 @@ const BubbleSortVisualizer = () => {
         onChange={(e) => setValue(e.target.value)}
       />
 
-      <div className="flex w-3/5 grid-cols-5 justify-items-start gap-2">
+      <div className="grid w-3/5 grid-cols-5 justify-items-start gap-2">
         <button onClick={handleRandomizer}>Randomize</button>
 
         <button onClick={handleGenerate}>Submit</button>

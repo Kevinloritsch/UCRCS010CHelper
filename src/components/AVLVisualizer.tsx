@@ -20,6 +20,7 @@ export type TreeNode = {
   value: number;
   left: number | null;
   right: number | null;
+  parent: number | null;
   x: number;
   y: number;
   label: string;
@@ -33,7 +34,7 @@ export type AnimationState = {
   edges: { id?: number; from: number; to: number }[];
 };
 
-const BSTVisualizer = () => {
+const AVLVisualizer = () => {
   const networkContainer = useRef(null);
   const [network, setNetwork] = useState<Network | null>(null);
   const nodes = useRef<DataSet<TreeNode>>(new DataSet([]));
@@ -94,11 +95,21 @@ const BSTVisualizer = () => {
         network &&
         root.current &&
         animationStates[currentStep].nodes.length > 0
-      )
-        network.selectNodes([root.current.id]);
+      ) {
+        try {
+          network.selectNodes([root.current.id]);
+        } catch {
+          const allNodeIds = animationStates[currentStep].nodes.map(
+            (node) => node.id,
+          );
 
-      if (currentStep % 25 == 0) network?.stabilize();
-
+          // Select all nodes
+          network.selectNodes(allNodeIds);
+        }
+        if (currentStep % 25 == 0) {
+          network?.stabilize();
+        }
+      }
       if (
         currentStep == animationStates.length - 1 &&
         network &&
@@ -594,4 +605,4 @@ const BSTVisualizer = () => {
   );
 };
 
-export default BSTVisualizer;
+export default AVLVisualizer;
