@@ -183,7 +183,7 @@ export const insertNode = async (
           id: parentNode.right ?? undefined,
           color: { background: colors.yellowSwap },
         });
-    
+
         snapshot();
         nodes.current.update({
           id: parentNode.right ?? undefined,
@@ -198,7 +198,7 @@ export const insertNode = async (
           id: parentNode.id ?? undefined,
           color: { background: colors.yellowSwap },
         });
-    
+
         snapshot();
         nodes.current.update({
           id: parentNode.id ?? undefined,
@@ -212,7 +212,7 @@ export const insertNode = async (
           id: parentNode.id ?? undefined,
           color: { background: colors.yellowSwap },
         });
-    
+
         snapshot();
         nodes.current.update({
           id: parentNode.id ?? undefined,
@@ -237,7 +237,7 @@ export const insertNode = async (
           id: parentNode.left ?? undefined,
           color: { background: colors.yellowSwap },
         });
-    
+
         snapshot();
         nodes.current.update({
           id: parentNode.left ?? undefined,
@@ -250,7 +250,7 @@ export const insertNode = async (
           id: parentNode.id ?? undefined,
           color: { background: colors.yellowSwap },
         });
-    
+
         snapshot();
         nodes.current.update({
           id: parentNode.id ?? undefined,
@@ -264,7 +264,7 @@ export const insertNode = async (
           id: parentNode.id ?? undefined,
           color: { background: colors.yellowSwap },
         });
-    
+
         snapshot();
         nodes.current.update({
           id: parentNode.id ?? undefined,

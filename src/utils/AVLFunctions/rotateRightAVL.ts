@@ -171,5 +171,4 @@ export const rotateRight = (
   if (hasLeftChildRight && leftChildRight) {
     flipSubtreeX(leftChildRight.id, nodes, depth + 1);
   }
-
 };

@@ -166,5 +166,4 @@ export const rotateLeft = (
   };
   if (hasRightChildLeft && rightChildLeft)
     flipSubtreeX(rightChildLeft.id, nodes, depth + 1);
-
 };
