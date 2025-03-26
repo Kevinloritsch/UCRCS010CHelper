@@ -1,4 +1,4 @@
-import BubbleSortVisualizer from "../components/BubbleSortVisualizer";
+import BubbleSortVisualizer from "../../components/BubbleSortVisualizer";
 
 const Home = () => {
   return (
