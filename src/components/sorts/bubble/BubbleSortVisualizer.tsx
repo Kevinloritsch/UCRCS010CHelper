@@ -1,89 +1,117 @@
 "use client";
 
-import React, { useEffect, useState, useRef } from "react";
-import { bubbleSort } from "./BubbleSort";
+import React from "react";
+import { SortProps } from "../SortProps";
+import { SortVisualizer } from "../SortVisualizer";
 
 const BubbleSortVisualizer = () => {
-  const [value, setValue] = useState("");
-  const [origArr, setOrigArr] = useState<number[]>([]);
-  const [cpyArr, setCpyArr] = useState<number[]>([]);
-  const [sortedArr, setSortedArr] = useState<number[]>([]);
-  const isValidArray = origArr.length > 0 && !origArr.some((num) => isNaN(num));
-  const [isSorting, setIsSorting] = useState(false);
-  const [isPaused, setIsPaused] = useState(false);
-  // const [currStep, setCurrStep] = useState(0);
-  const [currIndexes, setCurrIndexes] = useState<{ i: number; j: number }>({
-    i: -1,
-    j: -1,
-  });
-  const [playSpeed, setPlaySpeed] = useState<number>(750);
+  // const [value, setValue] = useState("");
+  // const [origArr, setOrigArr] = useState<number[]>([]);
+  // const [cpyArr, setCpyArr] = useState<number[]>([]);
+  // const [sortedArr, setSortedArr] = useState<number[]>([]);
+  // const isValidArray = origArr.length > 0 && !origArr.some((num) => isNaN(num));
+  // const [isSorting, setIsSorting] = useState(false);
+  // const [isPaused, setIsPaused] = useState(false);
+  // // const [currStep, setCurrStep] = useState(0);
+  // const [currIndexes, setCurrIndexes] = useState<{ i: number; j: number }>({
+  //   i: -1,
+  //   j: -1,
+  // });
+  // const [playSpeed, setPlaySpeed] = useState<number>(750);
 
-  // ref to track states
-  const isPausedRef = useRef(isPaused);
-  const isSortingRef = useRef(isSorting);
-  const playSpeedRef = useRef(playSpeed);
+  const {
+    value,
+    setValue,
+    origArr,
+    cpyArr,
+    setCpyArr,
+    sortedArr,
+    isValidArray,
+    isSorting,
+    setIsSorting,
+    isPaused,
+    setIsPaused,
+    currIndexes,
+    setCurrIndexes,
+    playSpeed,
+    playSpeedRef,
+    isPausedRef,
+    isSortingRef,
+    handleRandomizer,
+    handleGenerate,
+    handlePause,
+    // handleResume,
+    // handleReset,
+    handleSpeedChange,
+    setVar,
+  } = SortProps();
 
-  useEffect(() => {
-    isPausedRef.current = isPaused;
-    isSortingRef.current = isSorting;
-    playSpeedRef.current = playSpeed;
-  }, [isPaused, isSorting, playSpeed]);
+  // // ref to track states
+  // const isPausedRef = useRef(isPaused);
+  // const isSortingRef = useRef(isSorting);
+  // const playSpeedRef = useRef(playSpeed);
 
-  const handleRandomizer = () => {
-    // if currently sorting, stop sorting
-    if (isSortingRef.current) {
-      setIsSorting(false);
-      isSortingRef.current = false;
-    }
+  // useEffect(() => {
+  //   isPausedRef.current = isPaused;
+  //   isSortingRef.current = isSorting;
+  //   playSpeedRef.current = playSpeed;
+  // }, [isPaused, isSorting, playSpeed]);
 
-    const minLength = 5;
-    const maxLength = 10;
-    const randomLength = Math.floor(
-      Math.random() * (maxLength - minLength + 1) + minLength,
-    ); // random length from 5 to 10
-    const randomNums = Array.from(
-      { length: randomLength },
-      () => Math.floor(Math.random() * 99) + 1,
-    );
+  // const handleRandomizer = () => {
+  //   // if currently sorting, stop sorting
+  //   if (isSortingRef.current) {
+  //     setIsSorting(false);
+  //     isSortingRef.current = false;
+  //   }
 
-    setVar(randomNums);
-  };
+  //   const minLength = 5;
+  //   const maxLength = 10;
+  //   const randomLength = Math.floor(
+  //     Math.random() * (maxLength - minLength + 1) + minLength,
+  //   ); // random length from 5 to 10
+  //   const randomNums = Array.from(
+  //     { length: randomLength },
+  //     () => Math.floor(Math.random() * 99) + 1,
+  //   );
 
-  const handleGenerate = () => {
-    // if input empty send alert
-    if (!value) {
-      alert("You have not inputted any values");
-      return;
-    }
+  //   setVar(randomNums);
+  // };
 
-    // if currently sorting, stop sorting
-    if (isSortingRef.current) {
-      setIsSorting(false);
-      isSortingRef.current = false;
-    }
+  // const handleGenerate = () => {
+  //   // if input empty send alert
+  //   if (!value) {
+  //     alert("You have not inputted any values");
+  //     return;
+  //   }
 
-    const newArray = value
-      .split(",")
-      .map((num) => num.trim())
-      .filter((num) => {
-        const isValidNumber = /^-?\d+$/.test(num); // check if it has valid integers (ex. no "2a")
-        if (!isValidNumber) {
-          alert(`"${num}" is not a valid integer!`);
-        }
+  //   // if currently sorting, stop sorting
+  //   if (isSortingRef.current) {
+  //     setIsSorting(false);
+  //     isSortingRef.current = false;
+  //   }
 
-        return isValidNumber;
-      })
-      .map((num) => parseInt(num, 10));
+  //   const newArray = value
+  //     .split(",")
+  //     .map((num) => num.trim())
+  //     .filter((num) => {
+  //       const isValidNumber = /^-?\d+$/.test(num); // check if it has valid integers (ex. no "2a")
+  //       if (!isValidNumber) {
+  //         alert(`"${num}" is not a valid integer!`);
+  //       }
 
-    setVar(newArray);
-  };
+  //       return isValidNumber;
+  //     })
+  //     .map((num) => parseInt(num, 10));
 
-  const handlePause = () => {
-    setIsPaused(true);
-    isPausedRef.current = true;
-    setIsSorting(false);
-    isSortingRef.current = false;
-  };
+  //   setVar(newArray);
+  // };
+
+  // const handlePause = () => {
+  //   setIsPaused(true);
+  //   isPausedRef.current = true;
+  //   setIsSorting(false);
+  //   isSortingRef.current = false;
+  // };
 
   const handleResume = () => {
     setIsPaused(false);
@@ -115,20 +143,19 @@ const BubbleSortVisualizer = () => {
     doBubbleSort([...cpyArr], 0, 0);
   };
 
-  const handleSpeedChange = (newSpeed: number) => {
-    setPlaySpeed(newSpeed);
-  };
+  // const handleSpeedChange = (newSpeed: number) => {
+  //   setPlaySpeed(newSpeed);
+  // };
 
-  const setVar = (arrInp: number[]) => {
-    setOrigArr(arrInp);
-    setCpyArr(arrInp);
-    setSortedArr(bubbleSort([...arrInp]));
-    // setCurrStep(0);
-    setCurrIndexes({ i: -1, j: -1 });
-    setPlaySpeed(750);
-    setIsPaused(false);
-    setIsSorting(false);
-  };
+  // const setVar = (arrInp: number[]) => {
+  //   setCpyArr(arrInp);
+  //   setSortedArr(bubbleSort([...arrInp]));
+  //   // setCurrStep(0);
+  //   setCurrIndexes({ i: -1, j: -1 });
+  //   setPlaySpeed(750);
+  //   setIsPaused(false);
+  //   setIsSorting(false);
+  // };
 
   // recursive bubble helper
   const doBubbleSort = (arr: number[], i: number, j: number) => {
@@ -189,9 +216,7 @@ const BubbleSortVisualizer = () => {
 
         <button
           onClick={handleBubbleSort}
-          style={{
-            color: !isValidArray || isSorting ? "grey" : "black", // grey out button when disabled
-          }}
+          style={{ color: !isValidArray || isSorting ? "grey" : "black" }} // grey out button when disabled
           disabled={!isValidArray || isSorting}
         >
           Bubble Sort
@@ -202,9 +227,7 @@ const BubbleSortVisualizer = () => {
             if (!isPaused) handlePause();
             else handleResume();
           }}
-          style={{
-            color: !isSorting && !isPaused ? "grey" : "black", // grey out button when disabled
-          }}
+          style={{ color: !isSorting && !isPaused ? "grey" : "black" }} // grey out button when disabled
           disabled={!isSorting && !isPaused}
         >
           {!isPaused ? "Pause" : "Resume"}
@@ -212,15 +235,11 @@ const BubbleSortVisualizer = () => {
 
         <button onClick={handleReset}>Reset</button>
 
-        <button
-          onClick={() => handleSpeedChange(Math.max(250, playSpeed - 250))}
-        >
+        <button onClick={() => handleSpeedChange(Math.max(250, playSpeed - 250))}>
           Speed Up
         </button>
 
-        <button
-          onClick={() => handleSpeedChange(Math.min(1250, playSpeed + 250))}
-        >
+        <button onClick={() => handleSpeedChange(Math.min(1250, playSpeed + 250))}>
           Speed Down
         </button>
       </div>
@@ -241,7 +260,7 @@ const BubbleSortVisualizer = () => {
         </div>
       </div>
 
-      <div
+      {/* <div
         style={{
           marginTop: "20px",
           display: "flex",
@@ -274,7 +293,13 @@ const BubbleSortVisualizer = () => {
             {num}
           </div>
         ))}
-      </div>
+      </div> */}
+
+      <SortVisualizer
+        array={cpyArr}
+        currentIndexes={currIndexes}
+        isSorting={isSorting}
+      />
     </div>
   );
 };
