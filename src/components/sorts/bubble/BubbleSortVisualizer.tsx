@@ -28,7 +28,6 @@ const BubbleSortVisualizer = () => {
     handlePause,
     handleReset,
     handleSpeedChange,
-    setVar,
   } = SortProps();
 
   // each sort has to have their own handleResume func
@@ -101,68 +100,26 @@ const BubbleSortVisualizer = () => {
 
   return (
     <div>
-      <h1>Bubble Sort Visualizer</h1>
-      <input
-        placeholder="Enter array value"
-        value={value}
-        onChange={(e) => setValue(e.target.value)}
-      />
-
-      <div className="grid w-3/5 grid-cols-5 justify-items-start gap-2">
-        <button onClick={handleRandomizer}>Randomize</button>
-
-        <button onClick={handleGenerate}>Submit</button>
-
-        <button
-          onClick={handleBubbleSort}
-          style={{ color: !isValidArray || isSorting ? "grey" : "black" }} // grey out button when disabled
-          disabled={!isValidArray || isSorting}
-        >
-          Bubble Sort
-        </button>
-
-        <button
-          onClick={() => {
-            if (!isPaused) handlePause();
-            else handleResume();
-          }}
-          style={{ color: !isSorting && !isPaused ? "grey" : "black" }} // grey out button when disabled
-          disabled={!isSorting && !isPaused}
-        >
-          {!isPaused ? "Pause" : "Resume"}
-        </button>
-
-        <button onClick={handleReset}>Reset</button>
-
-        <button onClick={() => handleSpeedChange(Math.max(250, playSpeed - 250))}>
-          Speed Up
-        </button>
-
-        <button onClick={() => handleSpeedChange(Math.min(1250, playSpeed + 250))}>
-          Speed Down
-        </button>
-      </div>
-
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          gap: "5px",
-        }}
-      >
-        <div>Current Speed: {playSpeed} ms delay </div>
-        <div>
-          <h3>Your Original Array: [{origArr.join(", ")}]</h3>
-        </div>
-        <div>
-          <h3>Your Original Array Sorted: [{sortedArr.join(", ")}]</h3>
-        </div>
-      </div>
-
       <SortVisualizer
+        title="Bubble Sort Visualizer"
         array={cpyArr}
         currentIndexes={currIndexes}
         isSorting={isSorting}
+        value={value}
+        onValueChange={(e) => setValue(e.target.value)}
+        onRandomize={handleRandomizer}
+        onSubmit={handleGenerate}
+        onSort={handleBubbleSort}
+        onPauseResume={() => (!isPaused ? handlePause() : handleResume())}
+        onReset={handleReset}
+        onSpeedUp={() => handleSpeedChange(Math.max(250, playSpeed - 250))}
+        onSpeedDown={() => handleSpeedChange(Math.min(1250, playSpeed + 250))}
+        isValidArray={isValidArray}
+        isPaused={isPaused}
+        playSpeed={playSpeed}
+        origArr={origArr}
+        sortedArr={sortedArr}
+        sortButtonText="Bubble Sort"
       />
     </div>
   );

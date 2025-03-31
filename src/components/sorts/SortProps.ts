@@ -131,7 +131,6 @@ export const SortProps = (initialArr: number[] = []) => {
     handlePause,
     handleReset,
     handleSpeedChange,
-    setVar,
   };
 };
 
