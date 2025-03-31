@@ -85,22 +85,13 @@ export const SortProps = (initialArr: number[] = []) => {
     isSortingRef.current = false;
   };
 
-  // const handleResume = () => {
-  //   setIsPaused(false);
-  //   isPausedRef.current = false;
-  //   setIsSorting(true);
-  //   isSortingRef.current = true;
+  const handleReset = () => {
+    if (isSortingRef.current) {
+      setIsSorting(false);
+    }
 
-  //   // doBubbleSort([...cpyArr], currIndexes.i, currIndexes.j);
-  // };
-
-  // const handleReset = () => {
-  //   if (isSortingRef.current) {
-  //     setIsSorting(false);
-  //   }
-
-  //   setVar(origArr);
-  // };
+    setVar(origArr);
+  };
 
   const handleSpeedChange = (newSpeed: number) => {
     setPlaySpeed(newSpeed);
@@ -138,8 +129,7 @@ export const SortProps = (initialArr: number[] = []) => {
     handleRandomizer,
     handleGenerate,
     handlePause,
-    // handleResume,
-    // handleReset,
+    handleReset,
     handleSpeedChange,
     setVar,
   };
