@@ -41,7 +41,6 @@ const BubbleSortVisualizer = () => {
     doBubbleSort([...cpyArr], currIndexes.i, currIndexes.j);
   };
 
-
   const handleBubbleSort = () => {
     isPausedRef.current = isPaused;
     isSortingRef.current = isSorting;
@@ -65,7 +64,7 @@ const BubbleSortVisualizer = () => {
 
     setCurrIndexes({ i, j }); // current indexes being compared
 
-    // stuck in recursion while paused
+    // stay stuck in recursion while paused
     if (isPausedRef.current) {
       setTimeout(() => doBubbleSort(arr, i, j), 100);
       return;

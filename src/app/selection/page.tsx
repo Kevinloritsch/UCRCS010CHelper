@@ -3,7 +3,7 @@ import SelectionSortVisualizer from "@/components/sorts/selection/SelectionSortV
 const Home = () => {
   return (
     <div>
-      <SelectionSortVisualizer/>
+      <SelectionSortVisualizer />
     </div>
   );
 };
