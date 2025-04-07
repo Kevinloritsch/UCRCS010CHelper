@@ -3,7 +3,35 @@ import {
   Network,
 } from "vis-network/standalone/umd/vis-network.min.js";
 import { TreeNode } from "@/components/AVLVisualizer";
+// import { rotateLeft } from "@/utils/AVLFunctions/rotateLeftAVL";
+// import { rotateRight } from "@/utils/AVLFunctions/rotateRightAVL";
 import colors from "@/styles/colors";
+
+export const getNodeHeight = (
+  nodeId: number,
+  nodes: React.MutableRefObject<DataSet<TreeNode>>,
+): number => {
+  const node = nodes.current.get(nodeId) as TreeNode | undefined;
+  if (!node) return -1;
+
+  const getHeight = (currentNode: TreeNode | null): number => {
+    if (!currentNode) return -1;
+
+    const leftChild = currentNode.left
+      ? (nodes.current.get(currentNode.left) as TreeNode | null)
+      : null;
+    const rightChild = currentNode.right
+      ? (nodes.current.get(currentNode.right) as TreeNode | null)
+      : null;
+
+    const leftHeight = getHeight(leftChild);
+    const rightHeight = getHeight(rightChild);
+
+    return 1 + Math.max(leftHeight, rightHeight);
+  };
+
+  return getHeight(node);
+};
 
 // custom defines "pause" buffer
 export const sleep = (ms: number) =>
@@ -24,6 +52,7 @@ export const removeNode = async (
     DataSet<{ id?: number; from: number; to: number }>
   >,
   network: Network | null,
+  isInitialCall: boolean = true,
 ): Promise<AnimationState[]> => {
   const tempRoot = root.current
     ? (nodes.current.get(1) as TreeNode | null)
@@ -60,6 +89,12 @@ export const removeNode = async (
 
   // iterator
   let currentNode = nodes.current.get(nodeId) as TreeNode | null;
+  if (isInitialCall) {
+    while (currentNode && currentNode.parent) {
+      currentNode = nodes.current.get(currentNode.parent) as TreeNode | null;
+      console.log(currentNode);
+    }
+  }
   let parentNode: TreeNode | null = null;
 
   // this is for the recursive cases, itll be passed in as 0 for the default case
@@ -232,6 +267,26 @@ export const removeNode = async (
         color: { background: colors.yellowSwap },
       });
 
+      const currentParentId = currentNode.parent;
+      const childParentId = childNode.parent;
+
+      nodes.current.update({
+        id: currentNode.id,
+        parent: currentParentId,
+      });
+      console.log(
+        "Node " + currentNode.value + " parent updated to " + currentParentId,
+      );
+
+      nodes.current.update({
+        id: childNode.id,
+        parent: childParentId,
+      });
+
+      console.log(
+        "Node " + childNode.value + " parent updated to " + childParentId,
+      );
+
       // reset values
       if (network) {
         network.stabilize();
@@ -269,6 +324,7 @@ export const removeNode = async (
             nodes,
             edges,
             network,
+            false,
           );
           return animationStates.concat(recursiveStates);
         }
@@ -310,6 +366,16 @@ export const removeNode = async (
   }
 
   snapshot();
+
+  let depth = 0;
+  let current = nodes.current.get(nodeId) as TreeNode | null;
+
+  while (current && current.parent !== null) {
+    current = nodes.current.get(current.parent) as TreeNode | null;
+    depth++;
+  }
+
+  console.log(depth);
 
   const initialState = animationStates[0];
   nodes.current.clear();

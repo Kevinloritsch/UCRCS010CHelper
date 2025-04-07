@@ -345,6 +345,7 @@ const AVLVisualizer = () => {
                 nodes,
                 edges,
                 network,
+                true,
               );
               setAnimationStates(newAnimationStates || []);
               setIsPlaying(true);
@@ -520,6 +521,7 @@ const AVLVisualizer = () => {
                   nodes,
                   edges,
                   network,
+                  true,
                 );
                 setAnimationStates(animationStates || []);
                 if (printValue) {
@@ -551,6 +553,7 @@ const AVLVisualizer = () => {
                   nodes,
                   edges,
                   network,
+                  true,
                 );
                 setAnimationStates(animationStates || []);
                 if (printValue) {
@@ -578,7 +581,7 @@ const AVLVisualizer = () => {
             onClick={async () => {
               if (network) {
                 const { animationStates, printValue } =
-                  await postOrderTraversal(1, nodes, edges, network);
+                  await postOrderTraversal(1, nodes, edges, network, true);
                 if (printValue) {
                   const trimmedValue = printValue.replace(/,\s*$/, "");
                   setPrintValue("Post Order: " + trimmedValue);
