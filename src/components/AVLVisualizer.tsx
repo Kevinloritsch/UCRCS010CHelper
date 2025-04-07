@@ -161,7 +161,7 @@ const AVLVisualizer = () => {
 
             if (intOrLetter) {
               // Allow only integers when intOrLetter is true
-              if (/^\d*\.?\d*$/.test(newValue)) {
+              if (/^-?\d*\.?\d*$/.test(newValue)) {
                 setValue(newValue);
               }
             } else {
