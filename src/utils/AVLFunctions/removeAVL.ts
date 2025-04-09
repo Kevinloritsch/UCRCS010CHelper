@@ -199,18 +199,17 @@ export const removeNode = async (
     );
 
     let depth = 0;
-    let parentNode = currentNode?.parent != null 
-      ? (nodes.current.get(currentNode.parent) as TreeNode | undefined) 
-      : null;
-
+    let parentNode =
+      currentNode?.parent != null
+        ? (nodes.current.get(currentNode.parent) as TreeNode | undefined)
+        : null;
 
     while (currentNode && currentNode.parent !== null) {
       currentNode = nodes.current.get(currentNode.parent) as TreeNode | null;
       depth++;
     }
 
-
-    snapshot()
+    snapshot();
 
     while (parentNode) {
       const leftHeight = parentNode.left
@@ -221,9 +220,9 @@ export const removeNode = async (
         : -1;
       const parentNodeBf = rightHeight - leftHeight;
       console.log(`Node ${parentNode.value} BF: ${parentNodeBf}`);
-  
+
       nodes.current.update({ id: parentNode.id });
-  
+
       // Check for imbalance and perform appropriate rotation
       if (parentNodeBf > 1) {
         // Right heavy - need to check child's balance factor
@@ -235,28 +234,28 @@ export const removeNode = async (
           ? getNodeHeight(rightChild.right, nodes)
           : -1;
         const rightChildBf = rightChildRightHeight - rightChildLeftHeight;
-  
+
         if (rightChildBf < 0) {
           nodes.current.update({
             id: parentNode.right ?? undefined,
             color: { background: colors.yellowSwap },
           });
-  
+
           snapshot();
           nodes.current.update({
             id: parentNode.right ?? undefined,
             color: { background: colors.defaultBlue },
           });
           snapshot();
-  
+
           rotateRight(parentNode.right!, depth, root, nodes, edges);
           snapshot();
-  
+
           nodes.current.update({
             id: parentNode.id ?? undefined,
             color: { background: colors.yellowSwap },
           });
-  
+
           snapshot();
           nodes.current.update({
             id: parentNode.id ?? undefined,
@@ -270,7 +269,7 @@ export const removeNode = async (
             id: parentNode.id ?? undefined,
             color: { background: colors.yellowSwap },
           });
-  
+
           snapshot();
           nodes.current.update({
             id: parentNode.id ?? undefined,
@@ -289,13 +288,13 @@ export const removeNode = async (
           ? getNodeHeight(leftChild.right, nodes)
           : -1;
         const leftChildBf = leftChildRightHeight - leftChildLeftHeight;
-  
+
         if (leftChildBf > 0) {
           nodes.current.update({
             id: parentNode.left ?? undefined,
             color: { background: colors.yellowSwap },
           });
-  
+
           snapshot();
           nodes.current.update({
             id: parentNode.left ?? undefined,
@@ -308,7 +307,7 @@ export const removeNode = async (
             id: parentNode.id ?? undefined,
             color: { background: colors.yellowSwap },
           });
-  
+
           snapshot();
           nodes.current.update({
             id: parentNode.id ?? undefined,
@@ -322,7 +321,7 @@ export const removeNode = async (
             id: parentNode.id ?? undefined,
             color: { background: colors.yellowSwap },
           });
-  
+
           snapshot();
           nodes.current.update({
             id: parentNode.id ?? undefined,
@@ -333,7 +332,7 @@ export const removeNode = async (
           snapshot();
         }
       }
-  
+
       if (!parentNode.parent) break;
       parentNode = nodes.current.get(parentNode.parent) as TreeNode | undefined;
       depth--;
@@ -476,13 +475,12 @@ export const removeNode = async (
 
       // adjust parents accordingly
       if (parentNodeTemp) {
-        console.log("meow")
+        console.log("meow");
         if (parentNodeTemp.left === childNode.id) {
           parentNodeTemp.left = null;
         } else if (parentNodeTemp.right === childNode.id) {
           parentNodeTemp.right = null;
         }
-        
       }
 
       nodes.current.update(currentNode);
