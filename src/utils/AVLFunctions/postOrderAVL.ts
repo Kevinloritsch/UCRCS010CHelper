@@ -11,10 +11,15 @@ export const postOrderTraversal = async (
   edges: React.MutableRefObject<
     DataSet<{ id?: number; from: number; to: number }>
   >,
-
   network: Network | null,
+  isInitialCall: boolean = true,
 ) => {
-  const tempRoot = nodes.current.get(nodeId) as TreeNode | null;
+  let tempRoot = nodes.current.get(nodeId) as TreeNode | null;
+  if (isInitialCall) {
+    while (tempRoot && tempRoot.parent) {
+      tempRoot = nodes.current.get(tempRoot.parent) as TreeNode | null;
+    }
+  }
   let animationStates: {
     nodes: TreeNode[];
     edges: { id?: number; from: number; to: number }[];
@@ -64,6 +69,7 @@ export const postOrderTraversal = async (
       nodes,
       edges,
       network,
+      false,
     );
     console.log(recursiveStates.animationStates);
     animationStates = animationStates.concat(recursiveStates.animationStates);
@@ -76,6 +82,7 @@ export const postOrderTraversal = async (
       nodes,
       edges,
       network,
+      false,
     );
 
     animationStates = animationStates.concat(recursiveStates.animationStates);

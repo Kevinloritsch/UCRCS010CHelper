@@ -166,6 +166,19 @@ export const insertNode = async (
 
     nodes.current.update({ id: parentNode.id });
 
+    snapshot();
+    nodes.current.update({
+      id: parentNode!.id,
+      color: { background: colors.yellowSwap },
+    });
+
+    snapshot();
+    nodes.current.update({
+      id: parentNode!.id,
+      color: { background: colors.defaultBlue },
+    });
+    snapshot();
+
     // Check for imbalance and perform appropriate rotation
     if (parentNodeBf > 1) {
       // Right heavy - need to check child's balance factor
@@ -181,7 +194,7 @@ export const insertNode = async (
       if (rightChildBf < 0) {
         nodes.current.update({
           id: parentNode.right ?? undefined,
-          color: { background: colors.yellowSwap },
+          color: { background: colors.greenFinal },
         });
 
         snapshot();
@@ -196,7 +209,7 @@ export const insertNode = async (
 
         nodes.current.update({
           id: parentNode.id ?? undefined,
-          color: { background: colors.yellowSwap },
+          color: { background: colors.greenFinal },
         });
 
         snapshot();
@@ -210,7 +223,7 @@ export const insertNode = async (
       } else {
         nodes.current.update({
           id: parentNode.id ?? undefined,
-          color: { background: colors.yellowSwap },
+          color: { background: colors.greenFinal },
         });
 
         snapshot();
@@ -235,7 +248,7 @@ export const insertNode = async (
       if (leftChildBf > 0) {
         nodes.current.update({
           id: parentNode.left ?? undefined,
-          color: { background: colors.yellowSwap },
+          color: { background: colors.greenFinal },
         });
 
         snapshot();
@@ -248,7 +261,7 @@ export const insertNode = async (
         snapshot();
         nodes.current.update({
           id: parentNode.id ?? undefined,
-          color: { background: colors.yellowSwap },
+          color: { background: colors.greenFinal },
         });
 
         snapshot();
@@ -262,7 +275,7 @@ export const insertNode = async (
       } else {
         nodes.current.update({
           id: parentNode.id ?? undefined,
-          color: { background: colors.yellowSwap },
+          color: { background: colors.greenFinal },
         });
 
         snapshot();

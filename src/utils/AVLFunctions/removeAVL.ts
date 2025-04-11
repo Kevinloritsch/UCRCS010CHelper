@@ -3,7 +3,35 @@ import {
   Network,
 } from "vis-network/standalone/umd/vis-network.min.js";
 import { TreeNode } from "@/components/AVLVisualizer";
+import { rotateLeft } from "@/utils/AVLFunctions/rotateLeftAVL";
+import { rotateRight } from "@/utils/AVLFunctions/rotateRightAVL";
 import colors from "@/styles/colors";
+
+export const getNodeHeight = (
+  nodeId: number,
+  nodes: React.MutableRefObject<DataSet<TreeNode>>,
+): number => {
+  const node = nodes.current.get(nodeId) as TreeNode | undefined;
+  if (!node) return -1;
+
+  const getHeight = (currentNode: TreeNode | null): number => {
+    if (!currentNode) return -1;
+
+    const leftChild = currentNode.left
+      ? (nodes.current.get(currentNode.left) as TreeNode | null)
+      : null;
+    const rightChild = currentNode.right
+      ? (nodes.current.get(currentNode.right) as TreeNode | null)
+      : null;
+
+    const leftHeight = getHeight(leftChild);
+    const rightHeight = getHeight(rightChild);
+
+    return 1 + Math.max(leftHeight, rightHeight);
+  };
+
+  return getHeight(node);
+};
 
 // custom defines "pause" buffer
 export const sleep = (ms: number) =>
@@ -24,6 +52,7 @@ export const removeNode = async (
     DataSet<{ id?: number; from: number; to: number }>
   >,
   network: Network | null,
+  isInitialCall: boolean = true,
 ): Promise<AnimationState[]> => {
   const tempRoot = root.current
     ? (nodes.current.get(1) as TreeNode | null)
@@ -60,11 +89,17 @@ export const removeNode = async (
 
   // iterator
   let currentNode = nodes.current.get(nodeId) as TreeNode | null;
-  let parentNode: TreeNode | null = null;
+  if (isInitialCall) {
+    while (currentNode && currentNode.parent) {
+      currentNode = nodes.current.get(currentNode.parent) as TreeNode | null;
+      console.log(currentNode);
+    }
+  }
+  let parentNodeTemp: TreeNode | null = null;
 
   // this is for the recursive cases, itll be passed in as 0 for the default case
   if (parentID != 0) {
-    parentNode = nodes.current.get(parentID) as TreeNode | null;
+    parentNodeTemp = nodes.current.get(parentID) as TreeNode | null;
   }
 
   let isLeftChild = false;
@@ -87,7 +122,7 @@ export const removeNode = async (
     // standard bst logic
     if (value < currentNode.value) {
       if (currentNode.left) {
-        parentNode = currentNode;
+        parentNodeTemp = currentNode;
         currentNode = nodes.current.get(currentNode.left) as TreeNode;
         isLeftChild = true;
       } else {
@@ -95,7 +130,7 @@ export const removeNode = async (
       }
     } else if (value > currentNode.value) {
       if (currentNode.right) {
-        parentNode = currentNode;
+        parentNodeTemp = currentNode;
         currentNode = nodes.current.get(currentNode.right) as TreeNode;
         isLeftChild = false;
       } else {
@@ -123,13 +158,13 @@ export const removeNode = async (
   // if it has no children case
   if (!currentNode.left && !currentNode.right) {
     // make sure parents point accordingly
-    if (parentNode) {
-      if (isLeftChild || parentNode.left == currentNode.id) {
-        parentNode.left = null;
+    if (parentNodeTemp) {
+      if (isLeftChild || parentNodeTemp.left == currentNode.id) {
+        parentNodeTemp.left = null;
       } else {
-        parentNode.right = null;
+        parentNodeTemp.right = null;
       }
-      nodes.current.update(parentNode);
+      nodes.current.update(parentNodeTemp);
     } else {
       root.current = null;
     }
@@ -160,8 +195,160 @@ export const removeNode = async (
     // bye bye!
     nodes.current.remove(currentNode.id);
     edges.current.remove(
-      edges.current.getIds({ filter: (edge) => edge.to === currentNode.id }),
+      edges.current.getIds({ filter: (edge) => edge.to === currentNode!.id }),
     );
+
+    let depth = 0;
+    let parentNode =
+      currentNode?.parent != null
+        ? (nodes.current.get(currentNode.parent) as TreeNode | undefined)
+        : null;
+
+    while (currentNode && currentNode.parent !== null) {
+      currentNode = nodes.current.get(currentNode.parent) as TreeNode | null;
+      depth++;
+    }
+
+    snapshot();
+
+    while (parentNode) {
+      const leftHeight = parentNode.left
+        ? getNodeHeight(parentNode.left, nodes)
+        : -1;
+      const rightHeight = parentNode.right
+        ? getNodeHeight(parentNode.right, nodes)
+        : -1;
+      const parentNodeBf = rightHeight - leftHeight;
+
+      nodes.current.update({ id: parentNode.id });
+
+      snapshot();
+      nodes.current.update({
+        id: parentNode!.id,
+        color: { background: colors.yellowSwap },
+      });
+
+      snapshot();
+      nodes.current.update({
+        id: parentNode!.id,
+        color: { background: colors.defaultBlue },
+      });
+      snapshot();
+
+      // Check for imbalance and perform appropriate rotation
+      if (parentNodeBf > 1) {
+        // Right heavy - need to check child's balance factor
+        const rightChild = nodes.current.get(parentNode.right!) as TreeNode;
+        const rightChildLeftHeight = rightChild.left
+          ? getNodeHeight(rightChild.left, nodes)
+          : -1;
+        const rightChildRightHeight = rightChild.right
+          ? getNodeHeight(rightChild.right, nodes)
+          : -1;
+        const rightChildBf = rightChildRightHeight - rightChildLeftHeight;
+
+        if (rightChildBf < 0) {
+          nodes.current.update({
+            id: parentNode.right ?? undefined,
+            color: { background: colors.greenFinal },
+          });
+
+          snapshot();
+          nodes.current.update({
+            id: parentNode.right ?? undefined,
+            color: { background: colors.defaultBlue },
+          });
+          snapshot();
+
+          rotateRight(parentNode.right!, depth, root, nodes, edges);
+          snapshot();
+
+          nodes.current.update({
+            id: parentNode.id ?? undefined,
+            color: { background: colors.greenFinal },
+          });
+
+          snapshot();
+          nodes.current.update({
+            id: parentNode.id ?? undefined,
+            color: { background: colors.defaultBlue },
+          });
+          snapshot();
+          rotateLeft(parentNode.id, depth - 1, root, nodes, edges);
+          snapshot();
+        } else {
+          nodes.current.update({
+            id: parentNode.id ?? undefined,
+            color: { background: colors.greenFinal },
+          });
+
+          snapshot();
+          nodes.current.update({
+            id: parentNode.id ?? undefined,
+            color: { background: colors.defaultBlue },
+          });
+          snapshot();
+          rotateLeft(parentNode.id, depth - 1, root, nodes, edges);
+          snapshot();
+        }
+      } else if (parentNodeBf < -1) {
+        const leftChild = nodes.current.get(parentNode.left!) as TreeNode;
+        const leftChildLeftHeight = leftChild.left
+          ? getNodeHeight(leftChild.left, nodes)
+          : -1;
+        const leftChildRightHeight = leftChild.right
+          ? getNodeHeight(leftChild.right, nodes)
+          : -1;
+        const leftChildBf = leftChildRightHeight - leftChildLeftHeight;
+
+        if (leftChildBf > 0) {
+          nodes.current.update({
+            id: parentNode.left ?? undefined,
+            color: { background: colors.greenFinal },
+          });
+
+          snapshot();
+          nodes.current.update({
+            id: parentNode.left ?? undefined,
+            color: { background: colors.defaultBlue },
+          });
+          snapshot();
+          rotateLeft(parentNode.left!, depth, root, nodes, edges);
+          snapshot();
+          nodes.current.update({
+            id: parentNode.id ?? undefined,
+            color: { background: colors.greenFinal },
+          });
+
+          snapshot();
+          nodes.current.update({
+            id: parentNode.id ?? undefined,
+            color: { background: colors.defaultBlue },
+          });
+          snapshot();
+          rotateRight(parentNode.id, depth - 1, root, nodes, edges);
+          snapshot();
+        } else {
+          nodes.current.update({
+            id: parentNode.id ?? undefined,
+            color: { background: colors.greenFinal },
+          });
+
+          snapshot();
+          nodes.current.update({
+            id: parentNode.id ?? undefined,
+            color: { background: colors.defaultBlue },
+          });
+          snapshot();
+          rotateRight(parentNode.id, depth - 1, root, nodes, edges);
+          snapshot();
+        }
+      }
+
+      if (!parentNode.parent) break;
+      parentNode = nodes.current.get(parentNode.parent) as TreeNode | undefined;
+      depth--;
+    }
   }
 
   // case with children
@@ -173,21 +360,21 @@ export const removeNode = async (
     // main thing here is finding the predecessor (if there is one), or sucessor otherwise
     // the "more" flag is if we go "more" than one step away from a given node, as that affects pointer logic later on
     if (currentNode.left !== null) {
-      parentNode = currentNode;
+      parentNodeTemp = currentNode;
       let leftChild = nodes.current.get(currentNode.left) as TreeNode;
       console.log(leftChild);
       while (leftChild.right !== null) {
         more = true;
-        parentNode = leftChild;
+        parentNodeTemp = leftChild;
         leftChild = nodes.current.get(leftChild.right) as TreeNode;
       }
       childNode = leftChild;
     } else if (currentNode.right !== null) {
-      parentNode = currentNode;
+      parentNodeTemp = currentNode;
       let rightChild = nodes.current.get(currentNode.right) as TreeNode;
       while (rightChild.left !== null) {
         more = true;
-        parentNode = rightChild;
+        parentNodeTemp = rightChild;
         rightChild = nodes.current.get(rightChild.left) as TreeNode;
       }
       childNode = rightChild;
@@ -232,6 +419,19 @@ export const removeNode = async (
         color: { background: colors.yellowSwap },
       });
 
+      const currentParentId = currentNode.parent;
+      const childParentId = childNode.parent;
+
+      nodes.current.update({
+        id: currentNode.id,
+        parent: currentParentId,
+      });
+
+      nodes.current.update({
+        id: childNode.id,
+        parent: childParentId,
+      });
+
       // reset values
       if (network) {
         network.stabilize();
@@ -260,15 +460,16 @@ export const removeNode = async (
       // if the node has any child, we have to do a recursive call
       if (currentNode.left || currentNode.right) {
         // call the function with the new values
-        if (parentNode) {
+        if (parentNodeTemp) {
           const recursiveStates = await removeNode(
             childNode.id,
             currentNode.value,
-            parentNode.id,
+            parentNodeTemp.id,
             root,
             nodes,
             edges,
             network,
+            false,
           );
           return animationStates.concat(recursiveStates);
         }
@@ -278,11 +479,11 @@ export const removeNode = async (
       nodes.current.remove(currentNode.id);
 
       // adjust parents accordingly
-      if (parentNode) {
-        if (parentNode.left === childNode.id) {
-          parentNode.left = null;
-        } else if (parentNode.right === childNode.id) {
-          parentNode.right = null;
+      if (parentNodeTemp) {
+        if (parentNodeTemp.left === childNode.id) {
+          parentNodeTemp.left = null;
+        } else if (parentNodeTemp.right === childNode.id) {
+          parentNodeTemp.right = null;
         }
       }
 
