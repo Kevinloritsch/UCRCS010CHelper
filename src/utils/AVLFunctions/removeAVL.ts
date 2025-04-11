@@ -219,9 +219,21 @@ export const removeNode = async (
         ? getNodeHeight(parentNode.right, nodes)
         : -1;
       const parentNodeBf = rightHeight - leftHeight;
-      console.log(`Node ${parentNode.value} BF: ${parentNodeBf}`);
 
       nodes.current.update({ id: parentNode.id });
+
+      snapshot();
+        nodes.current.update({
+          id: parentNode!.id,
+          color: { background: colors.yellowSwap },
+        });
+
+        snapshot();
+        nodes.current.update({
+          id: parentNode!.id,
+          color: { background: colors.defaultBlue },
+        });
+        snapshot();
 
       // Check for imbalance and perform appropriate rotation
       if (parentNodeBf > 1) {
@@ -238,7 +250,7 @@ export const removeNode = async (
         if (rightChildBf < 0) {
           nodes.current.update({
             id: parentNode.right ?? undefined,
-            color: { background: colors.yellowSwap },
+            color: { background: colors.greenFinal },
           });
 
           snapshot();
@@ -253,7 +265,7 @@ export const removeNode = async (
 
           nodes.current.update({
             id: parentNode.id ?? undefined,
-            color: { background: colors.yellowSwap },
+            color: { background: colors.greenFinal },
           });
 
           snapshot();
@@ -267,7 +279,7 @@ export const removeNode = async (
         } else {
           nodes.current.update({
             id: parentNode.id ?? undefined,
-            color: { background: colors.yellowSwap },
+            color: { background: colors.greenFinal },
           });
 
           snapshot();
@@ -292,7 +304,7 @@ export const removeNode = async (
         if (leftChildBf > 0) {
           nodes.current.update({
             id: parentNode.left ?? undefined,
-            color: { background: colors.yellowSwap },
+            color: { background: colors.greenFinal },
           });
 
           snapshot();
@@ -305,7 +317,7 @@ export const removeNode = async (
           snapshot();
           nodes.current.update({
             id: parentNode.id ?? undefined,
-            color: { background: colors.yellowSwap },
+            color: { background: colors.greenFinal },
           });
 
           snapshot();
@@ -319,7 +331,7 @@ export const removeNode = async (
         } else {
           nodes.current.update({
             id: parentNode.id ?? undefined,
-            color: { background: colors.yellowSwap },
+            color: { background: colors.greenFinal },
           });
 
           snapshot();
@@ -414,18 +426,13 @@ export const removeNode = async (
         id: currentNode.id,
         parent: currentParentId,
       });
-      console.log(
-        "Node " + currentNode.value + " parent updated to " + currentParentId,
-      );
+
 
       nodes.current.update({
         id: childNode.id,
         parent: childParentId,
       });
 
-      console.log(
-        "Node " + childNode.value + " parent updated to " + childParentId,
-      );
 
       // reset values
       if (network) {
@@ -475,7 +482,6 @@ export const removeNode = async (
 
       // adjust parents accordingly
       if (parentNodeTemp) {
-        console.log("meow");
         if (parentNodeTemp.left === childNode.id) {
           parentNodeTemp.left = null;
         } else if (parentNodeTemp.right === childNode.id) {

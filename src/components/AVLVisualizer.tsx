@@ -52,6 +52,8 @@ const AVLVisualizer = () => {
   const [speed, setSpeed] = useState(500);
   const [printValue, setPrintValue] = useState<string | null>(null);
   const [intOrLetter, setIntOrLetter] = useState(true);
+  const [oldRootID, setOldRootID] = useState<number | null>(null); 
+
 
   useEffect(() => {
     if (networkContainer.current) {
@@ -89,7 +91,7 @@ const AVLVisualizer = () => {
       nodes.current.add(newNodes);
       edges.current.add(newEdges);
 
-      console.log(animationStates);
+      // console.log(animationStates);
 
       if (
         network &&
@@ -98,14 +100,12 @@ const AVLVisualizer = () => {
       ) {
         try {
           network.selectNodes([root.current.id]);
+          
         } catch {
-          const allNodeIds = animationStates[currentStep].nodes.map(
-            (node) => node.id,
-          );
-
-          // Select all nodes
-          network.selectNodes(allNodeIds);
+          if(oldRootID) network.selectNodes([oldRootID!]);
+          
         }
+        
         if (currentStep % 25 == 0) {
           network?.stabilize();
         }
@@ -303,6 +303,7 @@ const AVLVisualizer = () => {
             console.log(valueToInsert);
             if (network) {
               // console.log()
+              if(root.current) setOldRootID(root.current.id)
               const newAnimationStates = await insertNode(
                 valueToInsert,
                 root,
