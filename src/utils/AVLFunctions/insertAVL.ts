@@ -167,21 +167,20 @@ export const insertNode = async (
     nodes.current.update({ id: parentNode.id });
 
     snapshot();
-        nodes.current.update({
-          id: parentNode!.id,
-          color: { background: colors.yellowSwap },
-        });
+    nodes.current.update({
+      id: parentNode!.id,
+      color: { background: colors.yellowSwap },
+    });
 
-        snapshot();
-        nodes.current.update({
-          id: parentNode!.id,
-          color: { background: colors.defaultBlue },
-        });
-        snapshot();
+    snapshot();
+    nodes.current.update({
+      id: parentNode!.id,
+      color: { background: colors.defaultBlue },
+    });
+    snapshot();
 
     // Check for imbalance and perform appropriate rotation
     if (parentNodeBf > 1) {
-      
       // Right heavy - need to check child's balance factor
       const rightChild = nodes.current.get(parentNode.right!) as TreeNode;
       const rightChildLeftHeight = rightChild.left

@@ -223,17 +223,17 @@ export const removeNode = async (
       nodes.current.update({ id: parentNode.id });
 
       snapshot();
-        nodes.current.update({
-          id: parentNode!.id,
-          color: { background: colors.yellowSwap },
-        });
+      nodes.current.update({
+        id: parentNode!.id,
+        color: { background: colors.yellowSwap },
+      });
 
-        snapshot();
-        nodes.current.update({
-          id: parentNode!.id,
-          color: { background: colors.defaultBlue },
-        });
-        snapshot();
+      snapshot();
+      nodes.current.update({
+        id: parentNode!.id,
+        color: { background: colors.defaultBlue },
+      });
+      snapshot();
 
       // Check for imbalance and perform appropriate rotation
       if (parentNodeBf > 1) {
@@ -427,12 +427,10 @@ export const removeNode = async (
         parent: currentParentId,
       });
 
-
       nodes.current.update({
         id: childNode.id,
         parent: childParentId,
       });
-
 
       // reset values
       if (network) {
