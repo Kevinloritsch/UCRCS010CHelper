@@ -12,6 +12,18 @@ module.exports = {
         sm: "calc(var(--radius) - 4px)",
       },
       colors: {
+        helper: {
+          "teal-100": "#648B89",
+          "teal-300": "#0E5061",
+          "green-100": "#E6FEA9",
+          "green-200": "#699C2B",
+          "green-300": "#2C440E",
+          "green-400": "#45572F",
+          "brown-100": "#C0A888",
+          "brown-200": "#563924",
+          "brown-300": "#382E24",
+          "brown-400": "#4C443B",
+        },
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         card: {
