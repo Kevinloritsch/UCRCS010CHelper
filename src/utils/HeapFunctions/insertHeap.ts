@@ -1,6 +1,5 @@
 import { DataSet } from "vis-network/standalone/umd/vis-network.min.js";
 import { TreeNode } from "@/components/HeapVisualizer";
-import colors from "@/styles/colors";
 
 export const sleep = (ms: number) =>
   new Promise((resolve) => setTimeout(resolve, ms));
@@ -67,7 +66,7 @@ export const insertNode = async (
 
   // Calculate the depth (level) and position in the level
   const depth = Math.floor(Math.log2(newIndex + 1));
-  const positionInLevel = newIndex - (Math.pow(2, depth) - 1);
+  // const positionInLevel = newIndex - (Math.pow(2, depth) - 1);
   const xOffset = 500 * Math.pow(2, -depth);
 
   // Set the x and y positions for the node after determining left/right position
@@ -104,7 +103,7 @@ export const insertNode = async (
     heap[parentIndex].value < heap[currentIndex].value
   ) {
     // Swap nodes in the heap
-    let temp = heap[parentIndex];
+    const temp = heap[parentIndex]; //was let before
     heap[parentIndex] = heap[currentIndex];
     heap[currentIndex] = temp;
 
