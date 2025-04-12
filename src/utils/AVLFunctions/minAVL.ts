@@ -14,7 +14,10 @@ export const minNode = async (
 
   network: Network | null,
 ) => {
-  const tempRoot = nodes.current.get(1) as TreeNode | null;
+  let tempRoot = nodes.current.get(1) as TreeNode | null;
+  while (tempRoot && tempRoot.parent) {
+    tempRoot = nodes.current.get(tempRoot.parent) as TreeNode | null;
+  }
   const animationStates: {
     nodes: TreeNode[];
     edges: { id?: number; from: number; to: number }[];
