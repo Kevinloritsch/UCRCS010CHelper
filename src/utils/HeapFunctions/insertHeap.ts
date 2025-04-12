@@ -120,7 +120,7 @@ export const insertNode = async (
     heap[currentIndex].y = tempY;
 
     // **Update parent-child relationship after swap**
-    // Ensure the `left` and `right` child assignments are correct 
+    // Ensure the `left` and `right` child assignments are correct
     // THIS NEEDS FIXING
     if (currentIndex === 2 * parentIndex + 1) {
       heap[parentIndex].left = heap[currentIndex].id;
@@ -130,7 +130,7 @@ export const insertNode = async (
       heap[parentIndex].left = null;
     }
 
-    // Update the nodes' positions on the tree visualization 
+    // Update the nodes' positions on the tree visualization
     // I THINK THIS ALSO NEEDS FIXING
     nodes.current.update({
       id: heap[parentIndex].id,
