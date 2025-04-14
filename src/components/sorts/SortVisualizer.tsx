@@ -5,7 +5,7 @@ import React from "react";
 interface SortVisualizerProps {
   title: string;
   array: number[];
-  currentIndexes: { i: number; j: number };
+  currentIndexes: { i: number; j: number, minIndex?: number };
   isSorting: boolean;
   value: string;
   onValueChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -106,11 +106,13 @@ export const SortVisualizer = ({
               backgroundColor:
                 index === currentIndexes.j && isSorting
                   ? "red"
-                  : index === currentIndexes.j + 1 && isSorting
-                    ? "lime"
-                    : !isSorting
-                      ? "grey"
-                      : "black",
+                  : index === currentIndexes.minIndex && isSorting
+                    ? "yellow" 
+                    : index === currentIndexes.j + 1 && isSorting
+                        ? "lime"
+                        : !isSorting
+                        ? "grey"
+                        : "black",
               color: "white",
               display: "flex",
               alignItems: "center",
