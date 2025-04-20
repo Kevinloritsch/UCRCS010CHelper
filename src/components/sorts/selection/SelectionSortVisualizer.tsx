@@ -19,6 +19,8 @@ const SelectionSortVisualizer = () => {
     setIsPaused,
     currIndexes,
     setCurrIndexes,
+    sortedUpTo,
+    setSortedUpTo,
     playSpeed,
     playSpeedRef,
     isPausedRef,
@@ -30,8 +32,7 @@ const SelectionSortVisualizer = () => {
     handleSpeedChange,
   } = SortProps();
 
-  // variable to keep track of index of minimum value
-  const [minIndex, setMinIndex] = useState(-1);
+  const [minIndex, setMinIndex] = useState(-1); // variable to keep track of index of minimum value
 
   // each sort has to have their own handleResume func
   // since each sort has to call their own sort func
@@ -55,7 +56,7 @@ const SelectionSortVisualizer = () => {
     setMinIndex(0);
 
     // call recursive bubblesort func
-    doSelectionSort([...cpyArr], 0, 0, 0);
+    doSelectionSort([...cpyArr], 0, 1, 0);
   };
 
   const doSelectionSort = (
@@ -67,10 +68,21 @@ const SelectionSortVisualizer = () => {
     // base case: return if sorting is complete
     if (i >= arr.length - 1) {
         setIsSorting(false);
+        setSortedUpTo(arr.length - 1);
         return;
     }
 
-    setCurrIndexes({ i, j }); // current indexes being compared
+    // Visual update: only update i when we're at start of new outer loop
+    const visualI = j === i ? i : currIndexes.i;
+
+    if (currIndexes.i !== i && j !== i) {
+        console.log("i visually changing mid-pass:", { i, j, currIndexes });
+    }
+
+    setCurrIndexes({ // current indexes being compared
+        i: visualI, 
+        j, 
+        minIndex: currMinIndex });
     setMinIndex(currMinIndex); // track current minIndex
 
     // stay stuck in recursion while paused
@@ -85,26 +97,30 @@ const SelectionSortVisualizer = () => {
         if (j < arr.length) {
             // if curr element < currMin, swap values
             if (arr[j] < arr[currMinIndex]) {
-            currMinIndex = j;
+                currMinIndex = j;
             }
 
             if (!isPausedRef.current && isSortingRef.current) {
-            doSelectionSort(arr, i, j + 1, currMinIndex);
+                doSelectionSort(arr, i, j + 1, currMinIndex);
             }
-            
+
         // reached end of unsorted portion, perform swap
         } else {
             if (currMinIndex !== i) {
-            [arr[i], arr[currMinIndex]] = [arr[currMinIndex], arr[i]];
-            setCpyArr([...arr]);
+                [arr[i], arr[currMinIndex]] = [arr[currMinIndex], arr[i]];
+                setCpyArr([...arr]);
             }
+
+            setSortedUpTo(i) // update sorted section
+
             if (!isPausedRef.current && isSortingRef.current) {
-            doSelectionSort(arr, i + 1, i + 1, i + 1);
+                doSelectionSort(arr, i + 1, i + 2, i + 1);
             }
+            setSortedUpTo(i); // updated sorted section
         }
     }, playSpeedRef.current);
   };
-
+  
   return (
     <div>
       <SortVisualizer
@@ -126,6 +142,7 @@ const SelectionSortVisualizer = () => {
         playSpeed={playSpeed}
         origArr={origArr}
         sortedArr={sortedArr}
+        sortedUpTo={sortedUpTo}
         sortButtonText="Selection Sort"
       />
     </div>
@@ -134,4 +151,5 @@ const SelectionSortVisualizer = () => {
 
 export default SelectionSortVisualizer;
 
-// fix selection & make new variable to keep track of, min
+// make visualizer track i, j, min on top of elements
+// red not showing so do ^ 

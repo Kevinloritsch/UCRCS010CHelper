@@ -18,6 +18,7 @@ interface SortVisualizerProps {
   onSpeedDown: () => void;
   isValidArray: boolean;
   isPaused: boolean;
+  sortedUpTo: number;
   playSpeed: number;
   origArr: number[];
   sortedArr: number[];
@@ -39,6 +40,7 @@ export const SortVisualizer = ({
   onSpeedUp,
   onSpeedDown,
   isValidArray,
+  sortedUpTo,
   isPaused,
   playSpeed,
   origArr,
@@ -104,15 +106,17 @@ export const SortVisualizer = ({
               width: "65px",
               height: `${num * 5}px`,
               backgroundColor:
-                index === currentIndexes.j && isSorting
-                  ? "red"
-                  : index === currentIndexes.minIndex && isSorting
-                    ? "yellow" 
+                index <= sortedUpTo && isSorting
+                    ? "grey"
                     : index === currentIndexes.j + 1 && isSorting
-                        ? "lime"
-                        : !isSorting
-                        ? "grey"
-                        : "black",
+                    ? "red"
+                    : index === currentIndexes.j && isSorting
+                    ? "lime"
+                    : index === currentIndexes.minIndex && isSorting
+                    ? "yellow" 
+                    : !isSorting
+                    ? "grey"
+                    : "black",
               color: "white",
               display: "flex",
               alignItems: "center",
@@ -127,3 +131,4 @@ export const SortVisualizer = ({
     </div>
   );
 };
+

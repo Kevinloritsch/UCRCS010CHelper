@@ -19,6 +19,8 @@ const BubbleSortVisualizer = () => {
     setIsPaused,
     currIndexes,
     setCurrIndexes,
+    sortedUpTo,
+    setSortedUpTo,
     playSpeed,
     playSpeedRef,
     isPausedRef,
@@ -59,6 +61,7 @@ const BubbleSortVisualizer = () => {
     // base case: return if sorting is complete
     if (i >= arr.length - 1) {
       setIsSorting(false); // sorting complete
+      setSortedUpTo(arr.length - 1);
       return;
     }
 
@@ -90,9 +93,12 @@ const BubbleSortVisualizer = () => {
             doBubbleSort(arr, i, j + 1);
         }
       } else {
+        // setSortedUpTo(arr.length - 1 - i);
+
         // continue to next pass if not paused and still sorting
-        if (!isPausedRef.current && isSortingRef.current)
+        if (!isPausedRef.current && isSortingRef.current) {
           doBubbleSort(arr, i + 1, 0);
+        }
       }
     }, playSpeedRef.current);
   };
@@ -118,6 +124,7 @@ const BubbleSortVisualizer = () => {
         playSpeed={playSpeed}
         origArr={origArr}
         sortedArr={sortedArr}
+        sortedUpTo={sortedUpTo}
         sortButtonText="Bubble Sort"
       />
     </div>
@@ -125,3 +132,5 @@ const BubbleSortVisualizer = () => {
 };
 
 export default BubbleSortVisualizer;
+
+// change sortedUpTo logic since in bubble is sortedDownTo instead

@@ -12,10 +12,12 @@ export const SortProps = (initialArr: number[] = []) => {
   const [isSorting, setIsSorting] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   // const [currStep, setCurrStep] = useState(0);
-  const [currIndexes, setCurrIndexes] = useState<{ i: number; j: number }>({
+  const [currIndexes, setCurrIndexes] = useState<{ i: number; j: number, minIndex?: number }>({
     i: -1,
     j: -1,
+    minIndex: -1,
   });
+  const [sortedUpTo, setSortedUpTo] = useState(-1); // tracks sorted sections
   const [playSpeed, setPlaySpeed] = useState<number>(750);
 
   // ref to track states
@@ -106,6 +108,7 @@ export const SortProps = (initialArr: number[] = []) => {
     setPlaySpeed(750);
     setIsPaused(false);
     setIsSorting(false);
+    setSortedUpTo(-1);
   };
 
   return {
@@ -122,6 +125,8 @@ export const SortProps = (initialArr: number[] = []) => {
     setIsPaused,
     currIndexes,
     setCurrIndexes,
+    sortedUpTo,
+    setSortedUpTo,
     playSpeed,
     playSpeedRef,
     isPausedRef,
