@@ -15,6 +15,7 @@ export type TreeNode = {
   value: number;
   left: number | null;
   right: number | null;
+  parent: number | null;
   x: number;
   y: number;
   label: string;
