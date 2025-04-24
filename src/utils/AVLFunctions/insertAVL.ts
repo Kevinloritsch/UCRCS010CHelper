@@ -119,7 +119,10 @@ export const insertNode = async (
     }
   }
 
-  const xOffset = 500 * Math.pow(2, -depth);
+  const baseOffset =
+    typeof window !== "undefined" && window.innerWidth < 400 ? 250 : 500;
+
+  const xOffset = baseOffset * Math.pow(2, -depth);
   const newX = currentNode!.x + (isLeftChild ? -xOffset : xOffset);
   const newY = currentNode!.y + 100;
 
