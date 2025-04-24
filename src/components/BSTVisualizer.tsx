@@ -261,6 +261,32 @@ const BSTVisualizer = () => {
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
+
+        <button
+          onClick={() => {
+            nodes.current.clear();
+            edges.current.clear();
+
+            root.current = null;
+            maxNodeId.current = 0;
+            maxEdgeId.current = 0;
+
+            setAnimationStates([]);
+            setCurrentStep(0);
+            setIsPlaying(false);
+            setIsInserting(false);
+            setPrintValue(null);
+            setValue("");
+
+            if (network) {
+              network.setData({ nodes: nodes.current, edges: edges.current });
+              network.redraw();
+            }
+          }}
+          className="mx-3 md:hidden"
+        >
+          <Trash2 color="black" style={{ transform: "rotate(360deg)" }} />
+        </button>
       </div>
       <div className="ml-2 flex">
         <input
@@ -341,7 +367,7 @@ const BSTVisualizer = () => {
           {isInserting && (
             <div className="absolute flex h-6 w-6 items-center justify-center rounded-full" />
           )}
-          Generate Random Values
+          Random Values
         </button>
 
         <button
@@ -365,7 +391,7 @@ const BSTVisualizer = () => {
               network.redraw();
             }
           }}
-          className="mx-3"
+          className="mx-3 hidden md:inline"
         >
           <Trash2 color="black" style={{ transform: "rotate(360deg)" }} />
         </button>
@@ -457,7 +483,7 @@ const BSTVisualizer = () => {
 
         <div className="flex">
           <button
-            className={`relative my-2 ml-8 flex flex-col items-center rounded bg-helper-brown-100 p-2 text-lg text-white ${
+            className={`text-md relative my-2 ml-2 flex flex-col items-center rounded bg-helper-brown-100 p-2 text-white md:ml-8 md:text-lg ${
               isInserting ? "cursor-not-allowed opacity-50" : "cursor-pointer"
             }`}
             onClick={async () => {
@@ -481,7 +507,7 @@ const BSTVisualizer = () => {
           </button>
 
           <button
-            className={`relative my-2 ml-4 flex flex-col items-center rounded bg-helper-brown-100 p-2 text-lg text-white ${
+            className={`text-md relative my-2 ml-2 flex flex-col items-center rounded bg-helper-brown-100 p-2 text-white md:ml-4 md:text-lg ${
               isInserting ? "cursor-not-allowed opacity-50" : "cursor-pointer"
             }`}
             onClick={async () => {
@@ -504,7 +530,7 @@ const BSTVisualizer = () => {
             Smallest
           </button>
 
-          <div className="z-10 my-2 mr-8 flex flex-grow justify-end">
+          <div className="z-10 my-2 mr-2 flex flex-grow justify-end md:mr-8">
             <div className="rounded bg-helper-green-400">
               <button
                 onClick={() => {
@@ -515,17 +541,9 @@ const BSTVisualizer = () => {
                 className="mx-3 my-2"
               >
                 {isPlaying ? (
-                  <Pause
-                    color="white"
-                    fill="white"
-                    style={{ transform: "rotate(360deg)" }}
-                  />
+                  <Pause color="white" fill="white" />
                 ) : (
-                  <Play
-                    color="white"
-                    fill="white"
-                    style={{ transform: "rotate(360deg)" }}
-                  />
+                  <Play color="white" fill="white" />
                 )}
               </button>
               <button
@@ -538,10 +556,7 @@ const BSTVisualizer = () => {
                 }}
                 className="mx-3"
               >
-                <RefreshCcw
-                  color="white"
-                  style={{ transform: "rotate(360deg)" }}
-                />
+                <RefreshCcw color="white" />
               </button>
 
               <button
@@ -563,11 +578,7 @@ const BSTVisualizer = () => {
                 }}
                 className="mx-3"
               >
-                <FastForward
-                  color="white"
-                  fill="white"
-                  style={{ transform: "rotate(360deg)" }}
-                />
+                <FastForward color="white" fill="white" />
               </button>
             </div>
           </div>
@@ -575,13 +586,13 @@ const BSTVisualizer = () => {
       </div>
 
       <div
-        className="mx-auto h-auto min-h-min rounded border bg-helper-brown-100 px-2"
+        className="mx-auto mb-4 h-auto min-h-min rounded border bg-helper-brown-100 px-2"
         style={{ width: "98%" }}
       >
         <div className="flex">
-          <div className="my-auto text-2xl text-white">PRINT</div>
+          <div className="my-auto text-xl text-white md:text-2xl">PRINT</div>
           <button
-            className={`relative m-3 flex flex-col items-center rounded border-[3px] border-helper-brown-300 bg-white px-4 py-2 font-medium ${
+            className={`text-md relative m-3 flex flex-col items-center rounded border-[3px] border-helper-brown-300 bg-white px-2 py-2 font-medium md:px-4 ${
               isInserting ? "cursor-not-allowed opacity-50" : "cursor-pointer"
             }`}
             onClick={async () => {
@@ -608,7 +619,7 @@ const BSTVisualizer = () => {
             Pre Order
           </button>
           <button
-            className={`relative m-3 flex flex-col items-center rounded border-[3px] border-helper-brown-300 bg-white px-4 py-2 font-medium ${
+            className={`relative m-3 flex flex-col items-center rounded border-[3px] border-helper-brown-300 bg-white px-2 py-2 font-medium md:px-4 ${
               isInserting ? "cursor-not-allowed opacity-50" : "cursor-pointer"
             }`}
             onClick={async () => {
@@ -637,7 +648,7 @@ const BSTVisualizer = () => {
             In Order
           </button>
           <button
-            className={`relative m-3 flex flex-col items-center rounded border-[3px] border-helper-brown-300 bg-white px-4 py-2 font-medium ${
+            className={`relative m-3 flex flex-col items-center rounded border-[3px] border-helper-brown-300 bg-white px-2 py-2 font-medium md:px-4 ${
               isInserting ? "cursor-not-allowed opacity-50" : "cursor-pointer"
             }`}
             onClick={async () => {

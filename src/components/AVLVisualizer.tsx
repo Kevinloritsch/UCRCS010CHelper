@@ -269,6 +269,32 @@ const AVLVisualizer = () => {
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
+
+        <button
+          onClick={() => {
+            nodes.current.clear();
+            edges.current.clear();
+
+            root.current = null;
+            maxNodeId.current = 0;
+            maxEdgeId.current = 0;
+
+            setAnimationStates([]);
+            setCurrentStep(0);
+            setIsPlaying(false);
+            setIsInserting(false);
+            setPrintValue(null);
+            setValue("");
+
+            if (network) {
+              network.setData({ nodes: nodes.current, edges: edges.current });
+              network.redraw();
+            }
+          }}
+          className="mx-3 md:hidden"
+        >
+          <Trash2 color="black" style={{ transform: "rotate(360deg)" }} />
+        </button>
       </div>
       <div className="ml-2 flex">
         <input
@@ -349,7 +375,7 @@ const AVLVisualizer = () => {
           {isInserting && (
             <div className="absolute flex h-6 w-6 items-center justify-center rounded-full" />
           )}
-          Generate Random Values
+          Random Values
         </button>
 
         <button
@@ -373,7 +399,7 @@ const AVLVisualizer = () => {
               network.redraw();
             }
           }}
-          className="mx-3"
+          className="mx-3 hidden md:inline"
         >
           <Trash2 color="black" style={{ transform: "rotate(360deg)" }} />
         </button>
@@ -467,7 +493,7 @@ const AVLVisualizer = () => {
 
         <div className="flex">
           <button
-            className={`relative my-2 ml-8 flex flex-col items-center rounded bg-helper-brown-100 p-2 text-lg text-white ${
+            className={`text-md relative my-2 ml-2 flex flex-col items-center rounded bg-helper-brown-100 p-2 text-white md:ml-8 md:text-lg ${
               isInserting ? "cursor-not-allowed opacity-50" : "cursor-pointer"
             }`}
             onClick={async () => {
@@ -491,7 +517,7 @@ const AVLVisualizer = () => {
           </button>
 
           <button
-            className={`relative my-2 ml-4 flex flex-col items-center rounded bg-helper-brown-100 p-2 text-lg text-white ${
+            className={`text-md relative my-2 ml-2 flex flex-col items-center rounded bg-helper-brown-100 p-2 text-white md:ml-4 md:text-lg ${
               isInserting ? "cursor-not-allowed opacity-50" : "cursor-pointer"
             }`}
             onClick={async () => {
@@ -514,7 +540,7 @@ const AVLVisualizer = () => {
             Smallest
           </button>
 
-          <div className="z-10 my-2 mr-8 flex flex-grow justify-end">
+          <div className="z-10 my-2 mr-2 flex flex-grow justify-end md:mr-8">
             <div className="rounded bg-helper-green-400">
               <button
                 onClick={() => {
@@ -585,13 +611,13 @@ const AVLVisualizer = () => {
       </div>
 
       <div
-        className="mx-auto h-auto min-h-min rounded border bg-helper-brown-100 px-2"
+        className="mx-auto mb-4 h-auto min-h-min rounded border bg-helper-brown-100 px-2"
         style={{ width: "98%" }}
       >
         <div className="flex">
           <div className="my-auto text-2xl text-white">PRINT</div>
           <button
-            className={`relative m-3 flex flex-col items-center rounded border-[3px] border-helper-brown-300 bg-white px-4 py-2 font-medium ${
+            className={`relative m-3 flex flex-col items-center rounded border-[3px] border-helper-brown-300 bg-white px-2 py-2 font-medium md:px-4 ${
               isInserting ? "cursor-not-allowed opacity-50" : "cursor-pointer"
             }`}
             onClick={async () => {
@@ -619,7 +645,7 @@ const AVLVisualizer = () => {
             Pre Order
           </button>
           <button
-            className={`relative m-3 flex flex-col items-center rounded border-[3px] border-helper-brown-300 bg-white px-4 py-2 font-medium ${
+            className={`relative m-3 flex flex-col items-center rounded border-[3px] border-helper-brown-300 bg-white px-2 py-2 font-medium md:px-4 ${
               isInserting ? "cursor-not-allowed opacity-50" : "cursor-pointer"
             }`}
             onClick={async () => {
@@ -649,7 +675,7 @@ const AVLVisualizer = () => {
             In Order
           </button>
           <button
-            className={`relative m-3 flex flex-col items-center rounded border-[3px] border-helper-brown-300 bg-white px-4 py-2 font-medium ${
+            className={`relative m-3 flex flex-col items-center rounded border-[3px] border-helper-brown-300 bg-white px-2 py-2 font-medium md:px-4 ${
               isInserting ? "cursor-not-allowed opacity-50" : "cursor-pointer"
             }`}
             onClick={async () => {
