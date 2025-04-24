@@ -203,10 +203,60 @@ const BSTVisualizer = () => {
           <DropdownMenuContent>
             <DropdownMenuLabel>Variable Type</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => setIntOrLetter(true)}>
+            <DropdownMenuItem
+              onClick={() => {
+                setIntOrLetter(true);
+                nodes.current.clear();
+                edges.current.clear();
+
+                root.current = null;
+                maxNodeId.current = 0;
+                maxEdgeId.current = 0;
+
+                setAnimationStates([]);
+                setCurrentStep(0);
+                setIsPlaying(false);
+                setIsInserting(false);
+                setPrintValue(null);
+                setValue("");
+
+                if (network) {
+                  network.setData({
+                    nodes: nodes.current,
+                    edges: edges.current,
+                  });
+                  network.redraw();
+                }
+              }}
+            >
               Integer
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setIntOrLetter(false)}>
+            <DropdownMenuItem
+              onClick={() => {
+                setIntOrLetter(false);
+                nodes.current.clear();
+                edges.current.clear();
+
+                root.current = null;
+                maxNodeId.current = 0;
+                maxEdgeId.current = 0;
+
+                setAnimationStates([]);
+                setCurrentStep(0);
+                setIsPlaying(false);
+                setIsInserting(false);
+                setPrintValue(null);
+                setValue("");
+
+                if (network) {
+                  network.setData({
+                    nodes: nodes.current,
+                    edges: edges.current,
+                  });
+                  network.redraw();
+                }
+              }}
+            >
               String
             </DropdownMenuItem>
           </DropdownMenuContent>
@@ -362,10 +412,14 @@ const BSTVisualizer = () => {
             isInserting ? "cursor-not-allowed opacity-50" : "cursor-pointer"
           }`}
           onClick={async () => {
+            const valueToRemove =
+              !intOrLetter && /^[A-Z]$/.test(value)
+                ? value.charCodeAt(0) - 64
+                : parseFloat(value);
             if (network) {
               const newAnimationStates = await removeNode(
                 1,
-                parseFloat(value),
+                valueToRemove,
                 0,
                 root,
                 nodes,

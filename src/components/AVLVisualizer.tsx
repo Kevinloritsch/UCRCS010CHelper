@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, KeyboardEvent } from "react";
 import { insertNode } from "@/utils/AVLFunctions/insertAVL";
 import { removeNode } from "@/utils/AVLFunctions/removeAVL";
 import { maxNode } from "@/utils/AVLFunctions/maxAVL";
@@ -7,8 +7,23 @@ import { minNode } from "@/utils/AVLFunctions/minAVL";
 import { inOrderTraversal } from "@/utils/AVLFunctions/inOrderAVL";
 import { preOrderTraversal } from "@/utils/AVLFunctions/preOrderAVL";
 import { postOrderTraversal } from "@/utils/AVLFunctions/postOrderAVL";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
-import { Play, Pause, RefreshCcw, FastForward, Trash2 } from "lucide-react";
+import {
+  Play,
+  Pause,
+  RefreshCcw,
+  FastForward,
+  Trash2,
+  ChevronDown,
+} from "lucide-react";
 
 import {
   DataSet,
@@ -145,13 +160,120 @@ const AVLVisualizer = () => {
     };
   }, [isPlaying, animationStates, speed]);
 
+  const handleInsert = async () => {
+    const valueToInsert =
+      !intOrLetter && /^[A-Z]$/.test(value)
+        ? value.charCodeAt(0) - 64
+        : parseFloat(value);
+    console.log(valueToInsert);
+    if (network) {
+      const newAnimationStates = await insertNode(
+        valueToInsert,
+        root,
+        nodes,
+        edges,
+        maxNodeId,
+        maxEdgeId,
+        intOrLetter,
+      );
+      setAnimationStates(newAnimationStates || []);
+      setIsPlaying(true);
+      setIsInserting(true);
+      setCurrentStep(0);
+      setValue("");
+    } else {
+      console.error("Network is not available.");
+    }
+  };
+
+  const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === "Enter" && !isInserting && value !== "") {
+      handleInsert();
+    }
+  };
+
   return (
     <div>
-      <h1 className="m-2 text-center text-2xl">AVL Tree Visualizer</h1>
-      <div className="flex">
+      <h1 className="m-2 text-center text-2xl text-white">
+        AVL Tree Visualizer
+      </h1>
+      <div className="flex items-center">
+        <DropdownMenu>
+          <div className="ml-4 text-white">Select Variable Type:</div>
+          <DropdownMenuTrigger className="ml-2 items-center rounded bg-helper-brown-100 px-4 py-1 text-white">
+            <div className="flex items-center">
+              {intOrLetter ? "Integer" : "String"}
+              <div className="ml-1 rounded p-1">
+                <ChevronDown color="white" size={16} />
+              </div>
+            </div>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            <DropdownMenuLabel>Variable Type</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              onClick={() => {
+                setIntOrLetter(true);
+                nodes.current.clear();
+                edges.current.clear();
+
+                root.current = null;
+                maxNodeId.current = 0;
+                maxEdgeId.current = 0;
+
+                setAnimationStates([]);
+                setCurrentStep(0);
+                setIsPlaying(false);
+                setIsInserting(false);
+                setPrintValue(null);
+                setValue("");
+
+                if (network) {
+                  network.setData({
+                    nodes: nodes.current,
+                    edges: edges.current,
+                  });
+                  network.redraw();
+                }
+              }}
+            >
+              Integer
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => {
+                setIntOrLetter(false);
+                nodes.current.clear();
+                edges.current.clear();
+
+                root.current = null;
+                maxNodeId.current = 0;
+                maxEdgeId.current = 0;
+
+                setAnimationStates([]);
+                setCurrentStep(0);
+                setIsPlaying(false);
+                setIsInserting(false);
+                setPrintValue(null);
+                setValue("");
+
+                if (network) {
+                  network.setData({
+                    nodes: nodes.current,
+                    edges: edges.current,
+                  });
+                  network.redraw();
+                }
+              }}
+            >
+              String
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+      <div className="ml-2 flex">
         <input
           type={intOrLetter ? "number" : "text"} // Toggle between 'number' and 'text'
-          className="border-1 m-2 border border-black"
+          className="border-1 m-2 rounded border border-black pl-2"
           value={value}
           onChange={(e) => {
             const newValue = e.target.value;
@@ -162,19 +284,19 @@ const AVLVisualizer = () => {
                 setValue(newValue);
               }
             } else {
-              // Allow only a single letter when intOrLetter is false
               if (newValue.length <= 1 && /^[a-zA-Z]*$/.test(newValue)) {
-                setValue(newValue.toUpperCase()); // Auto capitalize
+                setValue(newValue.toUpperCase());
               }
             }
           }}
+          onKeyDown={handleKeyDown}
           placeholder={
             intOrLetter ? "Enter Integer Here" : "Enter Single Letter Here"
           }
         />
 
         <button
-          className={`relative m-3 flex flex-col items-center rounded border px-4 py-2 ${
+          className={`relative m-3 flex flex-col items-center rounded bg-helper-brown-100 px-4 py-2 text-white ${
             isInserting ? "cursor-not-allowed opacity-50" : "cursor-pointer"
           }`}
           onClick={async () => {
@@ -225,40 +347,9 @@ const AVLVisualizer = () => {
           disabled={isInserting}
         >
           {isInserting && (
-            <div className="absolute flex h-6 w-6 items-center justify-center rounded-full bg-red-500">
-              <span className="font-bold text-white">|</span>
-            </div>
+            <div className="absolute flex h-6 w-6 items-center justify-center rounded-full" />
           )}
-          Insert Many
-        </button>
-
-        <button
-          onClick={async () => {
-            setIntOrLetter(!intOrLetter);
-
-            nodes.current.clear();
-            edges.current.clear();
-
-            root.current = null;
-            maxNodeId.current = 0;
-            maxEdgeId.current = 0;
-
-            setAnimationStates([]);
-            setCurrentStep(0);
-            setIsPlaying(false);
-            setIsInserting(false);
-            setPrintValue(null);
-            setValue("");
-
-            if (network) {
-              network.setData({ nodes: nodes.current, edges: edges.current });
-              network.redraw();
-            }
-            console.log("clicked");
-            // Any async tasks can go here
-          }}
-        >
-          Toggle Input Type
+          Generate Random Values
         </button>
 
         <button
@@ -287,9 +378,9 @@ const AVLVisualizer = () => {
           <Trash2 color="black" style={{ transform: "rotate(360deg)" }} />
         </button>
       </div>
-      <div className="flex">
+      <div className="ml-1 flex">
         <button
-          className={`relative m-3 flex flex-col items-center rounded border px-4 py-2 ${
+          className={`relative m-3 flex flex-col items-center rounded border-[3px] border-helper-green-400 bg-white px-4 py-2 text-helper-green-400 ${
             isInserting ? "cursor-not-allowed opacity-50" : "cursor-pointer"
           }`}
           onClick={async () => {
@@ -321,23 +412,23 @@ const AVLVisualizer = () => {
           }}
           disabled={isInserting || value === ""}
         >
-          {isInserting && (
-            <div className="absolute flex h-6 w-6 items-center justify-center rounded-full bg-red-500">
-              <span className="font-bold text-white">|</span>
-            </div>
-          )}
+          {isInserting}
           Insert
         </button>
 
         <button
-          className={`relative m-3 flex flex-col items-center rounded border px-4 py-2 ${
+          className={`relative m-3 flex flex-col items-center rounded border-[3px] border-helper-green-400 bg-helper-green-400 px-4 py-2 text-white ${
             isInserting ? "cursor-not-allowed opacity-50" : "cursor-pointer"
           }`}
           onClick={async () => {
             if (network) {
+              const valueToRemove =
+                !intOrLetter && /^[A-Z]$/.test(value)
+                  ? value.charCodeAt(0) - 64
+                  : parseFloat(value);
               const newAnimationStates = await removeNode(
                 1,
-                parseFloat(value),
+                valueToRemove,
                 0,
                 root,
                 nodes,
@@ -354,11 +445,7 @@ const AVLVisualizer = () => {
           }}
           disabled={isInserting}
         >
-          {isInserting && (
-            <div className="absolute flex h-6 w-6 items-center justify-center rounded-full bg-red-500">
-              <span className="font-bold text-white">|</span>
-            </div>
-          )}
+          {isInserting}
           Remove
         </button>
       </div>
@@ -374,13 +461,13 @@ const AVLVisualizer = () => {
               height: "500px",
               border: "1px solid lightgray",
             }}
-            className="absolute"
+            className="absolute bg-white"
           ></div>
         </div>
 
         <div className="flex">
           <button
-            className={`relative my-2 ml-8 mr-3 flex flex-col items-center rounded bg-amber-900 px-4 py-0 text-white ${
+            className={`relative my-2 ml-8 flex flex-col items-center rounded bg-helper-brown-100 p-2 text-lg text-white ${
               isInserting ? "cursor-not-allowed opacity-50" : "cursor-pointer"
             }`}
             onClick={async () => {
@@ -399,16 +486,12 @@ const AVLVisualizer = () => {
             }}
             disabled={isInserting}
           >
-            {isInserting && (
-              <div className="absolute flex h-6 w-6 items-center justify-center rounded-full bg-red-500">
-                <span className="font-bold text-white">|</span>
-              </div>
-            )}
+            {isInserting}
             Largest
           </button>
 
           <button
-            className={`relative mx-3 my-2 flex flex-col items-center rounded border bg-amber-900 px-4 py-0 text-white ${
+            className={`relative my-2 ml-4 flex flex-col items-center rounded bg-helper-brown-100 p-2 text-lg text-white ${
               isInserting ? "cursor-not-allowed opacity-50" : "cursor-pointer"
             }`}
             onClick={async () => {
@@ -427,23 +510,19 @@ const AVLVisualizer = () => {
             }}
             disabled={isInserting}
           >
-            {isInserting && (
-              <div className="absolute flex h-6 w-6 items-center justify-center rounded-full bg-red-500">
-                <span className="font-bold text-white">|</span>
-              </div>
-            )}
+            {isInserting}
             Smallest
           </button>
 
-          <div className="my-2 mr-8 flex flex-grow justify-end">
-            <div className="rounded bg-green-600">
+          <div className="z-10 my-2 mr-8 flex flex-grow justify-end">
+            <div className="rounded bg-helper-green-400">
               <button
                 onClick={() => {
                   if (animationStates.length > 0) {
                     setIsPlaying(!isPlaying);
                   }
                 }}
-                className="mx-3"
+                className="mx-3 my-2"
               >
                 {isPlaying ? (
                   <Pause
@@ -505,11 +584,14 @@ const AVLVisualizer = () => {
         </div>
       </div>
 
-      <div className="mx-auto rounded border px-2" style={{ width: "98%" }}>
+      <div
+        className="mx-auto h-auto min-h-min rounded border bg-helper-brown-100 px-2"
+        style={{ width: "98%" }}
+      >
         <div className="flex">
-          <div>PRINT</div>
+          <div className="my-auto text-2xl text-white">PRINT</div>
           <button
-            className={`relative m-3 flex flex-col items-center rounded border px-4 py-2 ${
+            className={`relative m-3 flex flex-col items-center rounded border-[3px] border-helper-brown-300 bg-white px-4 py-2 font-medium ${
               isInserting ? "cursor-not-allowed opacity-50" : "cursor-pointer"
             }`}
             onClick={async () => {
@@ -533,15 +615,11 @@ const AVLVisualizer = () => {
             }}
             disabled={isInserting}
           >
-            {isInserting && (
-              <div className="absolute flex h-6 w-6 items-center justify-center rounded-full bg-red-500">
-                <span className="font-bold text-white">|</span>
-              </div>
-            )}
+            {isInserting}
             Pre Order
           </button>
           <button
-            className={`relative m-3 flex flex-col items-center rounded border px-4 py-2 ${
+            className={`relative m-3 flex flex-col items-center rounded border-[3px] border-helper-brown-300 bg-white px-4 py-2 font-medium ${
               isInserting ? "cursor-not-allowed opacity-50" : "cursor-pointer"
             }`}
             onClick={async () => {
@@ -566,14 +644,12 @@ const AVLVisualizer = () => {
             disabled={isInserting}
           >
             {isInserting && (
-              <div className="absolute flex h-6 w-6 items-center justify-center rounded-full bg-red-500">
-                <span className="font-bold text-white">|</span>
-              </div>
+              <div className="absolute flex h-6 w-6 items-center justify-center rounded-full" />
             )}
             In Order
           </button>
           <button
-            className={`relative m-3 flex flex-col items-center rounded border px-4 py-2 ${
+            className={`relative m-3 flex flex-col items-center rounded border-[3px] border-helper-brown-300 bg-white px-4 py-2 font-medium ${
               isInserting ? "cursor-not-allowed opacity-50" : "cursor-pointer"
             }`}
             onClick={async () => {
@@ -592,15 +668,14 @@ const AVLVisualizer = () => {
             }}
             disabled={isInserting}
           >
-            {isInserting && (
-              <div className="absolute flex h-6 w-6 items-center justify-center rounded-full bg-red-500">
-                <span className="font-bold text-white">|</span>
-              </div>
-            )}
+            {isInserting}
             Post Order
           </button>
         </div>
-        <div> Traversal: {printValue !== null ? printValue : ""}</div>
+        <div className="h-3/4 overflow-auto rounded bg-white p-2">
+          <div className="font-medium">Traversal:</div>
+          <div className="ml-2">{printValue !== null ? printValue : ""}</div>
+        </div>
       </div>
     </div>
   );
