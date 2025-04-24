@@ -133,22 +133,22 @@ export const insertNode = async (
   let iteratorNode = nodes.current.get(newNode.id) as TreeNode | undefined;
 
   while (parentNode) {
+    nodes.current.update({
+      id: parentNode.id,
+      color: { background: colors.yellowSwap },
+    });
+
+    nodes.current.update({
+      id: iteratorNode!.id,
+      color: { background: colors.yellowSwap },
+    });
+
+    snapshot();
+    let breakFlag = false;
+
     if (parentNode.value < iteratorNode!.value) {
-      console.log("swapping", parentNode.value, iteratorNode!.value);
       const tempParentLabel = parentNode.label;
       const tempParentValue = parentNode.value;
-
-      nodes.current.update({
-        id: parentNode.id,
-        color: { background: colors.yellowSwap },
-      });
-
-      nodes.current.update({
-        id: iteratorNode!.id,
-        color: { background: colors.yellowSwap },
-      });
-
-      snapshot();
 
       nodes.current.update({
         id: parentNode.id,
@@ -160,19 +160,21 @@ export const insertNode = async (
         label: tempParentLabel,
         value: tempParentValue,
       });
+    } else breakFlag = true;
 
-      nodes.current.update({
-        id: parentNode.id,
-        color: { background: colors.defaultBlue },
-      });
+    nodes.current.update({
+      id: parentNode.id,
+      color: { background: colors.defaultBlue },
+    });
 
-      nodes.current.update({
-        id: iteratorNode!.id,
-        color: { background: colors.defaultBlue },
-      });
+    nodes.current.update({
+      id: iteratorNode!.id,
+      color: { background: colors.defaultBlue },
+    });
 
-      snapshot();
+    snapshot();
 
+    if (!breakFlag) {
       if (!parentNode.parent) break;
       parentNode = nodes.current.get(parentNode.parent) as TreeNode | undefined;
       if (iteratorNode!.parent)
