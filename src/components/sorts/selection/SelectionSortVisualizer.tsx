@@ -32,7 +32,7 @@ const SelectionSortVisualizer = () => {
     handleSpeedChange,
   } = SortProps();
 
-  const [minIndex, setMinIndex] = useState(-1); // variable to keep track of index of minimum value
+//   const [minIndex, setMinIndex] = useState(-1); // variable to keep track of index of minimum value
 
   // each sort has to have their own handleResume func
   // since each sort has to call their own sort func
@@ -42,7 +42,12 @@ const SelectionSortVisualizer = () => {
     setIsSorting(true);
     isSortingRef.current = true;
 
-    doSelectionSort([...cpyArr], currIndexes.i, currIndexes.j, minIndex);
+    doSelectionSort(
+        [...cpyArr], 
+        currIndexes.i, 
+        currIndexes.j, 
+        currIndexes.minIndex ?? -1
+    );
   };
 
   const handleSelectionSort = () => {
@@ -53,7 +58,7 @@ const SelectionSortVisualizer = () => {
 
     setIsPaused(false);
     setIsSorting(true);
-    setMinIndex(0);
+    setCurrIndexes((prev) => ({ ...prev, minIndex: 0 }));
 
     // call recursive bubblesort func
     doSelectionSort([...cpyArr], 0, 1, 0);
@@ -69,21 +74,15 @@ const SelectionSortVisualizer = () => {
     if (i >= arr.length - 1) {
         setIsSorting(false);
         setSortedUpTo(arr.length - 1);
+        setCurrIndexes({i: -1, j: -1, minIndex: -1});
+        setCurrIndexes((prev) => ({ ...prev, minIndex: -1 }));
         return;
     }
-
-    // Visual update: only update i when we're at start of new outer loop
-    const visualI = j === i ? i : currIndexes.i;
-
-    if (currIndexes.i !== i && j !== i) {
-        console.log("i visually changing mid-pass:", { i, j, currIndexes });
-    }
-
+ 
     setCurrIndexes({ // current indexes being compared
-        i: visualI, 
+        i, 
         j, 
         minIndex: currMinIndex });
-    setMinIndex(currMinIndex); // track current minIndex
 
     // stay stuck in recursion while paused
     if (isPausedRef.current) {
@@ -126,7 +125,7 @@ const SelectionSortVisualizer = () => {
       <SortVisualizer
         title="Selection Sort Visualizer"
         array={cpyArr}
-        currentIndexes={{ ...currIndexes, minIndex: minIndex }}
+        currentIndexes={currIndexes}
         isSorting={isSorting}
         value={value}
         onValueChange={(e) => setValue(e.target.value)}
@@ -151,5 +150,4 @@ const SelectionSortVisualizer = () => {
 
 export default SelectionSortVisualizer;
 
-// make visualizer track i, j, min on top of elements
-// red not showing so do ^ 
+// bug: generatign new array right before swap 

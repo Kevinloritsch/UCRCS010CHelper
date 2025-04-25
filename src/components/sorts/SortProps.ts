@@ -104,7 +104,7 @@ export const SortProps = (initialArr: number[] = []) => {
     setCpyArr(arrInp);
     setSortedArr(bubbleSort([...arrInp]));
     // setCurrStep(0);
-    setCurrIndexes({ i: -1, j: -1 });
+    setCurrIndexes({ i: -1, j: -1, minIndex: -1 });
     setPlaySpeed(750);
     setIsPaused(false);
     setIsSorting(false);
