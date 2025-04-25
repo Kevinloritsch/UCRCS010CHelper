@@ -12,7 +12,11 @@ export const SortProps = (initialArr: number[] = []) => {
   const [isSorting, setIsSorting] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   // const [currStep, setCurrStep] = useState(0);
-  const [currIndexes, setCurrIndexes] = useState<{ i: number; j: number, minIndex?: number }>({
+  const [currIndexes, setCurrIndexes] = useState<{
+    i: number;
+    j: number;
+    minIndex?: number;
+  }>({
     i: -1,
     j: -1,
     minIndex: -1,

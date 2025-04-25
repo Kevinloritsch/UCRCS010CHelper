@@ -32,7 +32,7 @@ const SelectionSortVisualizer = () => {
     handleSpeedChange,
   } = SortProps();
 
-//   const [minIndex, setMinIndex] = useState(-1); // variable to keep track of index of minimum value
+  //   const [minIndex, setMinIndex] = useState(-1); // variable to keep track of index of minimum value
 
   // each sort has to have their own handleResume func
   // since each sort has to call their own sort func
@@ -43,10 +43,10 @@ const SelectionSortVisualizer = () => {
     isSortingRef.current = true;
 
     doSelectionSort(
-        [...cpyArr], 
-        currIndexes.i, 
-        currIndexes.j, 
-        currIndexes.minIndex ?? -1
+      [...cpyArr],
+      currIndexes.i,
+      currIndexes.j,
+      currIndexes.minIndex ?? -1,
     );
   };
 
@@ -72,54 +72,55 @@ const SelectionSortVisualizer = () => {
   ) => {
     // base case: return if sorting is complete
     if (i >= arr.length - 1) {
-        setIsSorting(false);
-        setSortedUpTo(arr.length - 1);
-        setCurrIndexes({i: -1, j: -1, minIndex: -1});
-        setCurrIndexes((prev) => ({ ...prev, minIndex: -1 }));
-        return;
+      setIsSorting(false);
+      setSortedUpTo(arr.length - 1);
+      setCurrIndexes({ i: -1, j: -1, minIndex: -1 });
+      setCurrIndexes((prev) => ({ ...prev, minIndex: -1 }));
+      return;
     }
- 
-    setCurrIndexes({ // current indexes being compared
-        i, 
-        j, 
-        minIndex: currMinIndex });
+
+    setCurrIndexes({
+      // current indexes being compared
+      i,
+      j,
+      minIndex: currMinIndex,
+    });
 
     // stay stuck in recursion while paused
     if (isPausedRef.current) {
-        setTimeout(() => doSelectionSort(arr, i, j, currMinIndex), 100);
-        return;
+      setTimeout(() => doSelectionSort(arr, i, j, currMinIndex), 100);
+      return;
     }
 
     setTimeout(() => {
-        
-        // find minVal in unsorted section
-        if (j < arr.length) {
-            // if curr element < currMin, swap values
-            if (arr[j] < arr[currMinIndex]) {
-                currMinIndex = j;
-            }
+      // find minVal in unsorted section
+      if (j < arr.length) {
+        // if curr element < currMin, swap values
+        if (arr[j] < arr[currMinIndex]) {
+          currMinIndex = j;
+        }
 
-            if (!isPausedRef.current && isSortingRef.current) {
-                doSelectionSort(arr, i, j + 1, currMinIndex);
-            }
+        if (!isPausedRef.current && isSortingRef.current) {
+          doSelectionSort(arr, i, j + 1, currMinIndex);
+        }
 
         // reached end of unsorted portion, perform swap
-        } else {
-            if (currMinIndex !== i) {
-                [arr[i], arr[currMinIndex]] = [arr[currMinIndex], arr[i]];
-                setCpyArr([...arr]);
-            }
-
-            setSortedUpTo(i) // update sorted section
-
-            if (!isPausedRef.current && isSortingRef.current) {
-                doSelectionSort(arr, i + 1, i + 2, i + 1);
-            }
-            setSortedUpTo(i); // updated sorted section
+      } else {
+        if (currMinIndex !== i) {
+          [arr[i], arr[currMinIndex]] = [arr[currMinIndex], arr[i]];
+          setCpyArr([...arr]);
         }
+
+        setSortedUpTo(i); // update sorted section
+
+        if (!isPausedRef.current && isSortingRef.current) {
+          doSelectionSort(arr, i + 1, i + 2, i + 1);
+        }
+        setSortedUpTo(i); // updated sorted section
+      }
     }, playSpeedRef.current);
   };
-  
+
   return (
     <div>
       <SortVisualizer
@@ -150,4 +151,4 @@ const SelectionSortVisualizer = () => {
 
 export default SelectionSortVisualizer;
 
-// bug: generatign new array right before swap 
+// bug: generatign new array right before swap

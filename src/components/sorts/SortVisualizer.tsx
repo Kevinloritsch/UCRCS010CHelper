@@ -5,7 +5,7 @@ import React from "react";
 interface SortVisualizerProps {
   title: string;
   array: number[];
-  currentIndexes: { i: number; j: number, minIndex?: number };
+  currentIndexes: { i: number; j: number; minIndex?: number };
   isSorting: boolean;
   value: string;
   onValueChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -129,48 +129,56 @@ export const SortVisualizer = ({
         ))} */}
 
         {array.map((num, index) => {
-        const labels: string[] = [];
-        if (index === currentIndexes.i) labels.push("i");
-        if (index === currentIndexes.j) labels.push("j");
-        if (index === currentIndexes.minIndex) labels.push("min");
+          const labels: string[] = [];
+          if (index === currentIndexes.i) labels.push("i");
+          if (index === currentIndexes.j) labels.push("j");
+          if (index === currentIndexes.minIndex) labels.push("min");
 
-            return (
-                <div
-                key={index}
-                style={{ display: "flex", flexDirection: "column", alignItems: "center" }}
-                >
-                {/* Floating labels */}
-                <div style={{ height: "40px", textAlign: "center", fontSize: "14px" }}>
-                    {labels.map((label, i) => (
-                    <div key={i}>{label}</div>
-                    ))}
-                </div>
+          return (
+            <div
+              key={index}
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+              }}
+            >
+              {/* Floating labels */}
+              <div
+                style={{
+                  height: "40px",
+                  textAlign: "center",
+                  fontSize: "14px",
+                }}
+              >
+                {labels.map((label, i) => (
+                  <div key={i}>{label}</div>
+                ))}
+              </div>
 
-                <div
-                    style={{
-                    width: "65px",
-                    height: `${num * 5}px`,
-                    backgroundColor:
-                        index <= sortedUpTo && isSorting
-                        ? "grey"
-                        : !isSorting
+              <div
+                style={{
+                  width: "65px",
+                  height: `${num * 5}px`,
+                  backgroundColor:
+                    index <= sortedUpTo && isSorting
+                      ? "grey"
+                      : !isSorting
                         ? "grey"
                         : "black",
-                    color: "white",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    transition: "background-color 0.15s ease",
-                    }}
-                >
-                    {num}
-                </div>
-                </div>
-            );
+                  color: "white",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  transition: "background-color 0.15s ease",
+                }}
+              >
+                {num}
+              </div>
+            </div>
+          );
         })}
-
       </div>
     </div>
   );
 };
-
