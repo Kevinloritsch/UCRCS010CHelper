@@ -15,6 +15,7 @@ export const insertNode = async (
   maxNodeId: React.MutableRefObject<number>,
   maxEdgeId: React.MutableRefObject<number>,
   intOrLetter: boolean,
+  maxOrMin: boolean,
 ) => {
   const animationStates: {
     nodes: TreeNode[];
@@ -145,7 +146,12 @@ export const insertNode = async (
     snapshot();
     let breakFlag = false;
 
-    if (parentNode.value < iteratorNode!.value) {
+    // maxOrMin = true means max heap, = false means min heap
+    // adjust perc up accordingly
+    if (
+      (maxOrMin && parentNode.value < iteratorNode!.value) ||
+      (!maxOrMin && parentNode.value > iteratorNode!.value)
+    ) {
       const tempParentLabel = parentNode.label;
       const tempParentValue = parentNode.value;
 

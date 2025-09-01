@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useRef, useState } from "react";
-import { insertNode } from "@/utils/HeapFunctions/insertHeap";
-import { removeNode } from "@/utils/HeapFunctions/removeHeap";
+import { insertNode } from "@/utils/HeapFunctions/insertMaxHeap";
+import { removeNode } from "@/utils/HeapFunctions/removeMaxHeap";
 
 import { Play, Pause, RefreshCcw, FastForward, Trash2 } from "lucide-react";
 
@@ -191,6 +191,7 @@ const HeapVisualizer = () => {
                 maxNodeId,
                 maxEdgeId,
                 intOrLetter,
+                maxOrMin,
               );
               newAnimationStates = newAnimationStates.concat(states);
               const lastValue =
@@ -279,9 +280,29 @@ const HeapVisualizer = () => {
         <button
           onClick={() => {
             setMaxOrMin(!maxOrMin);
+
+            nodes.current.clear();
+            edges.current.clear();
+
+            root.current = null;
+            maxNodeId.current = 0;
+            maxEdgeId.current = 0;
+
+            setAnimationStates([]);
+            setCurrentStep(0);
+            setIsPlaying(false);
+            setIsInserting(false);
+            setPrintValue(null);
+            setValue("");
+
+            if (network) {
+              network.setData({ nodes: nodes.current, edges: edges.current });
+              network.redraw();
+            }
           }}
         >
-          Max/Min
+          {maxOrMin && <p>Max</p>}
+          {!maxOrMin && <p>Min</p>}
         </button>
       </div>
       <div className="flex">
@@ -304,6 +325,7 @@ const HeapVisualizer = () => {
                 maxNodeId,
                 maxEdgeId,
                 intOrLetter,
+                maxOrMin,
               );
               setAnimationStates(newAnimationStates || []);
               setIsPlaying(true);
@@ -339,10 +361,8 @@ const HeapVisualizer = () => {
                 root,
                 nodes,
                 edges,
-                // maxNodeId,
-                // maxEdgeId,
+                maxOrMin,
               );
-              // error bc remove isnt done
               setAnimationStates(newAnimationStates || []);
               setIsPlaying(true);
               setIsInserting(true);
@@ -357,7 +377,7 @@ const HeapVisualizer = () => {
               <span className="font-bold text-white">|</span>
             </div>
           )}
-          Remove
+          Extract Root
         </button>
       </div>
 

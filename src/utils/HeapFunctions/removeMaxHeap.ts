@@ -12,8 +12,7 @@ export const removeNode = async (
   edges: React.MutableRefObject<
     DataSet<{ id?: number; from: number; to: number }>
   >,
-  // maxNodeId: React.MutableRefObject<number>,
-  // maxEdgeId: React.MutableRefObject<number>,
+  maxOrMin: boolean,
 ) => {
   const animationStates: {
     nodes: TreeNode[];
@@ -151,8 +150,19 @@ export const removeNode = async (
       : null;
 
     let largest = iteratorNode;
-    if (left && left.value > largest.value) largest = left;
-    if (right && right.value > largest.value) largest = right;
+
+    // maxOrMin = true means max heap, = false means min heap
+    // adjust perc down accordingly
+    if (
+      (maxOrMin && left && left.value > largest.value) ||
+      (!maxOrMin && left && left.value < largest.value)
+    )
+      largest = left;
+    if (
+      (maxOrMin && right && right.value > largest.value) ||
+      (!maxOrMin && right && right.value < largest.value)
+    )
+      largest = right;
 
     // stop if heap property satisfied
     if (largest.id === iteratorNode.id) break;
