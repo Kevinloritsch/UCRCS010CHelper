@@ -46,7 +46,10 @@ export const rotateRight = (
   const leftRightSubtree = leftChild.right;
 
   // Move node down to the right
-  const newX = node.x + 500 * Math.pow(2, -depth - 1);
+
+  const baseOffset =
+    typeof window !== "undefined" && window.innerWidth < 400 ? 250 : 500;
+  const newX = node.x + baseOffset * Math.pow(2, -depth - 1);
   const newY = node.y + 100;
 
   edges.current.remove(
@@ -108,7 +111,9 @@ export const rotateRight = (
       ? (nodes.current.get(node.parent) as TreeNode | undefined)
       : null;
 
-    const xOffset = 500 * Math.pow(2, -currentDepth + 1);
+    const baseOffset =
+      typeof window !== "undefined" && window.innerWidth < 400 ? 250 : 500;
+    const xOffset = baseOffset * Math.pow(2, -currentDepth + 1);
     let newX, newY;
 
     if (parentNode) {
@@ -149,7 +154,9 @@ export const rotateRight = (
       ? (nodes.current.get(node.parent) as TreeNode | undefined)
       : null;
 
-    const xOffset = 500 * Math.pow(2, -currentDepth - 1);
+    const baseOffset =
+      typeof window !== "undefined" && window.innerWidth < 400 ? 250 : 500;
+    const xOffset = baseOffset * Math.pow(2, -currentDepth - 1);
     let newX;
 
     if (parentNode) {
