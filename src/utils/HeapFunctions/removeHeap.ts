@@ -1,329 +1,209 @@
-import {
-  DataSet,
-  Network,
-} from "vis-network/standalone/umd/vis-network.min.js";
-import { TreeNode } from "@/components/BSTVisualizer";
+import { DataSet } from "vis-network/standalone/umd/vis-network.min.js";
+import { TreeNode } from "@/components/HeapVisualizer";
 import colors from "@/styles/colors";
 
-// custom defines "pause" buffer
 export const sleep = (ms: number) =>
   new Promise((resolve) => setTimeout(resolve, ms));
 
-type AnimationState = {
-  nodes: TreeNode[];
-  edges: { id?: number; from: number; to: number }[];
-};
-
 export const removeNode = async (
-  nodeId: number,
   value: number,
-  parentID: number,
   root: React.MutableRefObject<TreeNode | null>,
   nodes: React.MutableRefObject<DataSet<TreeNode>>,
   edges: React.MutableRefObject<
     DataSet<{ id?: number; from: number; to: number }>
   >,
-  network: Network | null,
-): Promise<AnimationState[]> => {
-  const tempRoot = root.current
-    ? (nodes.current.get(1) as TreeNode | null)
-    : null;
+  // maxNodeId: React.MutableRefObject<number>,
+  // maxEdgeId: React.MutableRefObject<number>,
+) => {
   const animationStates: {
     nodes: TreeNode[];
     edges: { id?: number; from: number; to: number }[];
   }[] = [];
 
   const snapshot = () => {
-    const currentNodes = [...nodes.current.get()];
-    const currentEdges = [...edges.current.get()];
-    if (network) {
-      network.stabilize();
-      if (root.current && tempRoot) {
-        network.selectNodes([tempRoot.id]);
-        network.selectNodes([]);
-        network.selectEdges([]);
-
-        network.redraw();
-      }
-      network.setOptions({ physics: false });
-    }
-    animationStates.push({ nodes: currentNodes, edges: currentEdges });
+    animationStates.push({
+      nodes: [...nodes.current.get()],
+      edges: [...edges.current.get()],
+    });
   };
 
+  // initial state
   snapshot();
-  // can't remove from an empty tree
-  if (!root.current) {
-    alert("Tree is Empty");
 
+  // error if root missing
+  if (!root.current) {
+    alert("No root.");
     return animationStates;
   }
 
-  // iterator
-  let currentNode = nodes.current.get(nodeId) as TreeNode | null;
-  let parentNode: TreeNode | null = null;
+  // level-order traversal using fresh data from DataSet
+  let lastNodeId: number | null = null;
+  const queue: number[] = [root.current.id];
 
-  // this is for the recursive cases, itll be passed in as 0 for the default case
-  if (parentID != 0) {
-    parentNode = nodes.current.get(parentID) as TreeNode | null;
-  }
+  while (queue.length > 0) {
+    const nodeId = queue.shift()!;
+    const node = nodes.current.get(nodeId) as TreeNode;
+    // depth = node.y / 100;
 
-  let isLeftChild = false;
-
-  while (currentNode) {
-    // identify the node we want to remove
+    // highlight as you traverse
     nodes.current.update({
-      id: currentNode.id,
+      id: nodeId,
       color: { background: colors.redAnimate },
     });
     snapshot();
     nodes.current.update({
-      id: currentNode.id,
+      id: nodeId,
       color: { background: colors.defaultBlue },
     });
     snapshot();
 
-    currentNode = nodes.current.get(currentNode.id) as TreeNode;
+    // update last seen node
+    lastNodeId = nodeId;
 
-    // standard bst logic
-    if (value < currentNode.value) {
-      if (currentNode.left) {
-        parentNode = currentNode;
-        currentNode = nodes.current.get(currentNode.left) as TreeNode;
-        isLeftChild = true;
-      } else {
-        currentNode = null;
-      }
-    } else if (value > currentNode.value) {
-      if (currentNode.right) {
-        parentNode = currentNode;
-        currentNode = nodes.current.get(currentNode.right) as TreeNode;
-        isLeftChild = false;
-      } else {
-        currentNode = null;
-      }
-    } else {
-      break;
-    }
-
-    // reset values
-    if (network) {
-      network.stabilize();
-      network.selectNodes([root.current.id]);
-      network.selectNodes([]);
-      network.setOptions({ physics: false });
-    }
+    // enqueue children if they exist
+    if (node.left !== null) queue.push(node.left);
+    if (node.right !== null) queue.push(node.right);
   }
 
-  // if it was never found... throw an error
-  if (!currentNode) {
-    alert("Value not in tree");
+  // at the end, lastNodeId is the bottom-rightmost node
+  const lastNode = lastNodeId
+    ? (nodes.current.get(lastNodeId) as TreeNode)
+    : null;
+
+  console.log(lastNode);
+
+  if (!lastNode) throw Error("no last node");
+
+  if (lastNode.id === root.current.id) {
+    // clear all nodes + edges
+    nodes.current.remove(lastNode.id);
+    edges.current.clear();
+
+    snapshot();
+
+    // rewind for animation
+    // const initial = animationStates[0];
+    nodes.current.clear();
+    edges.current.clear();
+
+    root.current = null;
     return animationStates;
   }
 
-  // if it has no children case
-  if (!currentNode.left && !currentNode.right) {
-    // make sure parents point accordingly
-    if (parentNode) {
-      if (isLeftChild || parentNode.left == currentNode.id) {
-        parentNode.left = null;
-      } else {
-        parentNode.right = null;
-      }
-      nodes.current.update(parentNode);
-    } else {
-      root.current = null;
-    }
+  // otherwise, swap root with lastNode, then remove lastNode
+  else {
+    const rootNode = root.current;
+    const parentNode = lastNode.parent
+      ? (nodes.current.get(lastNode.parent) as TreeNode)
+      : null;
 
-    // display a different color as visual indicator of being deleted
+    // swap value + label between root and last
+    const tmpValue = rootNode.value;
+    const tmpLabel = rootNode.label;
+
     nodes.current.update({
-      id: currentNode.id,
-      color: { background: colors.greenFinal },
+      id: rootNode.id,
+      value: lastNode.value,
+      label: lastNode.label,
+    });
+    nodes.current.update({
+      id: lastNode.id,
+      value: tmpValue,
+      label: tmpLabel,
     });
 
-    // reset values
-    if (network) {
-      network.stabilize();
-      if (root.current) {
-        network.selectNodes([root.current.id]);
-        network.selectNodes([]);
+    snapshot();
+
+    // remove lastNode from parent's child pointer
+    if (parentNode) {
+      if (parentNode.left === lastNode.id) {
+        nodes.current.update({ id: parentNode.id, left: null });
+      } else if (parentNode.right === lastNode.id) {
+        nodes.current.update({ id: parentNode.id, right: null });
       }
-      network.setOptions({ physics: false });
     }
 
+    // remove edge pointing to lastNode
+    const edgeToRemove = (
+      edges.current.get() as { id?: number; from: number; to: number }[]
+    ).find((e) => e.to === lastNode.id);
+    if (edgeToRemove?.id !== undefined) {
+      edges.current.remove(edgeToRemove.id);
+    }
+
+    // remove lastNode
+    nodes.current.remove(lastNode.id);
+
     snapshot();
+  }
+
+  // after swap + delete code
+
+  // now percolate root down
+  let iteratorNode = nodes.current.get(root.current.id) as TreeNode;
+
+  while (iteratorNode) {
+    const left = iteratorNode.left
+      ? (nodes.current.get(iteratorNode.left) as TreeNode)
+      : null;
+    const right = iteratorNode.right
+      ? (nodes.current.get(iteratorNode.right) as TreeNode)
+      : null;
+
+    let largest = iteratorNode;
+    if (left && left.value > largest.value) largest = left;
+    if (right && right.value > largest.value) largest = right;
+
+    // stop if heap property satisfied
+    if (largest.id === iteratorNode.id) break;
+
+    // highlight swap
     nodes.current.update({
-      id: currentNode.id,
+      id: iteratorNode.id,
+      color: { background: colors.yellowSwap },
+    });
+    nodes.current.update({
+      id: largest.id,
+      color: { background: colors.yellowSwap },
+    });
+    snapshot();
+
+    // swap value + label
+    const tmpValue = iteratorNode.value;
+    const tmpLabel = iteratorNode.label;
+
+    nodes.current.update({
+      id: iteratorNode.id,
+      value: largest.value,
+      label: largest.label,
+    });
+    nodes.current.update({
+      id: largest.id,
+      value: tmpValue,
+      label: tmpLabel,
+    });
+
+    // reset colors
+    nodes.current.update({
+      id: iteratorNode.id,
+      color: { background: colors.defaultBlue },
+    });
+    nodes.current.update({
+      id: largest.id,
       color: { background: colors.defaultBlue },
     });
     snapshot();
 
-    // bye bye!
-    nodes.current.remove(currentNode.id);
-    edges.current.remove(
-      edges.current.getIds({ filter: (edge) => edge.to === currentNode.id }),
-    );
+    // continue downwards
+    iteratorNode = nodes.current.get(largest.id) as TreeNode;
   }
 
-  // case with children
-  else {
-    let childNode: TreeNode | null = null;
-
-    let more = false;
-
-    // main thing here is finding the predecessor (if there is one), or sucessor otherwise
-    // the "more" flag is if we go "more" than one step away from a given node, as that affects pointer logic later on
-    if (currentNode.left !== null) {
-      parentNode = currentNode;
-      let leftChild = nodes.current.get(currentNode.left) as TreeNode;
-      console.log(leftChild);
-      while (leftChild.right !== null) {
-        more = true;
-        parentNode = leftChild;
-        leftChild = nodes.current.get(leftChild.right) as TreeNode;
-      }
-      childNode = leftChild;
-    } else if (currentNode.right !== null) {
-      parentNode = currentNode;
-      let rightChild = nodes.current.get(currentNode.right) as TreeNode;
-      while (rightChild.left !== null) {
-        more = true;
-        parentNode = rightChild;
-        rightChild = nodes.current.get(rightChild.left) as TreeNode;
-      }
-      childNode = rightChild;
-    }
-
-    if (childNode) {
-      // make them both yellow and swap values visually
-
-      // bunch of pointer logic to ensure this works!
-      if (!more) {
-        if (currentNode.value > childNode.value) {
-          nodes.current.update({
-            id: currentNode.id,
-            label: childNode.label,
-            value: childNode.value,
-            left: childNode.id,
-            color: { background: colors.yellowSwap },
-          });
-        } else {
-          nodes.current.update({
-            id: currentNode.id,
-            label: childNode.label,
-            value: childNode.value,
-            right: childNode.id,
-            color: { background: colors.yellowSwap },
-          });
-        }
-      } else {
-        nodes.current.update({
-          id: currentNode.id,
-          label: childNode.label,
-          value: childNode.value,
-          color: { background: colors.yellowSwap },
-        });
-      }
-
-      nodes.current.update({
-        id: childNode.id,
-        label: currentNode.label,
-        value: currentNode.value,
-
-        color: { background: colors.yellowSwap },
-      });
-
-      // reset values
-      if (network) {
-        network.stabilize();
-        if (root) {
-          network.selectNodes([root.current.id]);
-          network.selectNodes([]);
-        }
-        network.setOptions({ physics: false });
-      }
-
-      snapshot();
-
-      // bring back to blue
-
-      nodes.current.update({
-        id: childNode.id,
-        color: { background: colors.defaultBlue },
-      });
-
-      nodes.current.update({
-        id: currentNode.id,
-        color: { background: colors.defaultBlue },
-      });
-      snapshot();
-
-      // if the node has any child, we have to do a recursive call
-      if (currentNode.left || currentNode.right) {
-        // call the function with the new values
-        if (parentNode) {
-          const recursiveStates = await removeNode(
-            childNode.id,
-            currentNode.value,
-            parentNode.id,
-            root,
-            nodes,
-            edges,
-            network,
-          );
-          return animationStates.concat(recursiveStates);
-        }
-      }
-
-      // otherwise, lets just delete the node
-      nodes.current.remove(currentNode.id);
-
-      // adjust parents accordingly
-      if (parentNode) {
-        if (parentNode.left === childNode.id) {
-          parentNode.left = null;
-        } else if (parentNode.right === childNode.id) {
-          parentNode.right = null;
-        }
-      }
-
-      nodes.current.update(currentNode);
-      if (network) {
-        network.stabilize();
-        network.setOptions({ physics: false });
-      }
-
-      const childEdgeIds = edges.current.getIds({
-        filter: (edge) => edge.to === childNode.id,
-      });
-      edges.current.remove(childEdgeIds);
-    }
-  }
-
-  // checker to make sure points do not look ugly
-  if (network) {
-    network.stabilize();
-    if (root.current) {
-      network.selectNodes([root.current.id]);
-      network.selectNodes([]);
-    }
-    network.setOptions({ physics: false });
-  }
-
-  snapshot();
-
-  const initialState = animationStates[0];
+  // rewind for animation
+  const initial = animationStates[0];
   nodes.current.clear();
   edges.current.clear();
-
-  // Restore nodes
-  initialState.nodes.forEach((node) => {
-    nodes.current.add(node);
-  });
-
-  // Restore edges
-  initialState.edges.forEach((edge) => {
-    edges.current.add(edge);
-  });
+  initial.nodes.forEach((n) => nodes.current.add(n));
+  initial.edges.forEach((e) => edges.current.add(e));
 
   return animationStates;
 };

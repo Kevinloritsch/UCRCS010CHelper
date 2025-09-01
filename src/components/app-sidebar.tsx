@@ -33,6 +33,12 @@ export function AppSidebar() {
           </Link>
         </SidebarMenuButton>
 
+        <SidebarMenuButton asChild>
+          <Link href="/heap" className="">
+            Heap
+          </Link>
+        </SidebarMenuButton>
+
         <div className="text-center font-bold">Sorts</div>
 
         <SidebarMenuButton asChild>

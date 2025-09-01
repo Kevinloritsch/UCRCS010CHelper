@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useRef, useState } from "react";
 import { insertNode } from "@/utils/HeapFunctions/insertHeap";
-import { removeNode } from "@/utils/BSTFunctions/removeBST";
+import { removeNode } from "@/utils/HeapFunctions/removeHeap";
 
 import { Play, Pause, RefreshCcw, FastForward, Trash2 } from "lucide-react";
 
@@ -47,6 +47,7 @@ const HeapVisualizer = () => {
   const [speed, setSpeed] = useState(500);
   const [printValue, setPrintValue] = useState<string | null>(null);
   const [intOrLetter, setIntOrLetter] = useState(true);
+  const [maxOrMin, setMaxOrMin] = useState(true); // true is max, false is min
 
   useEffect(() => {
     if (networkContainer.current) {
@@ -274,6 +275,14 @@ const HeapVisualizer = () => {
         >
           <Trash2 color="black" style={{ transform: "rotate(360deg)" }} />
         </button>
+
+        <button
+          onClick={() => {
+            setMaxOrMin(!maxOrMin);
+          }}
+        >
+          Max/Min
+        </button>
       </div>
       <div className="flex">
         <button
@@ -287,7 +296,6 @@ const HeapVisualizer = () => {
                 : parseFloat(value);
             console.log(valueToInsert);
             if (network) {
-              // console.log()
               const newAnimationStates = await insertNode(
                 valueToInsert,
                 root,
@@ -322,15 +330,19 @@ const HeapVisualizer = () => {
           }`}
           onClick={async () => {
             if (network) {
+              const valueToInsert =
+                !intOrLetter && /^[A-Z]$/.test(value)
+                  ? value.charCodeAt(0) - 64
+                  : parseFloat(value);
               const newAnimationStates = await removeNode(
-                1,
-                parseFloat(value),
-                0,
+                valueToInsert,
                 root,
                 nodes,
                 edges,
-                network,
+                // maxNodeId,
+                // maxEdgeId,
               );
+              // error bc remove isnt done
               setAnimationStates(newAnimationStates || []);
               setIsPlaying(true);
               setIsInserting(true);

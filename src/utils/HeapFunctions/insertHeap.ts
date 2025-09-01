@@ -101,7 +101,6 @@ export const insertNode = async (
   const newX = parentNode!.x + (isLeftChild ? -xOffset : xOffset);
   const newY = parentNode!.y + 100;
   const newId = ++maxNodeId.current;
-
   // create new node
   const newNode: TreeNode = {
     id: newId,
