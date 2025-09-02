@@ -63,7 +63,7 @@ export const insertNode = async (
   while (queue.length > 0) {
     const nodeId = queue.shift()!;
     const node = nodes.current.get(nodeId) as TreeNode;
-    depth++;
+    depth = node.y / 100;
 
     // highlight nodes as we look at them
     // highlighted every node as it kinda makes more sense than doing the tree traversal?
