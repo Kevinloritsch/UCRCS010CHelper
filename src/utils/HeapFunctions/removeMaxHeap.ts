@@ -12,7 +12,7 @@ export const removeNode = async (
   edges: React.MutableRefObject<
     DataSet<{ id?: number; from: number; to: number }>
   >,
-  maxOrMin: boolean,
+  maxOrMin: boolean, // true is max, false is min
 ) => {
   const animationStates: {
     nodes: TreeNode[];

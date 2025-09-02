@@ -5,7 +5,7 @@ import colors from "@/styles/colors";
 export const sleep = (ms: number) =>
   new Promise((resolve) => setTimeout(resolve, ms));
 
-// private counters for unique numeric IDs
+// counters for unique ids
 let nodeIdCounter = 0;
 let edgeIdCounter = 0;
 
@@ -17,7 +17,7 @@ export const insertNode = async (
     DataSet<{ id?: number; from: number; to: number }>
   >,
   intOrLetter: boolean,
-  maxOrMin: boolean,
+  maxOrMin: boolean, // true is max, false is min
 ) => {
   const animationStates: {
     nodes: TreeNode[];
@@ -53,18 +53,21 @@ export const insertNode = async (
     return animationStates;
   }
 
-  // level-order traversal using fresh data from DataSet
+  // bfs ! find the next open spot
   const queue: number[] = [root.current.id];
   let parentId: number | null = null;
   let isLeftChild = false;
+  // needed for x distance on insertion
   let depth = 0;
 
   while (queue.length > 0) {
     const nodeId = queue.shift()!;
     const node = nodes.current.get(nodeId) as TreeNode;
-    depth = node.y / 100;
+    depth++;
 
-    // highlight
+    // highlight nodes as we look at them
+    // highlighted every node as it kinda makes more sense than doing the tree traversal?
+    // obviously it adds a O(n) to a O(log n) algo but it shows where we pick it from
     nodes.current.update({
       id: nodeId,
       color: { background: colors.redAnimate },
@@ -76,36 +79,38 @@ export const insertNode = async (
     });
     snapshot();
 
+    // check if have nodes
+    // no need to continue searching if we find a hole
     if (node.left === null) {
       parentId = nodeId;
       isLeftChild = true;
       break;
     }
+    // if not left, then it has to be right
     if (node.right === null) {
       parentId = nodeId;
       isLeftChild = false;
       break;
     }
 
-    // enqueue children IDs
+    // enqueue children
     queue.push(node.left, node.right);
   }
 
+  // make typescript happy
   if (parentId === null) {
     throw new Error("No available slot for new node");
   }
 
-  // compute new coordinates
-  let parentNode =
-    parentId !== null
-      ? (nodes.current.get(parentId) as TreeNode | undefined)
-      : undefined;
+  // find x y offsets
+  let parentNode = nodes.current.get(parentId) as TreeNode | undefined;
   const xOffset = 500 * Math.pow(2, -(depth + 1));
   const newX = parentNode!.x + (isLeftChild ? -xOffset : xOffset);
   const newY = parentNode!.y + 100;
 
-  // assign a unique numeric id
+  // increment global id for uniqueness between ids
   const newId = ++nodeIdCounter;
+
   const newNode: TreeNode = {
     id: newId,
     value,
@@ -119,23 +124,25 @@ export const insertNode = async (
 
   nodes.current.add(newNode);
 
-  // update parent pointers in dataset
+  // update parent pointer
   if (isLeftChild) {
     nodes.current.update({ id: parentId, left: newId });
   } else {
     nodes.current.update({ id: parentId, right: newId });
   }
 
-  // add edge with a unique numeric id
+  // increment global edge counter
   const edgeId = ++edgeIdCounter;
+
   edges.current.add({ id: edgeId, from: parentId, to: newId });
 
   snapshot();
 
-  // heapify up
+  // perc up
   let iteratorNode = nodes.current.get(newNode.id) as TreeNode | undefined;
 
   while (parentNode) {
+    // change color for the comparison, we guarentee to at least swap color
     nodes.current.update({
       id: parentNode.id,
       color: { background: colors.yellowSwap },
@@ -147,6 +154,8 @@ export const insertNode = async (
     });
 
     snapshot();
+
+    // we break if everything is in the right spot
     let breakFlag = false;
 
     // maxOrMin = true means max heap, = false means min heap
@@ -154,6 +163,24 @@ export const insertNode = async (
       (maxOrMin && parentNode.value < iteratorNode!.value) ||
       (!maxOrMin && parentNode.value > iteratorNode!.value)
     ) {
+      // make the swap if we need to
+
+      // back to blue first for emphasi
+
+      nodes.current.update({
+        id: parentNode.id,
+        color: { background: colors.defaultBlue },
+      });
+
+      nodes.current.update({
+        id: iteratorNode!.id,
+        color: { background: colors.defaultBlue },
+      });
+
+      snapshot();
+
+      // swap and make yellow
+
       const tempParentLabel = parentNode.label;
       const tempParentValue = parentNode.value;
 
@@ -161,13 +188,18 @@ export const insertNode = async (
         id: parentNode.id,
         label: iteratorNode!.label,
         value: iteratorNode!.value,
+        color: { background: colors.yellowSwap },
       });
       nodes.current.update({
         id: iteratorNode!.id,
         label: tempParentLabel,
         value: tempParentValue,
+        color: { background: colors.yellowSwap },
       });
+      snapshot();
     } else breakFlag = true;
+
+    // make to blue regardless
 
     nodes.current.update({
       id: parentNode.id,
@@ -181,6 +213,8 @@ export const insertNode = async (
 
     snapshot();
 
+    // break if needed, or if we reached root
+    // otherwise move up the tree
     if (!breakFlag) {
       if (!parentNode.parent) break;
       parentNode = nodes.current.get(parentNode.parent) as TreeNode | undefined;
@@ -191,14 +225,13 @@ export const insertNode = async (
     } else break;
   }
 
-  // rewind for animation
   const initial = animationStates[0];
   nodes.current.clear();
   edges.current.clear();
   initial.nodes.forEach((n) => nodes.current.add(n));
   initial.edges.forEach((e) => edges.current.add(e));
 
-  // update root to fresh object
+  // refresh root to make sure it didn't get swapped around
   root.current = nodes.current.get(root.current.id) as TreeNode;
 
   return animationStates;
