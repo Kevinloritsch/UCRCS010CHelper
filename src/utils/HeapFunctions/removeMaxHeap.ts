@@ -35,16 +35,17 @@ export const removeNode = async (
     return animationStates;
   }
 
-  // level-order traversal using fresh data from DataSet
+  // iterate over tree w bfs
   let lastNodeId: number | null = null;
   const queue: number[] = [root.current.id];
 
   while (queue.length > 0) {
     const nodeId = queue.shift()!;
     const node = nodes.current.get(nodeId) as TreeNode;
-    // depth = node.y / 100;
 
-    // highlight as you traverse
+    // highlight nodes as we look at them
+    // highlighted every node as it kinda makes more sense than doing the tree traversal?
+    // obviously it adds a O(n) to a O(log n) algo but it shows where we pick it from
     nodes.current.update({
       id: nodeId,
       color: { background: colors.redAnimate },
@@ -69,19 +70,20 @@ export const removeNode = async (
     ? (nodes.current.get(lastNodeId) as TreeNode)
     : null;
 
-  console.log(lastNode);
-
+  // here for error checking below to not be needed :D
   if (!lastNode) throw Error("no last node");
 
+  // edge case delete the root
   if (lastNode.id === root.current.id) {
-    // clear all nodes + edges
+    // clear all nodes & edges
     nodes.current.remove(lastNode.id);
     edges.current.clear();
 
+    // we have no root now
+    root.current = null;
+
     snapshot();
 
-    // rewind for animation
-    // const initial = animationStates[0];
     nodes.current.clear();
     edges.current.clear();
 
@@ -89,26 +91,67 @@ export const removeNode = async (
     return animationStates;
   }
 
-  // otherwise, swap root with lastNode, then remove lastNode
+  // otherwise swap root with lastNode, then remove lastNode
   else {
     const rootNode = root.current;
+    // save parent so we can properly delete the node
     const parentNode = lastNode.parent
       ? (nodes.current.get(lastNode.parent) as TreeNode)
       : null;
 
-    // swap value + label between root and last
+    // swap
     const tmpValue = rootNode.value;
     const tmpLabel = rootNode.label;
 
+    snapshot();
+
+    // highlight what we want to swap
+    nodes.current.update({
+      id: rootNode.id,
+      color: { background: colors.yellowSwap },
+    });
+    nodes.current.update({
+      id: lastNode.id,
+      color: { background: colors.yellowSwap },
+    });
+
+    snapshot();
+
+    nodes.current.update({
+      id: rootNode.id,
+      color: { background: colors.defaultBlue },
+    });
+    nodes.current.update({
+      id: lastNode.id,
+      color: { background: colors.defaultBlue },
+    });
+
+    snapshot();
+
+    // highlight after swapping for emphasis
     nodes.current.update({
       id: rootNode.id,
       value: lastNode.value,
       label: lastNode.label,
+      color: { background: colors.yellowSwap },
     });
     nodes.current.update({
       id: lastNode.id,
       value: tmpValue,
       label: tmpLabel,
+      color: { background: colors.yellowSwap },
+    });
+
+    snapshot();
+
+    // look normal again
+    nodes.current.update({
+      id: rootNode.id,
+      color: { background: colors.defaultBlue },
+    });
+    nodes.current.update({
+      id: lastNode.id,
+      color: { background: colors.defaultBlue },
     });
 
     snapshot();
@@ -136,12 +179,11 @@ export const removeNode = async (
     snapshot();
   }
 
-  // after swap + delete code
-
   // now percolate root down
   let iteratorNode = nodes.current.get(root.current.id) as TreeNode;
 
   while (iteratorNode) {
+    // grab left and right, we have to compare both
     const left = iteratorNode.left
       ? (nodes.current.get(iteratorNode.left) as TreeNode)
       : null;
@@ -158,16 +200,18 @@ export const removeNode = async (
       (!maxOrMin && left && left.value < largest.value)
     )
       largest = left;
+
+    // largest value is currently the largest between iterator and left, so if right is largest this will be true
     if (
       (maxOrMin && right && right.value > largest.value) ||
       (!maxOrMin && right && right.value < largest.value)
     )
       largest = right;
 
-    // stop if heap property satisfied
+    // stop if correct
     if (largest.id === iteratorNode.id) break;
 
-    // highlight swap
+    // swap color
     nodes.current.update({
       id: iteratorNode.id,
       color: { background: colors.yellowSwap },
@@ -178,7 +222,7 @@ export const removeNode = async (
     });
     snapshot();
 
-    // swap value + label
+    // swap value
     const tmpValue = iteratorNode.value;
     const tmpLabel = iteratorNode.label;
 
@@ -193,7 +237,7 @@ export const removeNode = async (
       label: tmpLabel,
     });
 
-    // reset colors
+    // fix color
     nodes.current.update({
       id: iteratorNode.id,
       color: { background: colors.defaultBlue },
@@ -204,11 +248,13 @@ export const removeNode = async (
     });
     snapshot();
 
-    // continue downwards
+    // continue percolate
     iteratorNode = nodes.current.get(largest.id) as TreeNode;
   }
 
-  // rewind for animation
+  // update the root since it definetly changed
+  root.current = nodes.current.get(root.current.id) as TreeNode;
+
   const initial = animationStates[0];
   nodes.current.clear();
   edges.current.clear();
