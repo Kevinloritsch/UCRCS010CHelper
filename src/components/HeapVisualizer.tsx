@@ -188,8 +188,6 @@ const HeapVisualizer = () => {
                 root,
                 nodes,
                 edges,
-                maxNodeId,
-                maxEdgeId,
                 intOrLetter,
                 maxOrMin,
               );
@@ -322,8 +320,6 @@ const HeapVisualizer = () => {
                 root,
                 nodes,
                 edges,
-                maxNodeId,
-                maxEdgeId,
                 intOrLetter,
                 maxOrMin,
               );

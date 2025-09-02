@@ -5,6 +5,10 @@ import colors from "@/styles/colors";
 export const sleep = (ms: number) =>
   new Promise((resolve) => setTimeout(resolve, ms));
 
+// private counters for unique numeric IDs
+let nodeIdCounter = 0;
+let edgeIdCounter = 0;
+
 export const insertNode = async (
   value: number,
   root: React.MutableRefObject<TreeNode | null>,
@@ -12,8 +16,6 @@ export const insertNode = async (
   edges: React.MutableRefObject<
     DataSet<{ id?: number; from: number; to: number }>
   >,
-  maxNodeId: React.MutableRefObject<number>,
-  maxEdgeId: React.MutableRefObject<number>,
   intOrLetter: boolean,
   maxOrMin: boolean,
 ) => {
@@ -34,9 +36,9 @@ export const insertNode = async (
 
   // create root if missing
   if (!root.current) {
-    const id = ++maxNodeId.current;
+    const newId = ++nodeIdCounter;
     const newNode: TreeNode = {
-      id,
+      id: newId,
       value,
       left: null,
       right: null,
@@ -101,8 +103,9 @@ export const insertNode = async (
   const xOffset = 500 * Math.pow(2, -(depth + 1));
   const newX = parentNode!.x + (isLeftChild ? -xOffset : xOffset);
   const newY = parentNode!.y + 100;
-  const newId = ++maxNodeId.current;
-  // create new node
+
+  // assign a unique numeric id
+  const newId = ++nodeIdCounter;
   const newNode: TreeNode = {
     id: newId,
     value,
@@ -123,8 +126,8 @@ export const insertNode = async (
     nodes.current.update({ id: parentId, right: newId });
   }
 
-  // add edge
-  const edgeId = ++maxEdgeId.current;
+  // add edge with a unique numeric id
+  const edgeId = ++edgeIdCounter;
   edges.current.add({ id: edgeId, from: parentId, to: newId });
 
   snapshot();
@@ -147,7 +150,6 @@ export const insertNode = async (
     let breakFlag = false;
 
     // maxOrMin = true means max heap, = false means min heap
-    // adjust perc up accordingly
     if (
       (maxOrMin && parentNode.value < iteratorNode!.value) ||
       (!maxOrMin && parentNode.value > iteratorNode!.value)
