@@ -186,12 +186,12 @@ const BSTVisualizer = () => {
 
   return (
     <div>
-      <h1 className="m-2 text-center text-2xl text-white">
+      <h1 className="m-2 text-center text-2xl text-black">
         Binary Search Tree Visualizer
       </h1>
       <div className="flex items-center">
         <DropdownMenu>
-          <div className="ml-4 text-white">Select Variable Type:</div>
+          <div className="ml-4 text-black">Select Variable Type:</div>
           <DropdownMenuTrigger className="ml-2 items-center rounded bg-helper-brown-100 px-4 py-1 text-white">
             <div className="flex items-center">
               {intOrLetter ? "Integer" : "String"}

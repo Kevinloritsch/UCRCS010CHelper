@@ -1,11 +1,14 @@
 import "./globals.css";
-import { Inter } from "next/font/google";
+// import { Inter } from "next/font/google";
 import { ReactQueryClientProvider } from "@/utils/react-query";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
+import { Abhaya_Libre } from "next/font/google";
 
-const inter = Inter({ subsets: ["latin"] });
-
+const abhaya = Abhaya_Libre({
+  subsets: ["latin"],
+  weight: ["400", "600"],
+});
 export const metadata = {
   title: "UCR CS010C Helper Website",
   description:
@@ -19,7 +22,7 @@ type LayoutProps = {
 export default function RootLayout({ children }: LayoutProps) {
   return (
     <html lang="en">
-      <body className={`${inter.className} bg-helper-teal-100`}>
+      <body className={`${abhaya.className} bg-helper-sand`}>
         <ReactQueryClientProvider>
           {" "}
           <SidebarProvider>
