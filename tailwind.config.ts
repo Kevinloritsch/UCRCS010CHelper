@@ -23,6 +23,7 @@ module.exports = {
           "brown-200": "#563924",
           "brown-300": "#382E24",
           "brown-400": "#4C443B",
+          sand: "#FCF2E5",
         },
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
