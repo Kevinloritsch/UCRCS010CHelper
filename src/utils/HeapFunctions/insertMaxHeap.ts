@@ -5,10 +5,6 @@ import colors from "@/styles/colors";
 export const sleep = (ms: number) =>
   new Promise((resolve) => setTimeout(resolve, ms));
 
-// counters for unique ids
-// let nodeIdCounter = 0;
-// let edgeIdCounter = 0;
-
 export const insertNode = async (
   value: number,
   root: React.MutableRefObject<TreeNode | null>,

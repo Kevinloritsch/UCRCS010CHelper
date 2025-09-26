@@ -1,4 +1,7 @@
-import { DataSet } from "vis-network/standalone/umd/vis-network.min.js";
+import {
+  DataSet,
+  Network,
+} from "vis-network/standalone/umd/vis-network.min.js";
 import { TreeNode } from "@/components/TreeVisualizer";
 import colors from "@/styles/colors";
 
@@ -6,13 +9,16 @@ export const sleep = (ms: number) =>
   new Promise((resolve) => setTimeout(resolve, ms));
 
 export const removeNode = async (
+  step: number,
   value: number,
+  depth: number,
   root: React.MutableRefObject<TreeNode | null>,
   nodes: React.MutableRefObject<DataSet<TreeNode>>,
   edges: React.MutableRefObject<
     DataSet<{ id?: number; from: number; to: number }>
   >,
-  maxOrMin: boolean, // true is max, false is min
+  network: Network | null,
+  maxOrMin?: boolean, // true is max, false is min
 ) => {
   const animationStates: {
     nodes: TreeNode[];

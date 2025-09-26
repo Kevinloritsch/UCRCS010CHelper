@@ -542,15 +542,29 @@ const TreeVisualizer: React.FC<TreeVisualizerProps> = ({
                 ? value.charCodeAt(0) - 64
                 : parseFloat(value);
             if (network) {
-              const newAnimationStates = await functions.removeNode(
-                1,
-                valueToRemove,
-                0,
-                root,
-                nodes,
-                edges,
-                network,
-              );
+              let newAnimationStates: AnimationState[];
+              if (title === "Binary Heap Visualizer") {
+                newAnimationStates = await functions.removeNode(
+                  1,
+                  1,
+                  1,
+                  root,
+                  nodes,
+                  edges,
+                  network,
+                  maxOrMin,
+                );
+              } else {
+                newAnimationStates = await functions.removeNode(
+                  1,
+                  valueToRemove,
+                  0,
+                  root,
+                  nodes,
+                  edges,
+                  network,
+                );
+              }
               setAnimationStates(newAnimationStates || []);
               setIsPlaying(true);
               setIsInserting(true);
