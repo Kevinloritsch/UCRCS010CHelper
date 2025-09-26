@@ -5,10 +5,8 @@ import Image from "next/image";
 
 import { motion } from "motion/react";
 
-import BigO from "@/public/home/BigO.svg";
 import BST from "@/public/home/BST.svg";
 import AVL from "@/public/home/AVL.svg";
-import Hash from "@/public/home/Hash.svg";
 import Heap from "@/public/home/Heap.svg";
 import Sort from "@/public/home/Sort.svg";
 
@@ -19,26 +17,13 @@ const hoverAnimation = {
 
 const HomePage = () => {
   return (
-    <div className="grid h-[95vh] w-full grid-cols-3 grid-rows-3 gap-4 p-6">
+    <div className="grid h-[95vh] w-full grid-cols-3 grid-rows-2 gap-4 p-6">
       <motion.div
         {...hoverAnimation}
-        className="relative col-span-1 row-span-2 flex items-center justify-center rounded-lg bg-[#FFD5A7] p-4 text-[#CA610B]"
-      >
-        <Link href="/" className="h-full w-full px-4">
-          <div className="py-4 text-4xl font-bold">Big O</div>
-          <div className="">Lorem ipsum dolor sit amet</div>
-          <div className="absolute bottom-0 right-0">
-            <Image src={BigO} alt="Big O" className="object-contain" />
-          </div>
-        </Link>
-      </motion.div>
-
-      <motion.div
-        {...hoverAnimation}
-        className="relative col-span-2 row-span-1 flex items-center justify-center rounded-lg bg-[#FBC5C0] text-[#B14A40]"
+        className="relative col-span-1 row-span-1 flex items-center justify-center rounded-lg bg-[#FBC5C0] text-[#B14A40]"
       >
         <Link href="/bst" className="h-full w-full px-4">
-          <div className="py-4 text-4xl font-bold">BST</div>
+          <div className="py-4 text-4xl font-bold">BST Trees</div>
           <div className="">Lorem ipsum dolor sit amet</div>
           <div className="absolute right-0 top-0 h-full">
             <Image src={BST} alt="BST" className="h-full" />
@@ -51,7 +36,7 @@ const HomePage = () => {
         className="relative col-span-1 row-span-1 flex items-center justify-center rounded-lg bg-[#F8DD92] text-[#A37903]"
       >
         <Link href="/avl" className="h-full w-full px-4">
-          <div className="py-4 text-4xl font-bold">AVL</div>
+          <div className="py-4 text-4xl font-bold">AVL Trees</div>
           <div className="">Lorem ipsum dolor sit amet</div>
           <div className="absolute right-0 top-0 h-full">
             <Image src={AVL} alt="AVL" className="h-full object-contain" />
@@ -74,26 +59,13 @@ const HomePage = () => {
 
       <motion.div
         {...hoverAnimation}
-        className="relative col-span-2 row-span-1 flex items-center justify-center rounded-lg bg-[#EDD6F6] text-[#895F98]"
+        className="relative col-span-3 row-span-1 flex items-center justify-center rounded-lg bg-[#EDD6F6] text-[#895F98]"
       >
         <Link href="/bubble" className="h-full w-full px-4">
           <div className="py-4 text-4xl font-bold">Sorting</div>
           <div className="">Lorem ipsum dolor sit amet</div>
           <div className="absolute bottom-0 right-8">
             <Image src={Sort} alt="Sort" className="object-contain" />
-          </div>
-        </Link>
-      </motion.div>
-
-      <motion.div
-        {...hoverAnimation}
-        className="relative col-span-1 row-span-1 flex items-center justify-center rounded-lg bg-[#C3EBC6] text-[#2E8334]"
-      >
-        <Link href="/heap" className="h-full w-full px-4">
-          <div className="py-4 text-4xl font-bold">Hashing</div>
-          <div className="">Lorem ipsum dolor sit amet</div>
-          <div className="absolute bottom-0 right-0">
-            <Image src={Hash} alt="Hash" className="object-contain" />
           </div>
         </Link>
       </motion.div>

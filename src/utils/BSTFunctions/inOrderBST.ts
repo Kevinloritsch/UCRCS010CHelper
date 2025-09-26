@@ -2,7 +2,7 @@ import {
   DataSet,
   Network,
 } from "vis-network/standalone/umd/vis-network.min.js";
-import { TreeNode } from "@/components/BSTVisualizer";
+import { TreeNode } from "@/components/TreeVisualizer";
 import colors from "@/styles/colors";
 
 export const inOrderTraversal = async (
@@ -38,7 +38,7 @@ export const inOrderTraversal = async (
   snapshot();
 
   if (!tempRoot) {
-    return { animationStates, printValue: null };
+    return { animationStates, printValue: "" };
   }
 
   const currentNode = tempRoot;
