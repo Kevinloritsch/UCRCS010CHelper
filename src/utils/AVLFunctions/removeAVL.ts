@@ -199,14 +199,14 @@ export const removeNode = async (
     );
 
     let depth = 0;
-    let parentNode =
-      currentNode?.parent != null
-        ? (nodes.current.get(currentNode.parent) as TreeNode | undefined)
-        : null;
+    let parentNode: TreeNode | null = null;
+    let tempNode = currentNode;
 
-    while (currentNode && currentNode.parent !== null) {
-      currentNode = nodes.current.get(currentNode.parent) as TreeNode | null;
+    while (tempNode?.parent != null) {
+      parentNode = nodes.current.get(tempNode.parent) || null;
+      if (!parentNode) break;
       depth++;
+      tempNode = parentNode;
     }
 
     snapshot();
@@ -345,8 +345,9 @@ export const removeNode = async (
         }
       }
 
-      if (!parentNode.parent) break;
-      parentNode = nodes.current.get(parentNode.parent) as TreeNode | undefined;
+      if (parentNode.parent == null) break;
+      const nextParent = nodes.current.get(parentNode.parent) || null;
+      parentNode = nextParent;
       depth--;
     }
   }

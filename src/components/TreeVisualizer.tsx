@@ -669,129 +669,159 @@ const TreeVisualizer: React.FC<TreeVisualizerProps> = ({
         >
           <div className="flex">
             <div className="my-auto text-xl text-white md:text-2xl">PRINT</div>
-            <button
-              className={`text-md relative m-3 flex flex-col items-center rounded border-[3px] border-helper-brown-300 bg-white px-2 py-2 font-medium md:px-4 ${
-                isInserting ? "cursor-not-allowed opacity-50" : "cursor-pointer"
-              }`}
-              onClick={async () => {
-                if (network) {
-                  const { animationStates, printValue } =
-                    await functions.preOrderTraversal(1, nodes, edges, network);
-                  setAnimationStates(animationStates || []);
-                  if (printValue) {
-                    const trimmedValue = printValue.replace(/,\s*$/, "");
-                    setPrintValue("Pre Order: " + trimmedValue);
+            {functions.preOrderTraversal && (
+              <button
+                className={`text-md relative m-3 flex flex-col items-center rounded border-[3px] border-helper-brown-300 bg-white px-2 py-2 font-medium md:px-4 ${
+                  isInserting
+                    ? "cursor-not-allowed opacity-50"
+                    : "cursor-pointer"
+                }`}
+                onClick={async () => {
+                  if (network) {
+                    const { animationStates, printValue } =
+                      await functions.preOrderTraversal!(
+                        1,
+                        nodes,
+                        edges,
+                        network,
+                      );
+                    setAnimationStates(animationStates || []);
+                    if (printValue) {
+                      const trimmedValue = printValue.replace(/,\s*$/, "");
+                      setPrintValue("Pre Order: " + trimmedValue);
+                    }
+                    setIsPlaying(true);
+                    setIsInserting(true);
+                    setCurrentStep(0);
                   }
-                  setIsPlaying(true);
-                  setIsInserting(true);
-                  setCurrentStep(0);
-                }
-              }}
-              disabled={isInserting}
-            >
-              {isInserting}
-              Pre Order
-            </button>
-            <button
-              className={`relative m-3 flex flex-col items-center rounded border-[3px] border-helper-brown-300 bg-white px-2 py-2 font-medium md:px-4 ${
-                isInserting ? "cursor-not-allowed opacity-50" : "cursor-pointer"
-              }`}
-              onClick={async () => {
-                if (network) {
-                  const { animationStates, printValue } =
-                    await functions.inOrderTraversal(1, nodes, edges, network);
-                  setAnimationStates(animationStates || []);
-                  if (printValue) {
-                    const trimmedValue = printValue.replace(/,\s*$/, "");
-                    setPrintValue("In Order: " + trimmedValue);
+                }}
+                disabled={isInserting}
+              >
+                {isInserting}
+                Pre Order
+              </button>
+            )}
+            {functions.inOrderTraversal && (
+              <button
+                className={`relative m-3 flex flex-col items-center rounded border-[3px] border-helper-brown-300 bg-white px-2 py-2 font-medium md:px-4 ${
+                  isInserting
+                    ? "cursor-not-allowed opacity-50"
+                    : "cursor-pointer"
+                }`}
+                onClick={async () => {
+                  if (network) {
+                    const { animationStates, printValue } =
+                      await functions.inOrderTraversal!(
+                        1,
+                        nodes,
+                        edges,
+                        network,
+                      );
+                    setAnimationStates(animationStates || []);
+                    if (printValue) {
+                      const trimmedValue = printValue.replace(/,\s*$/, "");
+                      setPrintValue("In Order: " + trimmedValue);
+                    }
+                    setIsPlaying(true);
+                    setIsInserting(true);
+                    setCurrentStep(0);
                   }
-                  setIsPlaying(true);
-                  setIsInserting(true);
-                  setCurrentStep(0);
-                }
-              }}
-              disabled={isInserting}
-            >
-              {isInserting && (
-                <div className="absolute flex h-6 w-6 items-center justify-center rounded-full" />
-              )}
-              In Order
-            </button>
-            <button
-              className={`relative m-3 flex flex-col items-center rounded border-[3px] border-helper-brown-300 bg-white px-2 py-2 font-medium md:px-4 ${
-                isInserting ? "cursor-not-allowed opacity-50" : "cursor-pointer"
-              }`}
-              onClick={async () => {
-                if (network) {
-                  const { animationStates, printValue } =
-                    await functions.postOrderTraversal(
-                      1,
+                }}
+                disabled={isInserting}
+              >
+                {isInserting && (
+                  <div className="absolute flex h-6 w-6 items-center justify-center rounded-full" />
+                )}
+                In Order
+              </button>
+            )}
+            {functions.postOrderTraversal && (
+              <button
+                className={`relative m-3 flex flex-col items-center rounded border-[3px] border-helper-brown-300 bg-white px-2 py-2 font-medium md:px-4 ${
+                  isInserting
+                    ? "cursor-not-allowed opacity-50"
+                    : "cursor-pointer"
+                }`}
+                onClick={async () => {
+                  if (network) {
+                    const { animationStates, printValue } =
+                      await functions.postOrderTraversal!(
+                        1,
+                        nodes,
+                        edges,
+                        network,
+                      );
+                    if (printValue) {
+                      const trimmedValue = printValue.replace(/,\s*$/, "");
+                      setPrintValue("Post Order: " + trimmedValue);
+                    }
+                    setAnimationStates(animationStates || []);
+                    setIsPlaying(true);
+                    setIsInserting(true);
+                    setCurrentStep(0);
+                  }
+                }}
+                disabled={isInserting}
+              >
+                {isInserting}
+                Post Order
+              </button>
+            )}
+            {functions.maxNode && (
+              <button
+                className={`text-md relative my-2 ml-2 flex flex-col items-center rounded bg-helper-brown-100 p-2 text-white md:ml-8 md:text-lg ${
+                  isInserting
+                    ? "cursor-not-allowed opacity-50"
+                    : "cursor-pointer"
+                }`}
+                onClick={async () => {
+                  if (network) {
+                    const { animationStates } = await functions.maxNode!(
+                      root,
                       nodes,
                       edges,
                       network,
                     );
-                  if (printValue) {
-                    const trimmedValue = printValue.replace(/,\s*$/, "");
-                    setPrintValue("Post Order: " + trimmedValue);
+                    setAnimationStates(animationStates || []);
+                    setIsPlaying(true);
+                    setIsInserting(true);
+                    setCurrentStep(0);
                   }
-                  setAnimationStates(animationStates || []);
-                  setIsPlaying(true);
-                  setIsInserting(true);
-                  setCurrentStep(0);
-                }
-              }}
-              disabled={isInserting}
-            >
-              {isInserting}
-              Post Order
-            </button>
-            <button
-              className={`text-md relative my-2 ml-2 flex flex-col items-center rounded bg-helper-brown-100 p-2 text-white md:ml-8 md:text-lg ${
-                isInserting ? "cursor-not-allowed opacity-50" : "cursor-pointer"
-              }`}
-              onClick={async () => {
-                if (network) {
-                  const { animationStates } = await functions.maxNode(
-                    root,
-                    nodes,
-                    edges,
-                    network,
-                  );
-                  setAnimationStates(animationStates || []);
-                  setIsPlaying(true);
-                  setIsInserting(true);
-                  setCurrentStep(0);
-                }
-              }}
-              disabled={isInserting}
-            >
-              {isInserting}
-              Largest
-            </button>
+                }}
+                disabled={isInserting}
+              >
+                {isInserting}
+                Largest
+              </button>
+            )}
 
-            <button
-              className={`text-md relative my-2 ml-2 flex flex-col items-center rounded bg-helper-brown-100 p-2 text-white md:ml-4 md:text-lg ${
-                isInserting ? "cursor-not-allowed opacity-50" : "cursor-pointer"
-              }`}
-              onClick={async () => {
-                if (network) {
-                  const { animationStates } = await functions.minNode(
-                    root,
-                    nodes,
-                    edges,
-                    network,
-                  );
-                  setAnimationStates(animationStates || []);
-                  setIsPlaying(true);
-                  setIsInserting(true);
-                  setCurrentStep(0);
-                }
-              }}
-              disabled={isInserting}
-            >
-              {isInserting}
-              Smallest
-            </button>
+            {functions.minNode && (
+              <button
+                className={`text-md relative my-2 ml-2 flex flex-col items-center rounded bg-helper-brown-100 p-2 text-white md:ml-4 md:text-lg ${
+                  isInserting
+                    ? "cursor-not-allowed opacity-50"
+                    : "cursor-pointer"
+                }`}
+                onClick={async () => {
+                  if (network) {
+                    const { animationStates } = await functions.minNode!(
+                      root,
+                      nodes,
+                      edges,
+                      network,
+                    );
+                    setAnimationStates(animationStates || []);
+                    setIsPlaying(true);
+                    setIsInserting(true);
+                    setCurrentStep(0);
+                  }
+                }}
+                disabled={isInserting}
+              >
+                {isInserting}
+                Smallest
+              </button>
+            )}
           </div>
           <div className="h-3/4 overflow-auto rounded bg-white p-2">
             <div className="font-medium">Traversal:</div>
