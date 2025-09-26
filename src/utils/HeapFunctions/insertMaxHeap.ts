@@ -1,13 +1,13 @@
 import { DataSet } from "vis-network/standalone/umd/vis-network.min.js";
-import { TreeNode } from "@/components/HeapVisualizer";
+import { TreeNode } from "@/components/TreeVisualizer";
 import colors from "@/styles/colors";
 
 export const sleep = (ms: number) =>
   new Promise((resolve) => setTimeout(resolve, ms));
 
 // counters for unique ids
-let nodeIdCounter = 0;
-let edgeIdCounter = 0;
+// let nodeIdCounter = 0;
+// let edgeIdCounter = 0;
 
 export const insertNode = async (
   value: number,
@@ -16,13 +16,17 @@ export const insertNode = async (
   edges: React.MutableRefObject<
     DataSet<{ id?: number; from: number; to: number }>
   >,
+  maxNodeId: React.MutableRefObject<number>,
+  maxEdgeId: React.MutableRefObject<number>,
   intOrLetter: boolean,
-  maxOrMin: boolean, // true is max, false is min
+  maxOrMin?: boolean, // true is max, false is min
 ) => {
   const animationStates: {
     nodes: TreeNode[];
     edges: { id?: number; from: number; to: number }[];
   }[] = [];
+
+  const isMaxHeap = maxOrMin ?? true;
 
   const snapshot = () => {
     animationStates.push({
@@ -36,7 +40,7 @@ export const insertNode = async (
 
   // create root if missing
   if (!root.current) {
-    const newId = ++nodeIdCounter;
+    const newId = ++maxNodeId.current;
     const newNode: TreeNode = {
       id: newId,
       value,
@@ -64,6 +68,11 @@ export const insertNode = async (
     const nodeId = queue.shift()!;
     const node = nodes.current.get(nodeId) as TreeNode;
     depth = node.y / 100;
+
+    if (node.value === value) {
+      alert("Value already exists in the tree.");
+      return animationStates;
+    }
 
     // highlight nodes as we look at them
     // highlighted every node as it kinda makes more sense than doing the tree traversal?
@@ -109,7 +118,7 @@ export const insertNode = async (
   const newY = parentNode!.y + 100;
 
   // increment global id for uniqueness between ids
-  const newId = ++nodeIdCounter;
+  const newId = ++maxNodeId.current;
 
   const newNode: TreeNode = {
     id: newId,
@@ -132,7 +141,7 @@ export const insertNode = async (
   }
 
   // increment global edge counter
-  const edgeId = ++edgeIdCounter;
+  const edgeId = ++maxEdgeId.current;
 
   edges.current.add({ id: edgeId, from: parentId, to: newId });
 
@@ -160,8 +169,8 @@ export const insertNode = async (
 
     // maxOrMin = true means max heap, = false means min heap
     if (
-      (maxOrMin && parentNode.value < iteratorNode!.value) ||
-      (!maxOrMin && parentNode.value > iteratorNode!.value)
+      (isMaxHeap && parentNode.value < iteratorNode!.value) ||
+      (!isMaxHeap && parentNode.value > iteratorNode!.value)
     ) {
       // make the swap if we need to
 

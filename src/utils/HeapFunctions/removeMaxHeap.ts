@@ -1,5 +1,5 @@
 import { DataSet } from "vis-network/standalone/umd/vis-network.min.js";
-import { TreeNode } from "@/components/HeapVisualizer";
+import { TreeNode } from "@/components/TreeVisualizer";
 import colors from "@/styles/colors";
 
 export const sleep = (ms: number) =>

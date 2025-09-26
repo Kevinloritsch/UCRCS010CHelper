@@ -1,5 +1,5 @@
 import { DataSet } from "vis-network/standalone/umd/vis-network.min.js";
-import { TreeNode } from "@/components/AVLVisualizer";
+import { TreeNode } from "@/components/TreeVisualizer";
 import { rotateLeft } from "@/utils/AVLFunctions/rotateLeftAVL";
 import { rotateRight } from "@/utils/AVLFunctions/rotateRightAVL";
 import colors from "@/styles/colors";

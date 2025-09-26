@@ -54,6 +54,7 @@ export interface TreeFunctions {
     maxNodeId: React.MutableRefObject<number>,
     maxEdgeId: React.MutableRefObject<number>,
     intOrLetter: boolean,
+    maxOrMin?: boolean,
   ) => Promise<AnimationState[]>;
 
   removeNode: (
@@ -66,9 +67,10 @@ export interface TreeFunctions {
       DataSet<{ id?: number; from: number; to: number }>
     >,
     network: Network,
+    maxOrMin?: boolean,
   ) => Promise<AnimationState[]>;
 
-  maxNode: (
+  maxNode?: (
     root: React.MutableRefObject<TreeNode | null>,
     nodes: React.MutableRefObject<DataSet<TreeNode>>,
     edges: React.MutableRefObject<
@@ -77,7 +79,7 @@ export interface TreeFunctions {
     network: Network,
   ) => Promise<{ animationStates: AnimationState[] }>;
 
-  minNode: (
+  minNode?: (
     root: React.MutableRefObject<TreeNode | null>,
     nodes: React.MutableRefObject<DataSet<TreeNode>>,
     edges: React.MutableRefObject<
@@ -86,7 +88,7 @@ export interface TreeFunctions {
     network: Network,
   ) => Promise<{ animationStates: AnimationState[] }>;
 
-  inOrderTraversal: (
+  inOrderTraversal?: (
     step: number,
     nodes: React.MutableRefObject<DataSet<TreeNode>>,
     edges: React.MutableRefObject<
@@ -95,7 +97,7 @@ export interface TreeFunctions {
     network: Network,
   ) => Promise<{ animationStates: AnimationState[]; printValue: string }>;
 
-  preOrderTraversal: (
+  preOrderTraversal?: (
     step: number,
     nodes: React.MutableRefObject<DataSet<TreeNode>>,
     edges: React.MutableRefObject<
@@ -104,7 +106,7 @@ export interface TreeFunctions {
     network: Network,
   ) => Promise<{ animationStates: AnimationState[]; printValue: string }>;
 
-  postOrderTraversal: (
+  postOrderTraversal?: (
     step: number,
     nodes: React.MutableRefObject<DataSet<TreeNode>>,
     edges: React.MutableRefObject<
@@ -137,6 +139,7 @@ const TreeVisualizer: React.FC<TreeVisualizerProps> = ({
   const [printValue, setPrintValue] = useState<string | null>(null);
   const [intOrLetter, setIntOrLetter] = useState(true);
   const [oldRootID, setOldRootID] = useState<number | null>(null);
+  const [maxOrMin, setMaxOrMin] = useState(true); // true is max, false is min
 
   useEffect(() => {
     if (networkContainer.current) {
@@ -237,15 +240,30 @@ const TreeVisualizer: React.FC<TreeVisualizerProps> = ({
     console.log(valueToInsert);
     if (network) {
       if (root.current) setOldRootID(root.current.id);
-      const newAnimationStates = await functions.insertNode(
-        valueToInsert,
-        root,
-        nodes,
-        edges,
-        maxNodeId,
-        maxEdgeId,
-        intOrLetter,
-      );
+      let newAnimationStates: AnimationState[];
+
+      if (title === "Binary Heap Visualizer") {
+        newAnimationStates = await functions.insertNode(
+          valueToInsert,
+          root,
+          nodes,
+          edges,
+          maxNodeId,
+          maxEdgeId,
+          intOrLetter,
+          maxOrMin,
+        );
+      } else {
+        newAnimationStates = await functions.insertNode(
+          valueToInsert,
+          root,
+          nodes,
+          edges,
+          maxNodeId,
+          maxEdgeId,
+          intOrLetter,
+        );
+      }
       setAnimationStates(newAnimationStates || []);
       setIsPlaying(true);
       setIsInserting(true);
@@ -338,6 +356,80 @@ const TreeVisualizer: React.FC<TreeVisualizerProps> = ({
           </DropdownMenuContent>
         </DropdownMenu>
 
+        {title == "Binary Heap Visualizer" && (
+          <DropdownMenu>
+            <div className="ml-4 text-black">Select Heap Type:</div>
+            <DropdownMenuTrigger className="ml-2 items-center rounded bg-helper-brown-100 px-4 py-1 text-white">
+              <div className="flex items-center">
+                {maxOrMin ? "Max Heap" : "Min Heap"}
+                <div className="ml-1 rounded p-1">
+                  <ChevronDown color="white" size={16} />
+                </div>
+              </div>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuLabel>Heap Type</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                onClick={() => {
+                  setMaxOrMin(true);
+                  nodes.current.clear();
+                  edges.current.clear();
+
+                  root.current = null;
+                  maxNodeId.current = 0;
+                  maxEdgeId.current = 0;
+
+                  setAnimationStates([]);
+                  setCurrentStep(0);
+                  setIsPlaying(false);
+                  setIsInserting(false);
+                  setPrintValue(null);
+                  setValue("");
+
+                  if (network) {
+                    network.setData({
+                      nodes: nodes.current,
+                      edges: edges.current,
+                    });
+                    network.redraw();
+                  }
+                }}
+              >
+                Max Heap
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => {
+                  setMaxOrMin(false);
+                  nodes.current.clear();
+                  edges.current.clear();
+
+                  root.current = null;
+                  maxNodeId.current = 0;
+                  maxEdgeId.current = 0;
+
+                  setAnimationStates([]);
+                  setCurrentStep(0);
+                  setIsPlaying(false);
+                  setIsInserting(false);
+                  setPrintValue(null);
+                  setValue("");
+
+                  if (network) {
+                    network.setData({
+                      nodes: nodes.current,
+                      edges: edges.current,
+                    });
+                    network.redraw();
+                  }
+                }}
+              >
+                Min Heap
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
+
         <button
           onClick={() => {
             nodes.current.clear();
@@ -401,15 +493,30 @@ const TreeVisualizer: React.FC<TreeVisualizerProps> = ({
             console.log(valueToInsert);
             if (network) {
               // console.log()
-              const newAnimationStates = await functions.insertNode(
-                valueToInsert,
-                root,
-                nodes,
-                edges,
-                maxNodeId,
-                maxEdgeId,
-                intOrLetter,
-              );
+              let newAnimationStates: AnimationState[];
+
+              if (title === "Binary Heap Visualizer") {
+                newAnimationStates = await functions.insertNode(
+                  valueToInsert,
+                  root,
+                  nodes,
+                  edges,
+                  maxNodeId,
+                  maxEdgeId,
+                  intOrLetter,
+                  maxOrMin,
+                );
+              } else {
+                newAnimationStates = await functions.insertNode(
+                  valueToInsert,
+                  root,
+                  nodes,
+                  edges,
+                  maxNodeId,
+                  maxEdgeId,
+                  intOrLetter,
+                );
+              }
               setAnimationStates(newAnimationStates || []);
               setIsPlaying(true);
               setIsInserting(true);
@@ -555,136 +662,143 @@ const TreeVisualizer: React.FC<TreeVisualizerProps> = ({
         </div>
       </div>
 
-      <div
-        className="mx-auto mb-4 h-auto min-h-min rounded border bg-helper-brown-100 px-2"
-        style={{ width: "98%" }}
-      >
-        <div className="flex">
-          <div className="my-auto text-xl text-white md:text-2xl">PRINT</div>
-          <button
-            className={`text-md relative m-3 flex flex-col items-center rounded border-[3px] border-helper-brown-300 bg-white px-2 py-2 font-medium md:px-4 ${
-              isInserting ? "cursor-not-allowed opacity-50" : "cursor-pointer"
-            }`}
-            onClick={async () => {
-              if (network) {
-                const { animationStates, printValue } =
-                  await functions.preOrderTraversal(1, nodes, edges, network);
-                setAnimationStates(animationStates || []);
-                if (printValue) {
-                  const trimmedValue = printValue.replace(/,\s*$/, "");
-                  setPrintValue("Pre Order: " + trimmedValue);
+      {title != "Binary Heap Visualizer" && (
+        <div
+          className="mx-auto mb-4 h-auto min-h-min rounded border bg-helper-brown-100 px-2"
+          style={{ width: "98%" }}
+        >
+          <div className="flex">
+            <div className="my-auto text-xl text-white md:text-2xl">PRINT</div>
+            <button
+              className={`text-md relative m-3 flex flex-col items-center rounded border-[3px] border-helper-brown-300 bg-white px-2 py-2 font-medium md:px-4 ${
+                isInserting ? "cursor-not-allowed opacity-50" : "cursor-pointer"
+              }`}
+              onClick={async () => {
+                if (network) {
+                  const { animationStates, printValue } =
+                    await functions.preOrderTraversal(1, nodes, edges, network);
+                  setAnimationStates(animationStates || []);
+                  if (printValue) {
+                    const trimmedValue = printValue.replace(/,\s*$/, "");
+                    setPrintValue("Pre Order: " + trimmedValue);
+                  }
+                  setIsPlaying(true);
+                  setIsInserting(true);
+                  setCurrentStep(0);
                 }
-                setIsPlaying(true);
-                setIsInserting(true);
-                setCurrentStep(0);
-              }
-            }}
-            disabled={isInserting}
-          >
-            {isInserting}
-            Pre Order
-          </button>
-          <button
-            className={`relative m-3 flex flex-col items-center rounded border-[3px] border-helper-brown-300 bg-white px-2 py-2 font-medium md:px-4 ${
-              isInserting ? "cursor-not-allowed opacity-50" : "cursor-pointer"
-            }`}
-            onClick={async () => {
-              if (network) {
-                const { animationStates, printValue } =
-                  await functions.inOrderTraversal(1, nodes, edges, network);
-                setAnimationStates(animationStates || []);
-                if (printValue) {
-                  const trimmedValue = printValue.replace(/,\s*$/, "");
-                  setPrintValue("In Order: " + trimmedValue);
+              }}
+              disabled={isInserting}
+            >
+              {isInserting}
+              Pre Order
+            </button>
+            <button
+              className={`relative m-3 flex flex-col items-center rounded border-[3px] border-helper-brown-300 bg-white px-2 py-2 font-medium md:px-4 ${
+                isInserting ? "cursor-not-allowed opacity-50" : "cursor-pointer"
+              }`}
+              onClick={async () => {
+                if (network) {
+                  const { animationStates, printValue } =
+                    await functions.inOrderTraversal(1, nodes, edges, network);
+                  setAnimationStates(animationStates || []);
+                  if (printValue) {
+                    const trimmedValue = printValue.replace(/,\s*$/, "");
+                    setPrintValue("In Order: " + trimmedValue);
+                  }
+                  setIsPlaying(true);
+                  setIsInserting(true);
+                  setCurrentStep(0);
                 }
-                setIsPlaying(true);
-                setIsInserting(true);
-                setCurrentStep(0);
-              }
-            }}
-            disabled={isInserting}
-          >
-            {isInserting && (
-              <div className="absolute flex h-6 w-6 items-center justify-center rounded-full" />
-            )}
-            In Order
-          </button>
-          <button
-            className={`relative m-3 flex flex-col items-center rounded border-[3px] border-helper-brown-300 bg-white px-2 py-2 font-medium md:px-4 ${
-              isInserting ? "cursor-not-allowed opacity-50" : "cursor-pointer"
-            }`}
-            onClick={async () => {
-              if (network) {
-                const { animationStates, printValue } =
-                  await functions.postOrderTraversal(1, nodes, edges, network);
-                if (printValue) {
-                  const trimmedValue = printValue.replace(/,\s*$/, "");
-                  setPrintValue("Post Order: " + trimmedValue);
+              }}
+              disabled={isInserting}
+            >
+              {isInserting && (
+                <div className="absolute flex h-6 w-6 items-center justify-center rounded-full" />
+              )}
+              In Order
+            </button>
+            <button
+              className={`relative m-3 flex flex-col items-center rounded border-[3px] border-helper-brown-300 bg-white px-2 py-2 font-medium md:px-4 ${
+                isInserting ? "cursor-not-allowed opacity-50" : "cursor-pointer"
+              }`}
+              onClick={async () => {
+                if (network) {
+                  const { animationStates, printValue } =
+                    await functions.postOrderTraversal(
+                      1,
+                      nodes,
+                      edges,
+                      network,
+                    );
+                  if (printValue) {
+                    const trimmedValue = printValue.replace(/,\s*$/, "");
+                    setPrintValue("Post Order: " + trimmedValue);
+                  }
+                  setAnimationStates(animationStates || []);
+                  setIsPlaying(true);
+                  setIsInserting(true);
+                  setCurrentStep(0);
                 }
-                setAnimationStates(animationStates || []);
-                setIsPlaying(true);
-                setIsInserting(true);
-                setCurrentStep(0);
-              }
-            }}
-            disabled={isInserting}
-          >
-            {isInserting}
-            Post Order
-          </button>
-          <button
-            className={`text-md relative my-2 ml-2 flex flex-col items-center rounded bg-helper-brown-100 p-2 text-white md:ml-8 md:text-lg ${
-              isInserting ? "cursor-not-allowed opacity-50" : "cursor-pointer"
-            }`}
-            onClick={async () => {
-              if (network) {
-                const { animationStates } = await functions.maxNode(
-                  root,
-                  nodes,
-                  edges,
-                  network,
-                );
-                setAnimationStates(animationStates || []);
-                setIsPlaying(true);
-                setIsInserting(true);
-                setCurrentStep(0);
-              }
-            }}
-            disabled={isInserting}
-          >
-            {isInserting}
-            Largest
-          </button>
+              }}
+              disabled={isInserting}
+            >
+              {isInserting}
+              Post Order
+            </button>
+            <button
+              className={`text-md relative my-2 ml-2 flex flex-col items-center rounded bg-helper-brown-100 p-2 text-white md:ml-8 md:text-lg ${
+                isInserting ? "cursor-not-allowed opacity-50" : "cursor-pointer"
+              }`}
+              onClick={async () => {
+                if (network) {
+                  const { animationStates } = await functions.maxNode(
+                    root,
+                    nodes,
+                    edges,
+                    network,
+                  );
+                  setAnimationStates(animationStates || []);
+                  setIsPlaying(true);
+                  setIsInserting(true);
+                  setCurrentStep(0);
+                }
+              }}
+              disabled={isInserting}
+            >
+              {isInserting}
+              Largest
+            </button>
 
-          <button
-            className={`text-md relative my-2 ml-2 flex flex-col items-center rounded bg-helper-brown-100 p-2 text-white md:ml-4 md:text-lg ${
-              isInserting ? "cursor-not-allowed opacity-50" : "cursor-pointer"
-            }`}
-            onClick={async () => {
-              if (network) {
-                const { animationStates } = await functions.minNode(
-                  root,
-                  nodes,
-                  edges,
-                  network,
-                );
-                setAnimationStates(animationStates || []);
-                setIsPlaying(true);
-                setIsInserting(true);
-                setCurrentStep(0);
-              }
-            }}
-            disabled={isInserting}
-          >
-            {isInserting}
-            Smallest
-          </button>
+            <button
+              className={`text-md relative my-2 ml-2 flex flex-col items-center rounded bg-helper-brown-100 p-2 text-white md:ml-4 md:text-lg ${
+                isInserting ? "cursor-not-allowed opacity-50" : "cursor-pointer"
+              }`}
+              onClick={async () => {
+                if (network) {
+                  const { animationStates } = await functions.minNode(
+                    root,
+                    nodes,
+                    edges,
+                    network,
+                  );
+                  setAnimationStates(animationStates || []);
+                  setIsPlaying(true);
+                  setIsInserting(true);
+                  setCurrentStep(0);
+                }
+              }}
+              disabled={isInserting}
+            >
+              {isInserting}
+              Smallest
+            </button>
+          </div>
+          <div className="h-3/4 overflow-auto rounded bg-white p-2">
+            <div className="font-medium">Traversal:</div>
+            <div className="ml-2">{printValue !== null ? printValue : ""}</div>
+          </div>
         </div>
-        <div className="h-3/4 overflow-auto rounded bg-white p-2">
-          <div className="font-medium">Traversal:</div>
-          <div className="ml-2">{printValue !== null ? printValue : ""}</div>
-        </div>
-      </div>
+      )}
     </div>
   );
 };
