@@ -458,71 +458,133 @@ const TreeVisualizer: React.FC<TreeVisualizerProps> = ({
       </div>
       <div className="ml-2 flex">
         <input
-          type={intOrLetter ? "number" : "text"} // Toggle between 'number' and 'text'
+          type="text"
           className="border-1 m-2 w-1/2 rounded border border-black pl-2"
           value={value}
           onChange={(e) => {
-            const newValue = e.target.value;
-
+            const newValue = e.target.value.toUpperCase(); // Auto-uppercase letters
             if (intOrLetter) {
-              // Allow only integers when intOrLetter is true
-              if (/^-?\d*\.?\d*$/.test(newValue)) {
+              const isValid = newValue
+                .split("")
+                .every((char: string, index) => {
+                  const prevChar = newValue[index - 1];
+
+                  if (char === "+" || char === "-") {
+                    return index === 0 || prevChar === " " || prevChar === ",";
+                  }
+                  if (char === ",") {
+                    return /\d/.test(prevChar);
+                  }
+                  if (char === " ") {
+                    return prevChar === "," && newValue[index + 1] !== " ";
+                  }
+                  if (/\d/.test(char)) {
+                    return true;
+                  }
+                  return false;
+                });
+
+              if (isValid) {
                 setValue(newValue);
               }
             } else {
-              if (newValue.length <= 1 && /^[a-zA-Z]*$/.test(newValue)) {
-                setValue(newValue.toUpperCase());
+              const capitalizedValue = newValue.toUpperCase();
+
+              const isValid = capitalizedValue
+                .split("")
+                .every((char, index) => {
+                  const prevChar = capitalizedValue[index - 1];
+
+                  if (/[A-Z]/.test(char)) {
+                    return index === 0 || prevChar === "," || prevChar === " ";
+                  }
+                  if (char === ",") {
+                    return /[A-Z]/.test(prevChar);
+                  }
+                  if (char === " ") {
+                    return (
+                      prevChar === "," && capitalizedValue[index + 1] !== " "
+                    );
+                  }
+                  return false;
+                });
+
+              if (isValid) {
+                setValue(capitalizedValue);
               }
             }
           }}
           onKeyDown={handleKeyDown}
           placeholder={
-            intOrLetter ? "Enter Integer Here" : "Enter Single Letter Here"
+            intOrLetter
+              ? "Enter integers, comma-separated"
+              : "Enter letters A-Z, comma-separated"
           }
         />
-
         <button
           className={`relative m-3 flex flex-col items-center rounded border-[3px] border-helper-green-400 bg-white px-4 py-2 text-helper-green-400 ${
             isInserting ? "cursor-not-allowed opacity-50" : "cursor-pointer"
           }`}
           onClick={async () => {
-            const valueToInsert =
-              !intOrLetter && /^[A-Z]$/.test(value)
-                ? value.charCodeAt(0) - 64
-                : parseFloat(value);
-            console.log(valueToInsert);
-            if (network) {
-              // console.log()
-              let newAnimationStates: AnimationState[];
+            const values = value
+              .split(",")
+              .map((v) => v.trim())
+              .filter((v) => v !== "")
+              .map((v) => {
+                return !intOrLetter && /^[A-Z]$/.test(v)
+                  ? v.charCodeAt(0) - 64
+                  : parseFloat(v);
+              });
 
-              if (title === "Binary Heap Visualizer") {
-                newAnimationStates = await functions.insertNode(
-                  valueToInsert,
-                  root,
-                  nodes,
-                  edges,
-                  maxNodeId,
-                  maxEdgeId,
-                  intOrLetter,
-                  maxOrMin,
-                );
-              } else {
-                newAnimationStates = await functions.insertNode(
-                  valueToInsert,
-                  root,
-                  nodes,
-                  edges,
-                  maxNodeId,
-                  maxEdgeId,
-                  intOrLetter,
-                );
+            console.log("Values to insert:", values);
+
+            if (network && values.length > 0) {
+              let newAnimationStates: AnimationState[] = [];
+
+              for (const valueToInsert of values) {
+                let states: AnimationState[];
+
+                if (title === "Binary Heap Visualizer") {
+                  states = await functions.insertNode(
+                    valueToInsert,
+                    root,
+                    nodes,
+                    edges,
+                    maxNodeId,
+                    maxEdgeId,
+                    intOrLetter,
+                    maxOrMin,
+                  );
+                } else {
+                  states = await functions.insertNode(
+                    valueToInsert,
+                    root,
+                    nodes,
+                    edges,
+                    maxNodeId,
+                    maxEdgeId,
+                    intOrLetter,
+                  );
+                }
+
+                newAnimationStates = newAnimationStates.concat(states || []);
+
+                if (states && states.length > 0) {
+                  const lastState = states[states.length - 1];
+                  const { nodes: newNodes, edges: newEdges } = lastState;
+                  nodes.current.clear();
+                  edges.current.clear();
+                  nodes.current.add(newNodes);
+                  edges.current.add(newEdges);
+                }
               }
-              setAnimationStates(newAnimationStates || []);
+
+              setAnimationStates(newAnimationStates);
               setIsPlaying(true);
               setIsInserting(true);
               setCurrentStep(0);
               setValue("");
-            } else {
+            } else if (!network) {
               console.error("Network is not available.");
             }
           }}
@@ -537,14 +599,12 @@ const TreeVisualizer: React.FC<TreeVisualizerProps> = ({
             isInserting ? "cursor-not-allowed opacity-50" : "cursor-pointer"
           }`}
           onClick={async () => {
-            const valueToRemove =
-              !intOrLetter && /^[A-Z]$/.test(value)
-                ? value.charCodeAt(0) - 64
-                : parseFloat(value);
             if (network) {
-              let newAnimationStates: AnimationState[];
+              let newAnimationStates: AnimationState[] = [];
+
               if (title === "Binary Heap Visualizer") {
-                newAnimationStates = await functions.removeNode(
+                // For binary heap, just remove once (doesn't need specific values)
+                const states = await functions.removeNode(
                   1,
                   1,
                   1,
@@ -554,25 +614,62 @@ const TreeVisualizer: React.FC<TreeVisualizerProps> = ({
                   network,
                   maxOrMin,
                 );
+                newAnimationStates = states || [];
               } else {
-                newAnimationStates = await functions.removeNode(
-                  1,
-                  valueToRemove,
-                  0,
-                  root,
-                  nodes,
-                  edges,
-                  network,
-                );
+                // For other structures, parse multiple values from input
+                const values = value
+                  .split(",")
+                  .map((v) => v.trim()) // Remove spaces
+                  .filter((v) => v !== "") // Remove empty strings
+                  .map((v) => {
+                    // Convert each value
+                    return !intOrLetter && /^[A-Z]$/.test(v)
+                      ? v.charCodeAt(0) - 64
+                      : parseFloat(v);
+                  });
+
+                console.log("Values to remove:", values);
+
+                if (values.length > 0) {
+                  for (const valueToRemove of values) {
+                    const states = await functions.removeNode(
+                      1,
+                      valueToRemove,
+                      0,
+                      root,
+                      nodes,
+                      edges,
+                      network,
+                    );
+
+                    // Append new animation states
+                    newAnimationStates = newAnimationStates.concat(
+                      states || [],
+                    );
+
+                    // Update the current state for next iteration
+                    if (states && states.length > 0) {
+                      const lastState = states[states.length - 1];
+                      const { nodes: newNodes, edges: newEdges } = lastState;
+                      nodes.current.clear();
+                      edges.current.clear();
+                      nodes.current.add(newNodes);
+                      edges.current.add(newEdges);
+                    }
+                  }
+                }
               }
-              setAnimationStates(newAnimationStates || []);
+
+              setAnimationStates(newAnimationStates);
               setIsPlaying(true);
               setIsInserting(true);
               setCurrentStep(0);
               setValue("");
+            } else {
+              console.error("Network is not available.");
             }
           }}
-          disabled={isInserting}
+          disabled={isInserting || value === ""}
         >
           {isInserting}
           Remove
