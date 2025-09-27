@@ -639,12 +639,10 @@ const TreeVisualizer: React.FC<TreeVisualizerProps> = ({
                       network,
                     );
 
-                    // Append new animation states
                     newAnimationStates = newAnimationStates.concat(
                       states || [],
                     );
 
-                    // Update the current state for next iteration
                     if (states && states.length > 0) {
                       const lastState = states[states.length - 1];
                       const { nodes: newNodes, edges: newEdges } = lastState;
@@ -666,8 +664,11 @@ const TreeVisualizer: React.FC<TreeVisualizerProps> = ({
               console.error("Network is not available.");
             }
           }}
-          disabled={isInserting || value === ""}
+          disabled={
+            isInserting || (title !== "Binary Heap Visualizer" && value === "")
+          }
         >
+          {isInserting}
           {title === "Binary Heap Visualizer" ? "Extract Root" : "Remove"}
         </button>
 
