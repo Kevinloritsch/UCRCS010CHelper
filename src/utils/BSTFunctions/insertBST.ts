@@ -1,5 +1,5 @@
 import { DataSet } from "vis-network/standalone/umd/vis-network.min.js";
-import { TreeNode } from "@/components/BSTVisualizer";
+import { TreeNode } from "@/components/TreeVisualizer";
 import colors from "@/styles/colors";
 
 export const sleep = (ms: number) =>
@@ -92,7 +92,7 @@ export const insertNode = async (
       }
       currentNode = nodes.current.get(currentNode.right) as TreeNode;
     } else {
-      alert("Value already exists in the tree.");
+      alert(`Value ${value} already exists in the tree.`);
       return animationStates;
     }
   }

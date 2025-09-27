@@ -1,18 +1,24 @@
-import { DataSet } from "vis-network/standalone/umd/vis-network.min.js";
-import { TreeNode } from "@/components/HeapVisualizer";
+import {
+  DataSet,
+  Network,
+} from "vis-network/standalone/umd/vis-network.min.js";
+import { TreeNode } from "@/components/TreeVisualizer";
 import colors from "@/styles/colors";
 
 export const sleep = (ms: number) =>
   new Promise((resolve) => setTimeout(resolve, ms));
 
 export const removeNode = async (
+  step: number,
   value: number,
+  depth: number,
   root: React.MutableRefObject<TreeNode | null>,
   nodes: React.MutableRefObject<DataSet<TreeNode>>,
   edges: React.MutableRefObject<
     DataSet<{ id?: number; from: number; to: number }>
   >,
-  maxOrMin: boolean, // true is max, false is min
+  network: Network | null,
+  maxOrMin?: boolean, // true is max, false is min
 ) => {
   const animationStates: {
     nodes: TreeNode[];
@@ -26,12 +32,14 @@ export const removeNode = async (
     });
   };
 
+  console.log(root);
+
   // initial state
   snapshot();
 
   // error if root missing
   if (!root.current) {
-    alert("No root.");
+    alert("The tree is empty.");
     return animationStates;
   }
 
@@ -93,7 +101,7 @@ export const removeNode = async (
 
   // otherwise swap root with lastNode, then remove lastNode
   else {
-    const rootNode = root.current;
+    let rootNode = nodes.current.get(root.current.id) as TreeNode;
     // save parent so we can properly delete the node
     const parentNode = lastNode.parent
       ? (nodes.current.get(lastNode.parent) as TreeNode)
@@ -141,6 +149,8 @@ export const removeNode = async (
       label: tmpLabel,
       color: { background: colors.yellowSwap },
     });
+
+    rootNode = nodes.current.get(rootNode.id) as TreeNode;
 
     snapshot();
 

@@ -1,5 +1,5 @@
 import { DataSet } from "vis-network/standalone/umd/vis-network.min.js";
-import { TreeNode } from "@/components/AVLVisualizer";
+import { TreeNode } from "@/components/TreeVisualizer";
 
 // Comments explaining the logic are in rotateLeftAVL.ts
 

@@ -1,5 +1,5 @@
 import { DataSet } from "vis-network/standalone/umd/vis-network.min.js";
-import { TreeNode } from "@/components/AVLVisualizer";
+import { TreeNode } from "@/components/TreeVisualizer";
 import { rotateLeft } from "@/utils/AVLFunctions/rotateLeftAVL";
 import { rotateRight } from "@/utils/AVLFunctions/rotateRightAVL";
 import colors from "@/styles/colors";
@@ -114,7 +114,7 @@ export const insertNode = async (
       }
       currentNode = nodes.current.get(currentNode.right) as TreeNode;
     } else {
-      alert("Value already exists in the tree.");
+      alert(`Value ${value} already exists in the tree.`);
       return animationStates;
     }
   }

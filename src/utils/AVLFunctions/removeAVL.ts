@@ -2,7 +2,7 @@ import {
   DataSet,
   Network,
 } from "vis-network/standalone/umd/vis-network.min.js";
-import { TreeNode } from "@/components/AVLVisualizer";
+import { TreeNode } from "@/components/TreeVisualizer";
 import { rotateLeft } from "@/utils/AVLFunctions/rotateLeftAVL";
 import { rotateRight } from "@/utils/AVLFunctions/rotateRightAVL";
 import colors from "@/styles/colors";
@@ -33,6 +33,20 @@ export const getNodeHeight = (
   return getHeight(node);
 };
 
+export const updateRoot = (
+  root: React.MutableRefObject<TreeNode | null>,
+  nodes: React.MutableRefObject<DataSet<TreeNode>>,
+) => {
+  if (!root.current) return;
+  let node = root.current;
+  while (node.parent) {
+    const parent = nodes.current.get(node.parent) as TreeNode | null;
+    if (!parent) break;
+    node = parent;
+  }
+  root.current = node;
+};
+
 // custom defines "pause" buffer
 export const sleep = (ms: number) =>
   new Promise((resolve) => setTimeout(resolve, ms));
@@ -54,9 +68,13 @@ export const removeNode = async (
   network: Network | null,
   isInitialCall: boolean = true,
 ): Promise<AnimationState[]> => {
-  const tempRoot = root.current
-    ? (nodes.current.get(1) as TreeNode | null)
-    : null;
+  updateRoot(root, nodes);
+  const allNodes = nodes.current.get() as TreeNode[];
+  const visualRoot = allNodes.find((n) => n.x === 0);
+  if (visualRoot) {
+    root.current = visualRoot;
+  }
+  const tempRoot = root.current;
   const animationStates: {
     nodes: TreeNode[];
     edges: { id?: number; from: number; to: number }[];
@@ -68,7 +86,7 @@ export const removeNode = async (
     if (network) {
       network.stabilize();
       if (root.current && tempRoot) {
-        network.selectNodes([tempRoot.id]);
+        network.selectNodes([root.current.id]);
         network.selectNodes([]);
         network.selectEdges([]);
 
@@ -82,18 +100,17 @@ export const removeNode = async (
   snapshot();
   // can't remove from an empty tree
   if (!root.current) {
-    alert("Tree is Empty");
+    alert("The tree is empty.");
 
     return animationStates;
   }
 
   // iterator
-  let currentNode = nodes.current.get(nodeId) as TreeNode | null;
+  let currentNode: TreeNode | null;
   if (isInitialCall) {
-    while (currentNode && currentNode.parent) {
-      currentNode = nodes.current.get(currentNode.parent) as TreeNode | null;
-      console.log(currentNode);
-    }
+    currentNode = root.current;
+  } else {
+    currentNode = nodes.current.get(nodeId) as TreeNode | null;
   }
   let parentNodeTemp: TreeNode | null = null;
 
@@ -151,7 +168,7 @@ export const removeNode = async (
 
   // if it was never found... throw an error
   if (!currentNode) {
-    alert("Value not in tree");
+    alert(`Value ${value} does not exist in the tree.`);
     return animationStates;
   }
 
@@ -199,14 +216,14 @@ export const removeNode = async (
     );
 
     let depth = 0;
-    let parentNode =
-      currentNode?.parent != null
-        ? (nodes.current.get(currentNode.parent) as TreeNode | undefined)
-        : null;
+    let parentNode: TreeNode | null = null;
+    let tempNode = currentNode;
 
-    while (currentNode && currentNode.parent !== null) {
-      currentNode = nodes.current.get(currentNode.parent) as TreeNode | null;
+    while (tempNode?.parent != null) {
+      parentNode = nodes.current.get(tempNode.parent) || null;
+      if (!parentNode) break;
       depth++;
+      tempNode = parentNode;
     }
 
     snapshot();
@@ -275,6 +292,7 @@ export const removeNode = async (
           });
           snapshot();
           rotateLeft(parentNode.id, depth - 1, root, nodes, edges);
+          updateRoot(root, nodes);
           snapshot();
         } else {
           nodes.current.update({
@@ -327,6 +345,7 @@ export const removeNode = async (
           });
           snapshot();
           rotateRight(parentNode.id, depth - 1, root, nodes, edges);
+          updateRoot(root, nodes);
           snapshot();
         } else {
           nodes.current.update({
@@ -345,8 +364,9 @@ export const removeNode = async (
         }
       }
 
-      if (!parentNode.parent) break;
-      parentNode = nodes.current.get(parentNode.parent) as TreeNode | undefined;
+      if (parentNode.parent == null) break;
+      const nextParent = nodes.current.get(parentNode.parent) || null;
+      parentNode = nextParent;
       depth--;
     }
   }
@@ -378,6 +398,9 @@ export const removeNode = async (
         rightChild = nodes.current.get(rightChild.left) as TreeNode;
       }
       childNode = rightChild;
+    } else {
+      alert(`Value ${value} does not exist in the tree.`);
+      return animationStates;
     }
 
     if (childNode) {
@@ -463,7 +486,7 @@ export const removeNode = async (
         if (parentNodeTemp) {
           const recursiveStates = await removeNode(
             childNode.id,
-            currentNode.value,
+            value,
             parentNodeTemp.id,
             root,
             nodes,
