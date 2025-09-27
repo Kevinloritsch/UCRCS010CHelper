@@ -603,7 +603,6 @@ const TreeVisualizer: React.FC<TreeVisualizerProps> = ({
               let newAnimationStates: AnimationState[] = [];
 
               if (title === "Binary Heap Visualizer") {
-                // For binary heap, just remove once (doesn't need specific values)
                 const states = await functions.removeNode(
                   1,
                   1,
@@ -616,13 +615,11 @@ const TreeVisualizer: React.FC<TreeVisualizerProps> = ({
                 );
                 newAnimationStates = states || [];
               } else {
-                // For other structures, parse multiple values from input
                 const values = value
                   .split(",")
-                  .map((v) => v.trim()) // Remove spaces
-                  .filter((v) => v !== "") // Remove empty strings
+                  .map((v) => v.trim())
+                  .filter((v) => v !== "")
                   .map((v) => {
-                    // Convert each value
                     return !intOrLetter && /^[A-Z]$/.test(v)
                       ? v.charCodeAt(0) - 64
                       : parseFloat(v);
@@ -671,8 +668,7 @@ const TreeVisualizer: React.FC<TreeVisualizerProps> = ({
           }}
           disabled={isInserting || value === ""}
         >
-          {isInserting}
-          Remove
+          {title === "Binary Heap Visualizer" ? "Extract Root" : "Remove"}
         </button>
 
         <button

@@ -34,6 +34,17 @@ export const insertNode = async (
   // initial state
   snapshot();
 
+  const allNodes = nodes.current.get();
+  for (const node of allNodes) {
+    if (node.value === value) {
+      const displayValue = intOrLetter
+        ? value.toString()
+        : String.fromCharCode(value + 64);
+      alert(`Value ${displayValue} already exists in the tree.`);
+      return animationStates;
+    }
+  }
+
   // create root if missing
   if (!root.current) {
     const newId = ++maxNodeId.current;
