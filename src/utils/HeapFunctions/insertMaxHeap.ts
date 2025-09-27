@@ -37,10 +37,7 @@ export const insertNode = async (
   const allNodes = nodes.current.get();
   for (const node of allNodes) {
     if (node.value === value) {
-      const displayValue = intOrLetter
-        ? value.toString()
-        : String.fromCharCode(value + 64);
-      alert(`Value ${displayValue} already exists in the tree.`);
+      alert(`Value ${value} already exists in the tree.`);
       return animationStates;
     }
   }

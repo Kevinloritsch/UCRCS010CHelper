@@ -39,7 +39,7 @@ export const removeNode = async (
 
   // error if root missing
   if (!root.current) {
-    alert("No root.");
+    alert("The tree is empty.");
     return animationStates;
   }
 

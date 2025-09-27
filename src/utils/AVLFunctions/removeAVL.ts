@@ -100,7 +100,7 @@ export const removeNode = async (
   snapshot();
   // can't remove from an empty tree
   if (!root.current) {
-    alert("Tree is Empty");
+    alert("The tree is empty.");
 
     return animationStates;
   }
@@ -168,7 +168,7 @@ export const removeNode = async (
 
   // if it was never found... throw an error
   if (!currentNode) {
-    alert("Value not in tree");
+    alert(`Value ${value} does not exist in the tree.`);
     return animationStates;
   }
 
@@ -399,7 +399,7 @@ export const removeNode = async (
       }
       childNode = rightChild;
     } else {
-      alert("Value not in tree");
+      alert(`Value ${value} does not exist in the tree.`);
       return animationStates;
     }
 

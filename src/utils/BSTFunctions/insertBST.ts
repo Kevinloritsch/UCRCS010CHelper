@@ -92,7 +92,7 @@ export const insertNode = async (
       }
       currentNode = nodes.current.get(currentNode.right) as TreeNode;
     } else {
-      alert("Value already exists in the tree.");
+      alert(`Value ${value} already exists in the tree.`);
       return animationStates;
     }
   }
