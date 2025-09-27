@@ -32,6 +32,8 @@ export const removeNode = async (
     });
   };
 
+  console.log(root);
+
   // initial state
   snapshot();
 
@@ -99,7 +101,7 @@ export const removeNode = async (
 
   // otherwise swap root with lastNode, then remove lastNode
   else {
-    const rootNode = root.current;
+    let rootNode = nodes.current.get(root.current.id) as TreeNode;
     // save parent so we can properly delete the node
     const parentNode = lastNode.parent
       ? (nodes.current.get(lastNode.parent) as TreeNode)
@@ -147,6 +149,8 @@ export const removeNode = async (
       label: tmpLabel,
       color: { background: colors.yellowSwap },
     });
+
+    rootNode = nodes.current.get(rootNode.id) as TreeNode;
 
     snapshot();
 
