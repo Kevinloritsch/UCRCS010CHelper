@@ -4,14 +4,7 @@ import {
   DataSet,
   Network,
 } from "vis-network/standalone/umd/vis-network.min.js";
-import {
-  Play,
-  Pause,
-  RefreshCcw,
-  FastForward,
-  Trash2,
-  ChevronDown,
-} from "lucide-react";
+import { Play, Pause, RefreshCcw, Trash2, ChevronDown } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -20,6 +13,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+
+import Box from "@mui/material/Box";
+import Stack from "@mui/material/Stack";
+import Slider from "@mui/material/Slider";
 
 export type TreeNode = {
   id: number;
@@ -177,8 +174,6 @@ const TreeVisualizer: React.FC<TreeVisualizerProps> = ({
       nodes.current.add(newNodes);
       edges.current.add(newEdges);
 
-      // console.log(animationStates);
-
       if (
         network &&
         root.current &&
@@ -280,10 +275,22 @@ const TreeVisualizer: React.FC<TreeVisualizerProps> = ({
     }
   };
 
+  const [speedSlider, setSpeedSlider] = React.useState<number>(30);
+
+  const handleSpeedChange = (event: Event, newValue: number) => {
+    setSpeedSlider(newValue);
+    // console.log(speedSlider)
+    setSpeed(0.0102 * Math.pow(99 - newValue, 2.51) + 30);
+    console.log(speed);
+  };
+
   return (
     <div>
-      <h1 className="m-2 text-center text-2xl text-black">{title}</h1>
-      <div className="flex items-center">
+      <div className="text-bold m-2 text-center text-4xl text-helper-blue-primary">
+        {title}
+      </div>
+      <p className="mx-auto text-center">Description</p>
+      <div className="mx-auto flex w-11/12 items-center bg-white pb-2 pt-8">
         <DropdownMenu>
           <div className="ml-4 text-black">Select Variable Type:</div>
           <DropdownMenuTrigger className="ml-2 items-center rounded bg-helper-brown-100 px-4 py-1 text-white">
@@ -455,8 +462,24 @@ const TreeVisualizer: React.FC<TreeVisualizerProps> = ({
         >
           <Trash2 color="black" style={{ transform: "rotate(360deg)" }} />
         </button>
+
+        <Box sx={{ width: 200 }}>
+          <Stack
+            spacing={2}
+            direction="row"
+            sx={{ alignItems: "center", mb: 1 }}
+          >
+            {/* <VolumeDown /> */}
+            <Slider
+              aria-label="Volume"
+              value={speedSlider}
+              onChange={handleSpeedChange}
+            />
+            {/* <VolumeUp /> */}
+          </Stack>
+        </Box>
       </div>
-      <div className="ml-2 flex">
+      <div className="mx-auto flex w-11/12 items-center bg-white">
         <input
           type="text"
           className="border-1 m-2 w-1/2 rounded border border-black pl-2"
@@ -699,18 +722,15 @@ const TreeVisualizer: React.FC<TreeVisualizerProps> = ({
         </button>
       </div>
 
-      <br />
-
       <div className="min-h-[500px]">
         <div className="flex place-content-center">
           <div
             ref={networkContainer}
             style={{
-              width: "98%",
-              height: "500px",
-              border: "1px solid lightgray",
+              width: "91.6666667%",
+              height: "80%",
             }}
-            className="absolute bg-white"
+            className="absolute w-11/12 bg-white"
           ></div>
         </div>
 
@@ -742,28 +762,6 @@ const TreeVisualizer: React.FC<TreeVisualizerProps> = ({
                 className="mx-3"
               >
                 <RefreshCcw color="white" />
-              </button>
-
-              <button
-                onClick={() => {
-                  setSpeed((prevSpeed) => Math.min(prevSpeed * 2, 1000));
-                }}
-                className="mx-3"
-              >
-                <FastForward
-                  color="white"
-                  fill="white"
-                  style={{ transform: "rotate(180deg)" }}
-                />
-              </button>
-
-              <button
-                onClick={() => {
-                  setSpeed((prevSpeed) => Math.max(prevSpeed / 2, 30));
-                }}
-                className="mx-3"
-              >
-                <FastForward color="white" fill="white" />
               </button>
             </div>
           </div>

@@ -7,7 +7,7 @@ import { Abhaya_Libre } from "next/font/google";
 
 const abhaya = Abhaya_Libre({
   subsets: ["latin"],
-  weight: ["400", "600"],
+  weight: ["400", "600", "800"],
 });
 export const metadata = {
   title: "UCR CS010C Helper Website",
