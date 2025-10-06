@@ -284,18 +284,26 @@ const TreeVisualizer: React.FC<TreeVisualizerProps> = ({
     setSpeed(501.27485 * Math.pow(0.973737, newValue));
   };
 
+  const [isMd, setIsMd] = useState(window.innerWidth >= 768);
+
+  useEffect(() => {
+    const onResize = () => setIsMd(window.innerWidth >= 768);
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
+
   return (
     <div className="">
-      <div className="text-bold m-2 h-[6vh] text-center text-4xl text-helper-blue-primary">
+      <div className="text-bold m-2 text-center text-4xl text-helper-blue-primary md:h-[6vh]">
         {title}
       </div>
 
-      <div className="mx-auto flex h-[15vh] w-11/12 flex-col justify-center bg-white pb-2 pt-6 md:flex-row">
-        <div className="flex w-full flex-col md:w-1/2">
-          <div className="flex h-8 flex-row">
+      <div className="mx-auto flex w-11/12 flex-col justify-center bg-white pb-2 pt-6 md:h-[15vh] md:flex-row">
+        <div className="mx-auto flex w-11/12 flex-col md:mx-0 md:w-1/2">
+          <div className="mx-auto flex h-8 flex-row md:mx-0">
             <DropdownMenu>
-              <div className="ml-4 text-black">Variable:</div>
-              <DropdownMenuTrigger className="ml-2 items-center rounded bg-helper-blue-primary px-4 py-1 text-white">
+              <div className="text-black">Variable:</div>
+              <DropdownMenuTrigger className="ml-1 items-center rounded bg-helper-blue-primary px-1 py-1 text-white md:px-4">
                 <div className="flex items-center">
                   {intOrLetter ? "Integer" : "String"}
                   <div className="ml-1 rounded p-1">
@@ -367,8 +375,8 @@ const TreeVisualizer: React.FC<TreeVisualizerProps> = ({
 
             {title == "Binary Heap Visualizer" && (
               <DropdownMenu>
-                <div className="ml-4 text-black">Heap Type:</div>
-                <DropdownMenuTrigger className="ml-2 items-center rounded bg-helper-blue-primary px-4 py-1 text-white">
+                <div className="ml-1 text-black">Heap:</div>
+                <DropdownMenuTrigger className="ml-1 items-center rounded bg-helper-blue-primary px-1 py-1 text-white md:px-4">
                   <div className="flex items-center">
                     {maxOrMin ? "Max Heap" : "Min Heap"}
                     <div className="ml-1 rounded p-1">
@@ -377,7 +385,7 @@ const TreeVisualizer: React.FC<TreeVisualizerProps> = ({
                   </div>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent>
-                  <DropdownMenuLabel>Heap Type</DropdownMenuLabel>
+                  <DropdownMenuLabel>Heap</DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
                     onClick={() => {
@@ -442,7 +450,7 @@ const TreeVisualizer: React.FC<TreeVisualizerProps> = ({
           <div>
             <input
               type="text"
-              className="border-1 m-2 h-12 w-full rounded border border-black"
+              className="border-1 my-2 h-12 w-full rounded border border-black"
               value={value}
               onChange={(e) => {
                 const newValue = e.target.value.toUpperCase(); // Auto-uppercase letters
@@ -512,24 +520,20 @@ const TreeVisualizer: React.FC<TreeVisualizerProps> = ({
           </div>
         </div>
         <div className="flex flex-col">
-          <div className="flex h-8 flex-row px-4">
-            <div>
-              <Box
-                sx={{ width: title != "Binary Heap Visualizer" ? 180 : 210 }}
+          <div className="mx-auto flex h-8 flex-row px-4 md:mx-0">
+            <Box sx={{ width: title != "Binary Heap Visualizer" ? 170 : 200 }}>
+              <Stack
+                spacing={2}
+                direction="row"
+                sx={{ alignItems: "center", mb: 1 }}
               >
-                <Stack
-                  spacing={2}
-                  direction="row"
-                  sx={{ alignItems: "center", mb: 1 }}
-                >
-                  <Slider
-                    aria-label="Volume"
-                    value={speedSlider}
-                    onChange={handleSpeedChange}
-                  />
-                </Stack>
-              </Box>
-            </div>
+                <Slider
+                  aria-label="Volume"
+                  value={speedSlider}
+                  onChange={handleSpeedChange}
+                />
+              </Stack>
+            </Box>
             <div className="z-10 flex flex-row">
               <button
                 onClick={() => {
@@ -537,7 +541,7 @@ const TreeVisualizer: React.FC<TreeVisualizerProps> = ({
                     setIsPlaying(!isPlaying);
                   }
                 }}
-                className="mx-1 flex h-8 flex-col items-center rounded bg-helper-blue-primary px-4 py-1 text-white"
+                className="mx-1 ml-4 flex h-8 flex-col items-center rounded bg-helper-blue-primary px-4 py-1 text-white"
               >
                 {isPlaying ? (
                   <Pause color="white" fill="white" />
@@ -547,7 +551,7 @@ const TreeVisualizer: React.FC<TreeVisualizerProps> = ({
               </button>
             </div>
           </div>
-          <div className="flex flex-row px-2">
+          <div className="mx-auto flex flex-row px-2 md:mx-0">
             <button
               className={`relative mx-2 my-3 flex h-8 flex-col items-center rounded bg-helper-blue-primary px-4 py-1 text-white ${
                 isInserting ? "cursor-not-allowed opacity-50" : "cursor-pointer"
@@ -719,13 +723,13 @@ const TreeVisualizer: React.FC<TreeVisualizerProps> = ({
       </div>
       <div className="mx-auto flex w-11/12 justify-center bg-white"></div>
 
-      <div className="h-[60vh]">
+      <div className={isMd ? "h-[60vh]" : "h-[80vh]"}>
         <div className="flex place-content-center">
           <div
             ref={networkContainer}
             style={{
               width: "91.6666667%",
-              height: "60vh",
+              height: isMd ? "60vh" : "80vh",
             }}
             className="absolute w-11/12 bg-white"
           ></div>
@@ -733,15 +737,11 @@ const TreeVisualizer: React.FC<TreeVisualizerProps> = ({
       </div>
 
       {title != "Binary Heap Visualizer" ? (
-        <div className="relative z-10 mx-auto mb-4 h-[8vh] min-h-min w-11/12 rounded bg-white px-2">
+        <div className="relative z-10 mx-auto mb-4 min-h-min w-11/12 rounded bg-white px-2 md:h-[8vh]">
           <div className="flex justify-between">
             <div className="flex">
-              <div className="my-auto pl-4 text-xl text-helper-blue-primary md:text-xl">
-                PRINT:
-              </div>
-
               <DropdownMenu>
-                <DropdownMenuTrigger className="m-3 items-center rounded bg-white px-4 py-2 font-medium">
+                <DropdownMenuTrigger className="ml-1 flex h-8 items-center rounded bg-helper-blue-primary px-2 text-white">
                   <div className="flex items-center">
                     {traversalValue}
                     <div className="ml-2">
@@ -796,7 +796,7 @@ const TreeVisualizer: React.FC<TreeVisualizerProps> = ({
                 functions.inOrderTraversal &&
                 functions.preOrderTraversal && (
                   <button
-                    className={`relative mx-2 my-3 flex h-8 flex-col items-center rounded bg-helper-blue-primary px-4 py-1 text-white ${
+                    className={`relative mx-2 flex h-8 flex-col items-center rounded bg-helper-blue-primary px-4 py-1 text-white ${
                       isInserting
                         ? "cursor-not-allowed opacity-50"
                         : "cursor-pointer"
@@ -898,7 +898,7 @@ const TreeVisualizer: React.FC<TreeVisualizerProps> = ({
             </div>
             <div>
               <button
-                className={`relative mx-2 my-3 flex h-8 flex-col items-center rounded bg-helper-blue-primary px-4 py-1 text-white ${
+                className={`relative mx-2 flex h-8 flex-col items-center rounded bg-helper-blue-primary px-4 py-1 text-white ${
                   isInserting
                     ? "cursor-not-allowed opacity-50"
                     : "cursor-pointer"
@@ -927,7 +927,7 @@ const TreeVisualizer: React.FC<TreeVisualizerProps> = ({
                   }
                 }}
               >
-                Clear All
+                Clear
               </button>
             </div>
           </div>
@@ -938,9 +938,9 @@ const TreeVisualizer: React.FC<TreeVisualizerProps> = ({
           </div>
         </div>
       ) : (
-        <div className="relative z-10 mx-auto mb-4 flex h-[8vh] w-11/12 place-items-center rounded bg-white px-2">
+        <div className="relative z-10 mx-auto mb-4 flex w-11/12 place-items-center rounded bg-white px-2 md:h-[8vh]">
           <button
-            className={`relative mx-2 ml-auto flex h-8 flex-col items-center rounded bg-helper-blue-primary px-4 text-white ${
+            className={`relative mx-2 my-3 ml-auto flex h-8 flex-col items-center rounded bg-helper-blue-primary px-4 text-white ${
               isInserting ? "cursor-not-allowed opacity-50" : "cursor-pointer"
             }`}
             onClick={() => {
@@ -967,7 +967,7 @@ const TreeVisualizer: React.FC<TreeVisualizerProps> = ({
               }
             }}
           >
-            Clear All
+            Clear
           </button>
         </div>
       )}
