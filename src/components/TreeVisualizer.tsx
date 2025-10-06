@@ -74,7 +74,7 @@ export interface TreeFunctions {
       DataSet<{ id?: number; from: number; to: number }>
     >,
     network: Network,
-  ) => Promise<{ animationStates: AnimationState[] }>;
+  ) => Promise<{ animationStates: AnimationState[]; printValue: string }>;
 
   minNode?: (
     root: React.MutableRefObject<TreeNode | null>,
@@ -83,7 +83,7 @@ export interface TreeFunctions {
       DataSet<{ id?: number; from: number; to: number }>
     >,
     network: Network,
-  ) => Promise<{ animationStates: AnimationState[] }>;
+  ) => Promise<{ animationStates: AnimationState[]; printValue: string }>;
 
   inOrderTraversal?: (
     step: number,
@@ -766,10 +766,7 @@ const TreeVisualizer: React.FC<TreeVisualizerProps> = ({
       </div>
 
       {title != "Binary Heap Visualizer" && (
-        <div
-          className="relative z-10 mx-auto mb-4 h-auto min-h-min rounded border bg-helper-brown-100 px-2"
-          style={{ width: "98%" }}
-        >
+        <div className="relative z-10 mx-auto mb-4 h-auto min-h-min w-11/12 rounded border bg-helper-brown-100 px-2">
           <div className="flex">
             <div className="my-auto text-xl text-white md:text-2xl">PRINT</div>
 
@@ -899,6 +896,8 @@ const TreeVisualizer: React.FC<TreeVisualizerProps> = ({
                           edges,
                           network,
                         );
+                        if (result.printValue)
+                          setPrintValue("Largest: " + result.printValue);
                       } else if (
                         functions.minNode &&
                         traversalValue === "Smallest"
@@ -909,6 +908,8 @@ const TreeVisualizer: React.FC<TreeVisualizerProps> = ({
                           edges,
                           network,
                         );
+                        if (result.printValue)
+                          setPrintValue("Smallest: " + result.printValue);
                       }
 
                       if (result) {
@@ -926,8 +927,9 @@ const TreeVisualizer: React.FC<TreeVisualizerProps> = ({
               )}
           </div>
           <div className="h-3/4 overflow-auto rounded bg-white p-2">
-            <div className="font-medium">Traversal:</div>
-            <div className="ml-2">{printValue !== null ? printValue : ""}</div>
+            <div className="ml-2">
+              {printValue !== null ? printValue : "Print Something Here!"}
+            </div>
           </div>
         </div>
       )}

@@ -43,7 +43,7 @@ export const minNode = async (
   if (!tempRoot) {
     snapshot();
 
-    return { animationStates, minValue: null };
+    return { animationStates, printValue: "" };
   }
 
   let currentNode = tempRoot;
@@ -81,11 +81,11 @@ export const minNode = async (
 
       snapshot();
 
-      return { animationStates, minValue };
+      return { animationStates, printValue: String(minValue) };
     }
 
     currentNode = nodes.current.get(currentNode.left) as TreeNode;
   }
 
-  return { animationStates, minValue };
+  return { animationStates, printValue: String(minValue) };
 };
