@@ -43,7 +43,7 @@ export const maxNode = async (
   if (!tempRoot) {
     snapshot();
 
-    return { animationStates, maxValue: null };
+    return { animationStates, printValue: "" };
   }
 
   let currentNode = tempRoot;
@@ -81,11 +81,11 @@ export const maxNode = async (
 
       snapshot();
 
-      return { animationStates, maxValue };
+      return { animationStates, printValue: String(maxValue) };
     }
 
     currentNode = nodes.current.get(currentNode.right) as TreeNode;
   }
 
-  return { animationStates, maxValue };
+  return { animationStates, printValue: String(maxValue) };
 };

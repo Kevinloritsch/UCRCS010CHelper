@@ -24,7 +24,7 @@ const HomePage = () => {
       >
         <Link href="/bst" className="h-full w-full px-4">
           <div className="py-4 text-4xl font-bold">BST Trees</div>
-          <div className="">Lorem ipsum dolor sit amet</div>
+          <div className="">Organize Numbers for Quick Searches</div>
           <div className="absolute right-0 top-0 h-full">
             <Image src={BST} alt="BST" className="h-full" />
           </div>
@@ -37,7 +37,7 @@ const HomePage = () => {
       >
         <Link href="/avl" className="h-full w-full px-4">
           <div className="py-4 text-4xl font-bold">AVL Trees</div>
-          <div className="">Lorem ipsum dolor sit amet</div>
+          <div className="">Self Balancing for Better Lookups</div>
           <div className="absolute right-0 top-0 h-full">
             <Image src={AVL} alt="AVL" className="h-full object-contain" />
           </div>
@@ -50,7 +50,7 @@ const HomePage = () => {
       >
         <Link href="/heap" className="h-full w-full px-4">
           <div className="py-4 text-4xl font-bold">Heaps</div>
-          <div className="">Lorem ipsum dolor sit amet</div>
+          <div className="">Manage Priorities Efficiently</div>
           <div className="absolute right-0 top-0">
             <Image src={Heap} alt="Heap" className="object-contain" />
           </div>
@@ -61,9 +61,9 @@ const HomePage = () => {
         {...hoverAnimation}
         className="relative col-span-3 row-span-1 flex items-center justify-center rounded-lg bg-[#EDD6F6] text-[#895F98]"
       >
-        <Link href="/bubble" className="h-full w-full px-4">
+        <Link href="/" className="h-full w-full px-4">
           <div className="py-4 text-4xl font-bold">Sorting</div>
-          <div className="">Lorem ipsum dolor sit amet</div>
+          <div className="">In development!</div>
           <div className="absolute bottom-0 right-8">
             <Image src={Sort} alt="Sort" className="object-contain" />
           </div>

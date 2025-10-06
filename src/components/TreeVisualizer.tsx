@@ -4,14 +4,7 @@ import {
   DataSet,
   Network,
 } from "vis-network/standalone/umd/vis-network.min.js";
-import {
-  Play,
-  Pause,
-  RefreshCcw,
-  FastForward,
-  Trash2,
-  ChevronDown,
-} from "lucide-react";
+import { Play, Pause, RefreshCcw, ChevronDown } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -20,6 +13,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+
+import Box from "@mui/material/Box";
+import Stack from "@mui/material/Stack";
+import Slider from "@mui/material/Slider";
 
 export type TreeNode = {
   id: number;
@@ -77,7 +74,7 @@ export interface TreeFunctions {
       DataSet<{ id?: number; from: number; to: number }>
     >,
     network: Network,
-  ) => Promise<{ animationStates: AnimationState[] }>;
+  ) => Promise<{ animationStates: AnimationState[]; printValue: string }>;
 
   minNode?: (
     root: React.MutableRefObject<TreeNode | null>,
@@ -86,7 +83,7 @@ export interface TreeFunctions {
       DataSet<{ id?: number; from: number; to: number }>
     >,
     network: Network,
-  ) => Promise<{ animationStates: AnimationState[] }>;
+  ) => Promise<{ animationStates: AnimationState[]; printValue: string }>;
 
   inOrderTraversal?: (
     step: number,
@@ -135,11 +132,12 @@ const TreeVisualizer: React.FC<TreeVisualizerProps> = ({
   const [currentStep, setCurrentStep] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isInserting, setIsInserting] = useState(false);
-  const [speed, setSpeed] = useState(500);
+  const [speed, setSpeed] = useState(100);
   const [printValue, setPrintValue] = useState<string | null>(null);
   const [intOrLetter, setIntOrLetter] = useState(true);
   const [oldRootID, setOldRootID] = useState<number | null>(null);
   const [maxOrMin, setMaxOrMin] = useState(true); // true is max, false is min
+  const [traversalValue, setTraversalValue] = useState("Pre Order");
 
   useEffect(() => {
     if (networkContainer.current) {
@@ -176,8 +174,6 @@ const TreeVisualizer: React.FC<TreeVisualizerProps> = ({
       edges.current.clear();
       nodes.current.add(newNodes);
       edges.current.add(newEdges);
-
-      // console.log(animationStates);
 
       if (
         network &&
@@ -280,341 +276,300 @@ const TreeVisualizer: React.FC<TreeVisualizerProps> = ({
     }
   };
 
+  const [speedSlider, setSpeedSlider] = React.useState<number>(50);
+
+  const handleSpeedChange = (event: Event, newValue: number) => {
+    setSpeedSlider(newValue);
+    // y=501.27485 * 0.973737^{x}
+    setSpeed(501.27485 * Math.pow(0.973737, newValue));
+  };
+
+  const isClient = typeof window !== "undefined";
+  const [isMd, setIsMd] = useState(
+    isClient ? window.matchMedia("(min-width: 768px)").matches : false,
+  );
+
+  useEffect(() => {
+    if (!isClient) return;
+
+    const mediaQuery = window.matchMedia("(min-width: 768px)");
+
+    const handleChange = (event: MediaQueryListEvent) => {
+      setIsMd(event.matches);
+    };
+
+    setIsMd(mediaQuery.matches);
+
+    mediaQuery.addEventListener("change", handleChange);
+
+    return () => mediaQuery.removeEventListener("change", handleChange);
+  }, [isClient]);
+
   return (
-    <div>
-      <h1 className="m-2 text-center text-2xl text-black">{title}</h1>
-      <div className="flex items-center">
-        <DropdownMenu>
-          <div className="ml-4 text-black">Select Variable Type:</div>
-          <DropdownMenuTrigger className="ml-2 items-center rounded bg-helper-brown-100 px-4 py-1 text-white">
-            <div className="flex items-center">
-              {intOrLetter ? "Integer" : "String"}
-              <div className="ml-1 rounded p-1">
-                <ChevronDown color="white" size={16} />
-              </div>
-            </div>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent>
-            <DropdownMenuLabel>Variable Type</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem
-              onClick={() => {
-                setIntOrLetter(true);
-                nodes.current.clear();
-                edges.current.clear();
-
-                root.current = null;
-                maxNodeId.current = 0;
-                maxEdgeId.current = 0;
-
-                setAnimationStates([]);
-                setCurrentStep(0);
-                setIsPlaying(false);
-                setIsInserting(false);
-                setPrintValue(null);
-                setValue("");
-
-                if (network) {
-                  network.setData({
-                    nodes: nodes.current,
-                    edges: edges.current,
-                  });
-                  network.redraw();
-                }
-              }}
-            >
-              Integer
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={() => {
-                setIntOrLetter(false);
-                nodes.current.clear();
-                edges.current.clear();
-
-                root.current = null;
-                maxNodeId.current = 0;
-                maxEdgeId.current = 0;
-
-                setAnimationStates([]);
-                setCurrentStep(0);
-                setIsPlaying(false);
-                setIsInserting(false);
-                setPrintValue(null);
-                setValue("");
-
-                if (network) {
-                  network.setData({
-                    nodes: nodes.current,
-                    edges: edges.current,
-                  });
-                  network.redraw();
-                }
-              }}
-            >
-              String
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-
-        {title == "Binary Heap Visualizer" && (
-          <DropdownMenu>
-            <div className="ml-4 text-black">Select Heap Type:</div>
-            <DropdownMenuTrigger className="ml-2 items-center rounded bg-helper-brown-100 px-4 py-1 text-white">
-              <div className="flex items-center">
-                {maxOrMin ? "Max Heap" : "Min Heap"}
-                <div className="ml-1 rounded p-1">
-                  <ChevronDown color="white" size={16} />
-                </div>
-              </div>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              <DropdownMenuLabel>Heap Type</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem
-                onClick={() => {
-                  setMaxOrMin(true);
-                  nodes.current.clear();
-                  edges.current.clear();
-
-                  root.current = null;
-                  maxNodeId.current = 0;
-                  maxEdgeId.current = 0;
-
-                  setAnimationStates([]);
-                  setCurrentStep(0);
-                  setIsPlaying(false);
-                  setIsInserting(false);
-                  setPrintValue(null);
-                  setValue("");
-
-                  if (network) {
-                    network.setData({
-                      nodes: nodes.current,
-                      edges: edges.current,
-                    });
-                    network.redraw();
-                  }
-                }}
-              >
-                Max Heap
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => {
-                  setMaxOrMin(false);
-                  nodes.current.clear();
-                  edges.current.clear();
-
-                  root.current = null;
-                  maxNodeId.current = 0;
-                  maxEdgeId.current = 0;
-
-                  setAnimationStates([]);
-                  setCurrentStep(0);
-                  setIsPlaying(false);
-                  setIsInserting(false);
-                  setPrintValue(null);
-                  setValue("");
-
-                  if (network) {
-                    network.setData({
-                      nodes: nodes.current,
-                      edges: edges.current,
-                    });
-                    network.redraw();
-                  }
-                }}
-              >
-                Min Heap
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        )}
-
-        <button
-          onClick={() => {
-            nodes.current.clear();
-            edges.current.clear();
-
-            root.current = null;
-            maxNodeId.current = 0;
-            maxEdgeId.current = 0;
-
-            setAnimationStates([]);
-            setCurrentStep(0);
-            setIsPlaying(false);
-            setIsInserting(false);
-            setPrintValue(null);
-            setValue("");
-
-            if (network) {
-              network.setData({ nodes: nodes.current, edges: edges.current });
-              network.redraw();
-            }
-          }}
-          className="mx-3 md:hidden"
-        >
-          <Trash2 color="black" style={{ transform: "rotate(360deg)" }} />
-        </button>
+    <div className="">
+      <div className="text-bold m-2 text-center text-4xl text-helper-blue-primary md:h-[6vh]">
+        {title}
       </div>
-      <div className="ml-2 flex">
-        <input
-          type="text"
-          className="border-1 m-2 w-1/2 rounded border border-black pl-2"
-          value={value}
-          onChange={(e) => {
-            const newValue = e.target.value.toUpperCase(); // Auto-uppercase letters
-            if (intOrLetter) {
-              const isValid = newValue
-                .split("")
-                .every((char: string, index) => {
-                  const prevChar = newValue[index - 1];
 
-                  if (char === "+" || char === "-") {
-                    return index === 0 || prevChar === " " || prevChar === ",";
+      <div className="mx-auto flex w-11/12 flex-col justify-center bg-white pb-2 pt-6 md:h-[15vh] md:flex-row">
+        <div className="mx-auto flex w-11/12 flex-col md:mx-0 md:w-1/2">
+          <div className="mx-auto flex h-8 flex-row md:mx-0">
+            <DropdownMenu>
+              <div className="text-black">Variable:</div>
+              <DropdownMenuTrigger className="ml-1 items-center rounded bg-helper-blue-primary px-1 py-1 text-white md:px-4">
+                <div className="flex items-center">
+                  {intOrLetter ? "Integer" : "String"}
+                  <div className="ml-1 rounded p-1">
+                    <ChevronDown color="white" size={16} />
+                  </div>
+                </div>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuLabel>Variable Type</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  onClick={() => {
+                    setIntOrLetter(true);
+                    nodes.current.clear();
+                    edges.current.clear();
+
+                    root.current = null;
+                    maxNodeId.current = 0;
+                    maxEdgeId.current = 0;
+
+                    setAnimationStates([]);
+                    setCurrentStep(0);
+                    setIsPlaying(false);
+                    setIsInserting(false);
+                    setPrintValue(null);
+                    setValue("");
+
+                    if (network) {
+                      network.setData({
+                        nodes: nodes.current,
+                        edges: edges.current,
+                      });
+                      network.redraw();
+                    }
+                  }}
+                >
+                  Integer
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => {
+                    setIntOrLetter(false);
+                    nodes.current.clear();
+                    edges.current.clear();
+
+                    root.current = null;
+                    maxNodeId.current = 0;
+                    maxEdgeId.current = 0;
+
+                    setAnimationStates([]);
+                    setCurrentStep(0);
+                    setIsPlaying(false);
+                    setIsInserting(false);
+                    setPrintValue(null);
+                    setValue("");
+
+                    if (network) {
+                      network.setData({
+                        nodes: nodes.current,
+                        edges: edges.current,
+                      });
+                      network.redraw();
+                    }
+                  }}
+                >
+                  String
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            {title == "Binary Heap Visualizer" && (
+              <DropdownMenu>
+                <div className="ml-1 text-black">Heap:</div>
+                <DropdownMenuTrigger className="ml-1 items-center rounded bg-helper-blue-primary px-1 py-1 text-white md:px-4">
+                  <div className="flex items-center">
+                    {maxOrMin ? "Max Heap" : "Min Heap"}
+                    <div className="ml-1 rounded p-1">
+                      <ChevronDown color="white" size={16} />
+                    </div>
+                  </div>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  <DropdownMenuLabel>Heap</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    onClick={() => {
+                      setMaxOrMin(true);
+                      nodes.current.clear();
+                      edges.current.clear();
+
+                      root.current = null;
+                      maxNodeId.current = 0;
+                      maxEdgeId.current = 0;
+
+                      setAnimationStates([]);
+                      setCurrentStep(0);
+                      setIsPlaying(false);
+                      setIsInserting(false);
+                      setPrintValue(null);
+                      setValue("");
+
+                      if (network) {
+                        network.setData({
+                          nodes: nodes.current,
+                          edges: edges.current,
+                        });
+                        network.redraw();
+                      }
+                    }}
+                  >
+                    Max Heap
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => {
+                      setMaxOrMin(false);
+                      nodes.current.clear();
+                      edges.current.clear();
+
+                      root.current = null;
+                      maxNodeId.current = 0;
+                      maxEdgeId.current = 0;
+
+                      setAnimationStates([]);
+                      setCurrentStep(0);
+                      setIsPlaying(false);
+                      setIsInserting(false);
+                      setPrintValue(null);
+                      setValue("");
+
+                      if (network) {
+                        network.setData({
+                          nodes: nodes.current,
+                          edges: edges.current,
+                        });
+                        network.redraw();
+                      }
+                    }}
+                  >
+                    Min Heap
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
+          </div>
+          <div>
+            <input
+              type="text"
+              className="border-1 my-2 h-12 w-full rounded border border-black"
+              value={value}
+              onChange={(e) => {
+                const newValue = e.target.value.toUpperCase(); // Auto-uppercase letters
+                if (intOrLetter) {
+                  const isValid = newValue
+                    .split("")
+                    .every((char: string, index) => {
+                      const prevChar = newValue[index - 1];
+
+                      if (char === "+" || char === "-") {
+                        return (
+                          index === 0 || prevChar === " " || prevChar === ","
+                        );
+                      }
+                      if (char === ",") {
+                        return /\d/.test(prevChar);
+                      }
+                      if (char === " ") {
+                        return prevChar === "," && newValue[index + 1] !== " ";
+                      }
+                      if (/\d/.test(char)) {
+                        return true;
+                      }
+                      return false;
+                    });
+
+                  if (isValid) {
+                    setValue(newValue);
                   }
-                  if (char === ",") {
-                    return /\d/.test(prevChar);
-                  }
-                  if (char === " ") {
-                    return prevChar === "," && newValue[index + 1] !== " ";
-                  }
-                  if (/\d/.test(char)) {
-                    return true;
-                  }
-                  return false;
-                });
-
-              if (isValid) {
-                setValue(newValue);
-              }
-            } else {
-              const capitalizedValue = newValue.toUpperCase();
-
-              const isValid = capitalizedValue
-                .split("")
-                .every((char, index) => {
-                  const prevChar = capitalizedValue[index - 1];
-
-                  if (/[A-Z]/.test(char)) {
-                    return index === 0 || prevChar === "," || prevChar === " ";
-                  }
-                  if (char === ",") {
-                    return /[A-Z]/.test(prevChar);
-                  }
-                  if (char === " ") {
-                    return (
-                      prevChar === "," && capitalizedValue[index + 1] !== " "
-                    );
-                  }
-                  return false;
-                });
-
-              if (isValid) {
-                setValue(capitalizedValue);
-              }
-            }
-          }}
-          onKeyDown={handleKeyDown}
-          placeholder={
-            intOrLetter
-              ? "Enter integers, comma-separated"
-              : "Enter letters A-Z, comma-separated"
-          }
-        />
-        <button
-          className={`relative m-3 flex flex-col items-center rounded border-[3px] border-helper-green-400 bg-white px-4 py-2 text-helper-green-400 ${
-            isInserting ? "cursor-not-allowed opacity-50" : "cursor-pointer"
-          }`}
-          onClick={async () => {
-            const values = value
-              .split(",")
-              .map((v) => v.trim())
-              .filter((v) => v !== "")
-              .map((v) => {
-                return !intOrLetter && /^[A-Z]$/.test(v)
-                  ? v.charCodeAt(0) - 64
-                  : parseFloat(v);
-              });
-
-            console.log("Values to insert:", values);
-
-            if (network && values.length > 0) {
-              let newAnimationStates: AnimationState[] = [];
-
-              for (const valueToInsert of values) {
-                let states: AnimationState[];
-
-                if (title === "Binary Heap Visualizer") {
-                  states = await functions.insertNode(
-                    valueToInsert,
-                    root,
-                    nodes,
-                    edges,
-                    maxNodeId,
-                    maxEdgeId,
-                    intOrLetter,
-                    maxOrMin,
-                  );
                 } else {
-                  states = await functions.insertNode(
-                    valueToInsert,
-                    root,
-                    nodes,
-                    edges,
-                    maxNodeId,
-                    maxEdgeId,
-                    intOrLetter,
-                  );
-                }
+                  const capitalizedValue = newValue.toUpperCase();
 
-                newAnimationStates = newAnimationStates.concat(states || []);
+                  const isValid = capitalizedValue
+                    .split("")
+                    .every((char, index) => {
+                      const prevChar = capitalizedValue[index - 1];
 
-                if (states && states.length > 0) {
-                  const lastState = states[states.length - 1];
-                  const { nodes: newNodes, edges: newEdges } = lastState;
-                  nodes.current.clear();
-                  edges.current.clear();
-                  nodes.current.add(newNodes);
-                  edges.current.add(newEdges);
+                      if (/[A-Z]/.test(char)) {
+                        return (
+                          index === 0 || prevChar === "," || prevChar === " "
+                        );
+                      }
+                      if (char === ",") {
+                        return /[A-Z]/.test(prevChar);
+                      }
+                      if (char === " ") {
+                        return (
+                          prevChar === "," &&
+                          capitalizedValue[index + 1] !== " "
+                        );
+                      }
+                      return false;
+                    });
+
+                  if (isValid) {
+                    setValue(capitalizedValue);
+                  }
                 }
+              }}
+              onKeyDown={handleKeyDown}
+              placeholder={
+                intOrLetter
+                  ? "Enter integers, comma-separated"
+                  : "Enter letters A-Z, comma-separated"
               }
-
-              setAnimationStates(newAnimationStates);
-              setIsPlaying(true);
-              setIsInserting(true);
-              setCurrentStep(0);
-              setValue("");
-            } else if (!network) {
-              console.error("Network is not available.");
-            }
-          }}
-          disabled={isInserting || value === ""}
-        >
-          {isInserting}
-          Insert
-        </button>
-
-        <button
-          className={`relative m-3 flex flex-col items-center rounded border-[3px] border-helper-green-400 bg-helper-green-400 px-4 py-2 text-white ${
-            isInserting ? "cursor-not-allowed opacity-50" : "cursor-pointer"
-          }`}
-          onClick={async () => {
-            if (network) {
-              let newAnimationStates: AnimationState[] = [];
-
-              if (title === "Binary Heap Visualizer") {
-                const states = await functions.removeNode(
-                  1,
-                  1,
-                  1,
-                  root,
-                  nodes,
-                  edges,
-                  network,
-                  maxOrMin,
-                );
-                newAnimationStates = states || [];
-              } else {
+            />
+          </div>
+        </div>
+        <div className="flex flex-col">
+          <div className="mx-auto flex h-8 flex-row px-4 md:mx-0">
+            <Box sx={{ width: title != "Binary Heap Visualizer" ? 170 : 200 }}>
+              <Stack
+                spacing={2}
+                direction="row"
+                sx={{ alignItems: "center", mb: 1 }}
+              >
+                <Slider
+                  aria-label="Volume"
+                  value={speedSlider}
+                  onChange={handleSpeedChange}
+                />
+              </Stack>
+            </Box>
+            <div className="z-10 flex flex-row">
+              <button
+                onClick={() => {
+                  if (animationStates.length > 0) {
+                    setIsPlaying(!isPlaying);
+                  }
+                }}
+                className="mx-1 ml-4 flex h-8 flex-col items-center rounded bg-helper-blue-primary px-4 py-1 text-white"
+              >
+                {isPlaying ? (
+                  <Pause color="white" fill="white" />
+                ) : (
+                  <Play color="white" fill="white" />
+                )}
+              </button>
+            </div>
+          </div>
+          <div className="mx-auto flex flex-row px-2 md:mx-0">
+            <button
+              className={`relative mx-2 my-3 flex h-8 flex-col items-center rounded bg-helper-blue-primary px-4 py-1 text-white ${
+                isInserting ? "cursor-not-allowed opacity-50" : "cursor-pointer"
+              }`}
+              onClick={async () => {
                 const values = value
                   .split(",")
                   .map((v) => v.trim())
@@ -625,19 +580,36 @@ const TreeVisualizer: React.FC<TreeVisualizerProps> = ({
                       : parseFloat(v);
                   });
 
-                console.log("Values to remove:", values);
+                console.log("Values to insert:", values);
 
-                if (values.length > 0) {
-                  for (const valueToRemove of values) {
-                    const states = await functions.removeNode(
-                      1,
-                      valueToRemove,
-                      0,
-                      root,
-                      nodes,
-                      edges,
-                      network,
-                    );
+                if (network && values.length > 0) {
+                  let newAnimationStates: AnimationState[] = [];
+
+                  for (const valueToInsert of values) {
+                    let states: AnimationState[];
+
+                    if (title === "Binary Heap Visualizer") {
+                      states = await functions.insertNode(
+                        valueToInsert,
+                        root,
+                        nodes,
+                        edges,
+                        maxNodeId,
+                        maxEdgeId,
+                        intOrLetter,
+                        maxOrMin,
+                      );
+                    } else {
+                      states = await functions.insertNode(
+                        valueToInsert,
+                        root,
+                        nodes,
+                        edges,
+                        maxNodeId,
+                        maxEdgeId,
+                        intOrLetter,
+                      );
+                    }
 
                     newAnimationStates = newAnimationStates.concat(
                       states || [],
@@ -652,289 +624,364 @@ const TreeVisualizer: React.FC<TreeVisualizerProps> = ({
                       edges.current.add(newEdges);
                     }
                   }
+
+                  setAnimationStates(newAnimationStates);
+                  setIsPlaying(true);
+                  setIsInserting(true);
+                  setCurrentStep(0);
+                  setValue("");
+                } else if (!network) {
+                  console.error("Network is not available.");
                 }
+              }}
+              disabled={isInserting || value === ""}
+            >
+              {isInserting}
+              Insert
+            </button>
+
+            <button
+              className={`relative mx-2 my-3 flex h-8 flex-col items-center rounded bg-helper-blue-primary px-4 py-1 text-white ${
+                isInserting ? "cursor-not-allowed opacity-50" : "cursor-pointer"
+              }`}
+              onClick={async () => {
+                if (network) {
+                  let newAnimationStates: AnimationState[] = [];
+
+                  if (title === "Binary Heap Visualizer") {
+                    const states = await functions.removeNode(
+                      1,
+                      1,
+                      1,
+                      root,
+                      nodes,
+                      edges,
+                      network,
+                      maxOrMin,
+                    );
+                    newAnimationStates = states || [];
+                  } else {
+                    const values = value
+                      .split(",")
+                      .map((v) => v.trim())
+                      .filter((v) => v !== "")
+                      .map((v) => {
+                        return !intOrLetter && /^[A-Z]$/.test(v)
+                          ? v.charCodeAt(0) - 64
+                          : parseFloat(v);
+                      });
+
+                    console.log("Values to remove:", values);
+
+                    if (values.length > 0) {
+                      for (const valueToRemove of values) {
+                        const states = await functions.removeNode(
+                          1,
+                          valueToRemove,
+                          0,
+                          root,
+                          nodes,
+                          edges,
+                          network,
+                        );
+
+                        newAnimationStates = newAnimationStates.concat(
+                          states || [],
+                        );
+
+                        if (states && states.length > 0) {
+                          const lastState = states[states.length - 1];
+                          const { nodes: newNodes, edges: newEdges } =
+                            lastState;
+                          nodes.current.clear();
+                          edges.current.clear();
+                          nodes.current.add(newNodes);
+                          edges.current.add(newEdges);
+                        }
+                      }
+                    }
+                  }
+
+                  setAnimationStates(newAnimationStates);
+                  setIsPlaying(true);
+                  setIsInserting(true);
+                  setCurrentStep(0);
+                  setValue("");
+                } else {
+                  console.error("Network is not available.");
+                }
+              }}
+              disabled={
+                isInserting ||
+                (title !== "Binary Heap Visualizer" && value === "")
               }
-
-              setAnimationStates(newAnimationStates);
-              setIsPlaying(true);
-              setIsInserting(true);
-              setCurrentStep(0);
-              setValue("");
-            } else {
-              console.error("Network is not available.");
-            }
-          }}
-          disabled={
-            isInserting || (title !== "Binary Heap Visualizer" && value === "")
-          }
-        >
-          {isInserting}
-          {title === "Binary Heap Visualizer" ? "Extract Root" : "Remove"}
-        </button>
-
-        <button
-          onClick={() => {
-            nodes.current.clear();
-            edges.current.clear();
-
-            root.current = null;
-            maxNodeId.current = 0;
-            maxEdgeId.current = 0;
-
-            setAnimationStates([]);
-            setCurrentStep(0);
-            setIsPlaying(false);
-            setIsInserting(false);
-            setPrintValue(null);
-            setValue("");
-
-            if (network) {
-              network.setData({ nodes: nodes.current, edges: edges.current });
-              network.redraw();
-            }
-          }}
-          className="mx-3 hidden md:inline"
-        >
-          <Trash2 color="black" style={{ transform: "rotate(360deg)" }} />
-        </button>
+            >
+              {isInserting}
+              {title === "Binary Heap Visualizer" ? "Extract Root" : "Remove"}
+            </button>
+            <button
+              onClick={() => {
+                if (animationStates.length > 0) {
+                  setIsPlaying(true);
+                  setIsInserting(true);
+                  setCurrentStep(0);
+                }
+              }}
+              className="mx-2 my-3 flex h-8 flex-col items-center rounded bg-helper-blue-primary px-4 py-1 text-white"
+            >
+              <RefreshCcw color="white" />
+            </button>
+          </div>
+        </div>
       </div>
+      <div className="mx-auto flex w-11/12 justify-center bg-white"></div>
 
-      <br />
-
-      <div className="min-h-[500px]">
+      <div className={isMd ? "h-[60vh]" : "h-[80vh]"}>
         <div className="flex place-content-center">
           <div
             ref={networkContainer}
             style={{
-              width: "98%",
-              height: "500px",
-              border: "1px solid lightgray",
+              width: "91.6666667%",
+              height: isMd ? "60vh" : "80vh",
             }}
-            className="absolute bg-white"
+            className="absolute w-11/12 bg-white"
           ></div>
-        </div>
-
-        <div className="flex">
-          <div className="z-10 my-2 mr-2 flex flex-grow justify-end md:mr-8">
-            <div className="rounded bg-helper-green-400">
-              <button
-                onClick={() => {
-                  if (animationStates.length > 0) {
-                    setIsPlaying(!isPlaying);
-                  }
-                }}
-                className="mx-3 my-2"
-              >
-                {isPlaying ? (
-                  <Pause color="white" fill="white" />
-                ) : (
-                  <Play color="white" fill="white" />
-                )}
-              </button>
-              <button
-                onClick={() => {
-                  if (animationStates.length > 0) {
-                    setIsPlaying(true);
-                    setIsInserting(true);
-                    setCurrentStep(0);
-                  }
-                }}
-                className="mx-3"
-              >
-                <RefreshCcw color="white" />
-              </button>
-
-              <button
-                onClick={() => {
-                  setSpeed((prevSpeed) => Math.min(prevSpeed * 2, 1000));
-                }}
-                className="mx-3"
-              >
-                <FastForward
-                  color="white"
-                  fill="white"
-                  style={{ transform: "rotate(180deg)" }}
-                />
-              </button>
-
-              <button
-                onClick={() => {
-                  setSpeed((prevSpeed) => Math.max(prevSpeed / 2, 30));
-                }}
-                className="mx-3"
-              >
-                <FastForward color="white" fill="white" />
-              </button>
-            </div>
-          </div>
         </div>
       </div>
 
-      {title != "Binary Heap Visualizer" && (
-        <div
-          className="mx-auto mb-4 h-auto min-h-min rounded border bg-helper-brown-100 px-2"
-          style={{ width: "98%" }}
-        >
-          <div className="flex">
-            <div className="my-auto text-xl text-white md:text-2xl">PRINT</div>
-            {functions.preOrderTraversal && (
-              <button
-                className={`text-md relative m-3 flex flex-col items-center rounded border-[3px] border-helper-brown-300 bg-white px-2 py-2 font-medium md:px-4 ${
-                  isInserting
-                    ? "cursor-not-allowed opacity-50"
-                    : "cursor-pointer"
-                }`}
-                onClick={async () => {
-                  if (network) {
-                    const { animationStates, printValue } =
-                      await functions.preOrderTraversal!(
-                        1,
-                        nodes,
-                        edges,
-                        network,
-                      );
-                    setAnimationStates(animationStates || []);
-                    if (printValue) {
-                      const trimmedValue = printValue.replace(/,\s*$/, "");
-                      setPrintValue("Pre Order: " + trimmedValue);
-                    }
-                    setIsPlaying(true);
-                    setIsInserting(true);
-                    setCurrentStep(0);
-                  }
-                }}
-                disabled={isInserting}
-              >
-                {isInserting}
-                Pre Order
-              </button>
-            )}
-            {functions.inOrderTraversal && (
-              <button
-                className={`relative m-3 flex flex-col items-center rounded border-[3px] border-helper-brown-300 bg-white px-2 py-2 font-medium md:px-4 ${
-                  isInserting
-                    ? "cursor-not-allowed opacity-50"
-                    : "cursor-pointer"
-                }`}
-                onClick={async () => {
-                  if (network) {
-                    const { animationStates, printValue } =
-                      await functions.inOrderTraversal!(
-                        1,
-                        nodes,
-                        edges,
-                        network,
-                      );
-                    setAnimationStates(animationStates || []);
-                    if (printValue) {
-                      const trimmedValue = printValue.replace(/,\s*$/, "");
-                      setPrintValue("In Order: " + trimmedValue);
-                    }
-                    setIsPlaying(true);
-                    setIsInserting(true);
-                    setCurrentStep(0);
-                  }
-                }}
-                disabled={isInserting}
-              >
-                {isInserting && (
-                  <div className="absolute flex h-6 w-6 items-center justify-center rounded-full" />
-                )}
-                In Order
-              </button>
-            )}
-            {functions.postOrderTraversal && (
-              <button
-                className={`relative m-3 flex flex-col items-center rounded border-[3px] border-helper-brown-300 bg-white px-2 py-2 font-medium md:px-4 ${
-                  isInserting
-                    ? "cursor-not-allowed opacity-50"
-                    : "cursor-pointer"
-                }`}
-                onClick={async () => {
-                  if (network) {
-                    const { animationStates, printValue } =
-                      await functions.postOrderTraversal!(
-                        1,
-                        nodes,
-                        edges,
-                        network,
-                      );
-                    if (printValue) {
-                      const trimmedValue = printValue.replace(/,\s*$/, "");
-                      setPrintValue("Post Order: " + trimmedValue);
-                    }
-                    setAnimationStates(animationStates || []);
-                    setIsPlaying(true);
-                    setIsInserting(true);
-                    setCurrentStep(0);
-                  }
-                }}
-                disabled={isInserting}
-              >
-                {isInserting}
-                Post Order
-              </button>
-            )}
-            {functions.maxNode && (
-              <button
-                className={`text-md relative my-2 ml-2 flex flex-col items-center rounded bg-helper-brown-100 p-2 text-white md:ml-8 md:text-lg ${
-                  isInserting
-                    ? "cursor-not-allowed opacity-50"
-                    : "cursor-pointer"
-                }`}
-                onClick={async () => {
-                  if (network) {
-                    const { animationStates } = await functions.maxNode!(
-                      root,
-                      nodes,
-                      edges,
-                      network,
-                    );
-                    setAnimationStates(animationStates || []);
-                    setIsPlaying(true);
-                    setIsInserting(true);
-                    setCurrentStep(0);
-                  }
-                }}
-                disabled={isInserting}
-              >
-                {isInserting}
-                Largest
-              </button>
-            )}
+      {title != "Binary Heap Visualizer" ? (
+        <div className="relative z-10 mx-auto mb-4 min-h-min w-11/12 rounded bg-white px-2 md:h-[8vh]">
+          <div className="flex justify-between">
+            <div className="flex">
+              <DropdownMenu>
+                <DropdownMenuTrigger className="ml-1 flex h-8 items-center rounded bg-helper-blue-primary px-2 text-white">
+                  <div className="flex items-center">
+                    {traversalValue}
+                    <div className="ml-2">
+                      <ChevronDown size={16} />
+                    </div>
+                  </div>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  <DropdownMenuLabel>Select Traversal</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  {functions.preOrderTraversal && (
+                    <DropdownMenuItem
+                      onClick={() => setTraversalValue("Pre Order")}
+                    >
+                      Pre Order
+                    </DropdownMenuItem>
+                  )}
+                  {functions.inOrderTraversal && (
+                    <DropdownMenuItem
+                      onClick={() => setTraversalValue("In Order")}
+                    >
+                      In Order
+                    </DropdownMenuItem>
+                  )}
+                  {functions.postOrderTraversal && (
+                    <DropdownMenuItem
+                      onClick={() => setTraversalValue("Post Order")}
+                    >
+                      Post Order
+                    </DropdownMenuItem>
+                  )}
+                  {functions.maxNode && (
+                    <DropdownMenuItem
+                      onClick={() => setTraversalValue("Largest")}
+                    >
+                      Largest
+                    </DropdownMenuItem>
+                  )}
+                  {functions.minNode && (
+                    <DropdownMenuItem
+                      onClick={() => setTraversalValue("Smallest")}
+                    >
+                      Smallest
+                    </DropdownMenuItem>
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
 
-            {functions.minNode && (
+              {functions.minNode &&
+                functions.maxNode &&
+                functions.postOrderTraversal &&
+                functions.inOrderTraversal &&
+                functions.preOrderTraversal && (
+                  <button
+                    className={`relative mx-2 flex h-8 flex-col items-center rounded bg-helper-blue-primary px-4 py-1 text-white ${
+                      isInserting
+                        ? "cursor-not-allowed opacity-50"
+                        : "cursor-pointer"
+                    }`}
+                    onClick={async () => {
+                      if (network && !isInserting) {
+                        let result;
+
+                        if (
+                          functions.preOrderTraversal &&
+                          traversalValue === "Pre Order"
+                        ) {
+                          result = await functions.preOrderTraversal(
+                            1,
+                            nodes,
+                            edges,
+                            network,
+                          );
+                          if (result.printValue) {
+                            const trimmedValue = result.printValue.replace(
+                              /,\s*$/,
+                              "",
+                            );
+                            setPrintValue("Pre Order: " + trimmedValue);
+                          }
+                        } else if (
+                          functions.inOrderTraversal &&
+                          traversalValue === "In Order"
+                        ) {
+                          result = await functions.inOrderTraversal(
+                            1,
+                            nodes,
+                            edges,
+                            network,
+                          );
+                          if (result.printValue) {
+                            const trimmedValue = result.printValue.replace(
+                              /,\s*$/,
+                              "",
+                            );
+                            setPrintValue("In Order: " + trimmedValue);
+                          }
+                        } else if (
+                          functions.postOrderTraversal &&
+                          traversalValue === "Post Order"
+                        ) {
+                          result = await functions.postOrderTraversal(
+                            1,
+                            nodes,
+                            edges,
+                            network,
+                          );
+                          if (result.printValue) {
+                            const trimmedValue = result.printValue.replace(
+                              /,\s*$/,
+                              "",
+                            );
+                            setPrintValue("Post Order: " + trimmedValue);
+                          }
+                        } else if (
+                          functions.maxNode &&
+                          traversalValue === "Largest"
+                        ) {
+                          result = await functions.maxNode(
+                            root,
+                            nodes,
+                            edges,
+                            network,
+                          );
+                          if (result.printValue)
+                            setPrintValue("Largest: " + result.printValue);
+                        } else if (
+                          functions.minNode &&
+                          traversalValue === "Smallest"
+                        ) {
+                          result = await functions.minNode(
+                            root,
+                            nodes,
+                            edges,
+                            network,
+                          );
+                          if (result.printValue)
+                            setPrintValue("Smallest: " + result.printValue);
+                        }
+
+                        if (result) {
+                          setAnimationStates(result.animationStates || []);
+                          setIsPlaying(true);
+                          setIsInserting(true);
+                          setCurrentStep(0);
+                        }
+                      }
+                    }}
+                    disabled={isInserting}
+                  >
+                    Print
+                  </button>
+                )}
+            </div>
+            <div>
               <button
-                className={`text-md relative my-2 ml-2 flex flex-col items-center rounded bg-helper-brown-100 p-2 text-white md:ml-4 md:text-lg ${
+                className={`relative mx-2 flex h-8 flex-col items-center rounded bg-helper-blue-primary px-4 py-1 text-white ${
                   isInserting
                     ? "cursor-not-allowed opacity-50"
                     : "cursor-pointer"
                 }`}
-                onClick={async () => {
+                onClick={() => {
+                  nodes.current.clear();
+                  edges.current.clear();
+
+                  root.current = null;
+                  maxNodeId.current = 0;
+                  maxEdgeId.current = 0;
+
+                  setAnimationStates([]);
+                  setCurrentStep(0);
+                  setIsPlaying(false);
+                  setIsInserting(false);
+                  setPrintValue(null);
+                  setValue("");
+
                   if (network) {
-                    const { animationStates } = await functions.minNode!(
-                      root,
-                      nodes,
-                      edges,
-                      network,
-                    );
-                    setAnimationStates(animationStates || []);
-                    setIsPlaying(true);
-                    setIsInserting(true);
-                    setCurrentStep(0);
+                    network.setData({
+                      nodes: nodes.current,
+                      edges: edges.current,
+                    });
+                    network.redraw();
                   }
                 }}
-                disabled={isInserting}
               >
-                {isInserting}
-                Smallest
+                Clear
               </button>
-            )}
+            </div>
           </div>
           <div className="h-3/4 overflow-auto rounded bg-white p-2">
-            <div className="font-medium">Traversal:</div>
-            <div className="ml-2">{printValue !== null ? printValue : ""}</div>
+            <div className="ml-2">
+              {printValue !== null ? printValue : "Print Something Here!"}
+            </div>
           </div>
+        </div>
+      ) : (
+        <div className="relative z-10 mx-auto mb-4 flex w-11/12 place-items-center rounded bg-white px-2 md:h-[8vh]">
+          <button
+            className={`relative mx-2 my-3 ml-auto flex h-8 flex-col items-center rounded bg-helper-blue-primary px-4 text-white ${
+              isInserting ? "cursor-not-allowed opacity-50" : "cursor-pointer"
+            }`}
+            onClick={() => {
+              nodes.current.clear();
+              edges.current.clear();
+
+              root.current = null;
+              maxNodeId.current = 0;
+              maxEdgeId.current = 0;
+
+              setAnimationStates([]);
+              setCurrentStep(0);
+              setIsPlaying(false);
+              setIsInserting(false);
+              setPrintValue(null);
+              setValue("");
+
+              if (network) {
+                network.setData({
+                  nodes: nodes.current,
+                  edges: edges.current,
+                });
+                network.redraw();
+              }
+            }}
+          >
+            Clear
+          </button>
         </div>
       )}
     </div>

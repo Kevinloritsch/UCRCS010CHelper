@@ -42,8 +42,8 @@ export function AppSidebar() {
         <div className="text-center font-bold">Sorts</div>
 
         <SidebarMenuButton asChild>
-          <Link href="/bubble" className="">
-            Bubble Sort
+          <Link href="/" className="">
+            Coming Soon!
           </Link>
         </SidebarMenuButton>
 
