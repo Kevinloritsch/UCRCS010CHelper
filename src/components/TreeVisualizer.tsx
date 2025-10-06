@@ -284,13 +284,26 @@ const TreeVisualizer: React.FC<TreeVisualizerProps> = ({
     setSpeed(501.27485 * Math.pow(0.973737, newValue));
   };
 
-  const [isMd, setIsMd] = useState(window.innerWidth >= 768);
+  const isClient = typeof window !== "undefined";
+  const [isMd, setIsMd] = useState(
+    isClient ? window.matchMedia("(min-width: 768px)").matches : false,
+  );
 
   useEffect(() => {
-    const onResize = () => setIsMd(window.innerWidth >= 768);
-    window.addEventListener("resize", onResize);
-    return () => window.removeEventListener("resize", onResize);
-  }, []);
+    if (!isClient) return;
+
+    const mediaQuery = window.matchMedia("(min-width: 768px)");
+
+    const handleChange = (event: MediaQueryListEvent) => {
+      setIsMd(event.matches);
+    };
+
+    setIsMd(mediaQuery.matches);
+
+    mediaQuery.addEventListener("change", handleChange);
+
+    return () => mediaQuery.removeEventListener("change", handleChange);
+  }, [isClient]);
 
   return (
     <div className="">
