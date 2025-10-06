@@ -23,9 +23,9 @@ const HomePage = () => {
         className="relative col-span-1 row-span-1 flex items-center justify-center rounded-lg bg-[#FBC5C0] text-[#B14A40]"
       >
         <Link href="/bst" className="h-full w-full px-4">
-          <div className="py-4 text-4xl font-bold">BST Trees</div>
+          <div className="py-4 text-2xl font-bold md:text-4xl">BST Trees</div>
           <div className="">Organize Numbers for Quick Searches</div>
-          <div className="absolute right-0 top-0 h-full">
+          <div className="absolute right-0 top-0 hidden h-full md:flex">
             <Image src={BST} alt="BST" className="h-full" />
           </div>
         </Link>
@@ -36,9 +36,9 @@ const HomePage = () => {
         className="relative col-span-1 row-span-1 flex items-center justify-center rounded-lg bg-[#F8DD92] text-[#A37903]"
       >
         <Link href="/avl" className="h-full w-full px-4">
-          <div className="py-4 text-4xl font-bold">AVL Trees</div>
+          <div className="py-4 text-2xl font-bold md:text-4xl">AVL Trees</div>
           <div className="">Self Balancing for Better Lookups</div>
-          <div className="absolute right-0 top-0 h-full">
+          <div className="absolute right-0 top-0 hidden h-full md:flex">
             <Image src={AVL} alt="AVL" className="h-full object-contain" />
           </div>
         </Link>
@@ -49,9 +49,11 @@ const HomePage = () => {
         className="relative col-span-1 row-span-1 flex items-center justify-center rounded-lg bg-[#BCDDDB] text-[#0B7E76]"
       >
         <Link href="/heap" className="h-full w-full px-4">
-          <div className="py-4 text-4xl font-bold">Heaps</div>
+          <div className="py-4 pb-12 text-2xl font-bold md:pb-4 md:text-4xl">
+            Heaps
+          </div>
           <div className="">Manage Priorities Efficiently</div>
-          <div className="absolute right-0 top-0">
+          <div className="absolute right-0 top-0 hidden md:flex">
             <Image src={Heap} alt="Heap" className="object-contain" />
           </div>
         </Link>
@@ -62,7 +64,7 @@ const HomePage = () => {
         className="relative col-span-3 row-span-1 flex items-center justify-center rounded-lg bg-[#EDD6F6] text-[#895F98]"
       >
         <Link href="/" className="h-full w-full px-4">
-          <div className="py-4 text-4xl font-bold">Sorting</div>
+          <div className="py-4 text-2xl font-bold md:text-4xl">Sorting</div>
           <div className="">In development!</div>
           <div className="absolute bottom-0 right-8">
             <Image src={Sort} alt="Sort" className="object-contain" />
