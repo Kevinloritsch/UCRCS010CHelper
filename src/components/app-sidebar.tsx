@@ -39,6 +39,11 @@ export function AppSidebar() {
           <Link href="/bubble" className="">
             Bubble Sort
           </Link>
+          </SidebarMenuButton>
+          <SidebarMenuButton asChild>
+          <Link href="/selection" className="">
+            Selection Sort
+          </Link>
         </SidebarMenuButton>
 
         <SidebarGroup />

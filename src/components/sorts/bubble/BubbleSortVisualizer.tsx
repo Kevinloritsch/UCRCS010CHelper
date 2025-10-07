@@ -1,8 +1,7 @@
 "use client";
 
-import React from "react";
-import { SortProps } from "../SortProps";
-import { SortVisualizer } from "../SortVisualizer";
+import { SortProps } from "@/components/sorts/SortProps";
+import { SortVisualizer } from "@/components/sorts/SortVisualizer";
 
 const BubbleSortVisualizer = () => {
   const {
@@ -65,7 +64,7 @@ const BubbleSortVisualizer = () => {
       return;
     }
 
-    setCurrIndexes({ i, j }); // current indexes being compared
+    setCurrIndexes({ i: j, j: j + 1 }); // current indexes being compared
 
     // stay stuck in recursion while paused
     if (isPausedRef.current) {
@@ -77,6 +76,7 @@ const BubbleSortVisualizer = () => {
       if (j < arr.length - 1 - i) {
         if (arr[j] > arr[j + 1]) {
           [arr[j], arr[j + 1]] = [arr[j + 1], arr[j]];
+          console.log("meow" + i + " " + j)
 
           if (isPausedRef.current || !isSortingRef.current) return;
 
@@ -104,7 +104,6 @@ const BubbleSortVisualizer = () => {
   };
 
   return (
-    <div>
       <SortVisualizer
         title="Bubble Sort Visualizer"
         array={cpyArr}
@@ -127,7 +126,6 @@ const BubbleSortVisualizer = () => {
         sortedUpTo={sortedUpTo}
         sortButtonText="Bubble Sort"
       />
-    </div>
   );
 };
 

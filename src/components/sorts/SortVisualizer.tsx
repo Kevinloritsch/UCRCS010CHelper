@@ -1,7 +1,5 @@
 "use client";
 
-import React from "react";
-
 interface SortVisualizerProps {
   title: string;
   array: number[];
@@ -81,15 +79,13 @@ export const SortVisualizer = ({
         <button onClick={onSpeedDown}>Speed Down</button>
       </div>
 
-      <div style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
         <div>Current Speed: {playSpeed} ms delay</div>
         <div>
-          <h3>Your Original Array: [{origArr.join(", ")}]</h3>
+          Your Original Array: [{origArr.join(", ")}]
         </div>
         <div>
-          <h3>Your Original Array Sorted: [{sortedArr.join(", ")}]</h3>
+          Your Original Array Sorted: [{sortedArr.join(", ")}]
         </div>
-      </div>
 
       <div
         style={{
@@ -130,9 +126,12 @@ export const SortVisualizer = ({
 
         {array.map((num, index) => {
           const labels: string[] = [];
-          if (index === currentIndexes.i) labels.push("i");
-          if (index === currentIndexes.j) labels.push("j");
+          if (index === currentIndexes.i) {title === 'Selection Sort Visualizer' ? labels.push("i") : labels.push("j")}
+          if (index === currentIndexes.j) {title === 'Selection Sort Visualizer' ? labels.push("j") : labels.push("j+1")}
           if (index === currentIndexes.minIndex) labels.push("min");
+          // console.log("i " + currentIndexes.i);
+          // console.log("j " + currentIndexes.j);
+          // console.log("min " + currentIndexes.minIndex);
 
           return (
             <div
