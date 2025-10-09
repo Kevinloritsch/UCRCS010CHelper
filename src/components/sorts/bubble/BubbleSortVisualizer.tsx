@@ -64,7 +64,10 @@ const BubbleSortVisualizer = () => {
       return;
     }
 
-    setCurrIndexes({ i: j, j: j + 1 }); // current indexes being compared
+    setCurrIndexes({ 
+      i: j, 
+      j: j + 1 
+    }); // current indexes being compared
 
     // stay stuck in recursion while paused
     if (isPausedRef.current) {
