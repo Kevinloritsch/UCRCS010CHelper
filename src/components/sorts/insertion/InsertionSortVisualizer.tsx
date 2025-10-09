@@ -56,66 +56,61 @@ const InsertionSortVisualizer = () => {
     setIsSorting(true);
     setCurrIndexes((prev) => ({ ...prev, minIndex: 0 }));
 
-    // call recursive bubblesort func
     doInsertionSort([...cpyArr], 0, 1, 0);
   };
 
-  const doInsertionSort = (
+const doInsertionSort = (
     arr: number[],
     i: number,
     j: number,
-    currMinIndex: number,
+    temp: number, 
   ) => {
-    // base case: return if sorting is complete
-    if (i >= arr.length - 1) {
+    if (i >= arr.length) {
       setIsSorting(false);
       setSortedUpTo(arr.length - 1);
       setCurrIndexes({ i: -1, j: -1, minIndex: -1 });
-      setCurrIndexes((prev) => ({ ...prev, minIndex: -1 }));
       return;
     }
-
+  
     setCurrIndexes({
-      // current indexes being compared
-      i,
-      j,
-      minIndex: currMinIndex,
+      i: Math.max(j, -1),
+      j: Math.max(j + 1, -1),
+      minIndex: -1,
     });
-
-    // stay stuck in recursion while paused
+  
     if (isPausedRef.current) {
-      setTimeout(() => doInsertionSort(arr, i, j, currMinIndex), 100);
+      setTimeout(() => doInsertionSort(arr, i, j, temp), 100);
       return;
     }
-
+  
     setTimeout(() => {
-      // find minVal in unsorted section
-      if (j < arr.length) {
-        // if curr element < currMin, swap values
-        if (arr[j] < arr[currMinIndex]) {
-          currMinIndex = j;
-        }
-
+      if (j >= 0 && arr[j] > temp) {
+        arr[j + 1] = arr[j];
+        setCpyArr([...arr]);
+  
         if (!isPausedRef.current && isSortingRef.current) {
-            doInsertionSort(arr, i, j + 1, currMinIndex);
+          doInsertionSort(arr, i, j - 1, temp);
         }
-
-        // reached end of unsorted portion, perform swap
       } else {
-        if (currMinIndex !== i) {
-          [arr[i], arr[currMinIndex]] = [arr[currMinIndex], arr[i]];
-          setCpyArr([...arr]);
+        arr[j + 1] = temp;
+        setCpyArr([...arr]);
+        setSortedUpTo(i);
+  
+        const nextI = i + 1;
+        if (nextI < arr.length) {
+          const nextTemp = arr[nextI];
+          if (!isPausedRef.current && isSortingRef.current) {
+            doInsertionSort(arr, nextI, nextI - 1, nextTemp);
+          }
+        } else {
+          setIsSorting(false);
+          setSortedUpTo(arr.length - 1);
+          setCurrIndexes({ i: -1, j: -1, minIndex: -1 });
         }
-
-        setSortedUpTo(i); // update sorted section
-
-        if (!isPausedRef.current && isSortingRef.current) {
-            doInsertionSort(arr, i + 1, i + 2, i + 1);
-        }
-        setSortedUpTo(i); // updated sorted section
       }
     }, playSpeedRef.current);
   };
+  
 
   return (
     <div>

@@ -98,8 +98,8 @@ export const SortVisualizer = ({
 
         {array.map((num, index) => {
           const labels: string[] = [];
-          if (index === currentIndexes.i) {title === 'Selection Sort Visualizer' ? labels.push("i") : labels.push("j")}
-          if (index === currentIndexes.j) {title === 'Selection Sort Visualizer' ? labels.push("j") : labels.push("j+1")}
+          if (index === currentIndexes.i) {title === 'Bubble Sort Visualizer' ? labels.push("j") : labels.push("i")}
+          if (index === currentIndexes.j) {title === 'Bubble Sort Visualizer' ? labels.push("j+1") : labels.push("j")}
           if (index === currentIndexes.minIndex) labels.push("min");
 
           return (
