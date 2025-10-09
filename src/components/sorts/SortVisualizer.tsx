@@ -95,43 +95,12 @@ export const SortVisualizer = ({
           alignItems: "flex-end",
         }}
       >
-        {/* {array.map((num, index) => (
-          <div
-            key={index}
-            style={{
-              width: "65px",
-              height: `${num * 5}px`,
-              backgroundColor:
-                index <= sortedUpTo && isSorting
-                    ? "grey"
-                    : index === currentIndexes.j + 1 && isSorting
-                    ? "red"
-                    : index === currentIndexes.j && isSorting
-                    ? "lime"
-                    : index === currentIndexes.minIndex && isSorting
-                    ? "yellow" 
-                    : !isSorting
-                    ? "grey"
-                    : "black",
-              color: "white",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              transition: "background-color 0.15s ease",
-            }}
-          >
-            {num}
-          </div>
-        ))} */}
 
         {array.map((num, index) => {
           const labels: string[] = [];
           if (index === currentIndexes.i) {title === 'Selection Sort Visualizer' ? labels.push("i") : labels.push("j")}
           if (index === currentIndexes.j) {title === 'Selection Sort Visualizer' ? labels.push("j") : labels.push("j+1")}
           if (index === currentIndexes.minIndex) labels.push("min");
-          // console.log("i " + currentIndexes.i);
-          // console.log("j " + currentIndexes.j);
-          // console.log("min " + currentIndexes.minIndex);
 
           return (
             <div

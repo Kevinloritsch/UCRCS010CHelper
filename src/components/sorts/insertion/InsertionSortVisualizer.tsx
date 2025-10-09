@@ -4,7 +4,7 @@ import React from "react";
 import { SortProps } from "../SortProps";
 import { SortVisualizer } from "../SortVisualizer";
 
-const SelectionSortVisualizer = () => {
+const InsertionSortVisualizer = () => {
   const {
     value,
     setValue,
@@ -32,17 +32,13 @@ const SelectionSortVisualizer = () => {
     handleSpeedChange,
   } = SortProps();
 
-  //   const [minIndex, setMinIndex] = useState(-1); // variable to keep track of index of minimum value
-
-  // each sort has to have their own handleResume func
-  // since each sort has to call their own sort func
   const handleResume = () => {
     setIsPaused(false);
     isPausedRef.current = false;
     setIsSorting(true);
     isSortingRef.current = true;
 
-    doSelectionSort(
+    doInsertionSort(
       [...cpyArr],
       currIndexes.i,
       currIndexes.j,
@@ -50,7 +46,7 @@ const SelectionSortVisualizer = () => {
     );
   };
 
-  const handleSelectionSort = () => {
+  const handleInsertionSort = () => {
     isPausedRef.current = isPaused;
     isSortingRef.current = isSorting;
 
@@ -61,10 +57,10 @@ const SelectionSortVisualizer = () => {
     setCurrIndexes((prev) => ({ ...prev, minIndex: 0 }));
 
     // call recursive bubblesort func
-    doSelectionSort([...cpyArr], 0, 1, 0);
+    doInsertionSort([...cpyArr], 0, 1, 0);
   };
 
-  const doSelectionSort = (
+  const doInsertionSort = (
     arr: number[],
     i: number,
     j: number,
@@ -88,7 +84,7 @@ const SelectionSortVisualizer = () => {
 
     // stay stuck in recursion while paused
     if (isPausedRef.current) {
-      setTimeout(() => doSelectionSort(arr, i, j, currMinIndex), 100);
+      setTimeout(() => doInsertionSort(arr, i, j, currMinIndex), 100);
       return;
     }
 
@@ -101,7 +97,7 @@ const SelectionSortVisualizer = () => {
         }
 
         if (!isPausedRef.current && isSortingRef.current) {
-          doSelectionSort(arr, i, j + 1, currMinIndex);
+            doInsertionSort(arr, i, j + 1, currMinIndex);
         }
 
         // reached end of unsorted portion, perform swap
@@ -114,7 +110,7 @@ const SelectionSortVisualizer = () => {
         setSortedUpTo(i); // update sorted section
 
         if (!isPausedRef.current && isSortingRef.current) {
-          doSelectionSort(arr, i + 1, i + 2, i + 1);
+            doInsertionSort(arr, i + 1, i + 2, i + 1);
         }
         setSortedUpTo(i); // updated sorted section
       }
@@ -124,7 +120,7 @@ const SelectionSortVisualizer = () => {
   return (
     <div>
       <SortVisualizer
-        title="Selection Sort Visualizer"
+        title="Insertion Sort Visualizer"
         array={cpyArr}
         currentIndexes={currIndexes}
         isSorting={isSorting}
@@ -132,7 +128,7 @@ const SelectionSortVisualizer = () => {
         onValueChange={(e) => setValue(e.target.value)}
         onRandomize={handleRandomizer}
         onSubmit={handleGenerate}
-        onSort={handleSelectionSort}
+        onSort={handleInsertionSort}
         onPauseResume={() => (!isPaused ? handlePause() : handleResume())}
         onReset={handleReset}
         onSpeedUp={() => handleSpeedChange(Math.max(250, playSpeed - 250))}
@@ -143,10 +139,10 @@ const SelectionSortVisualizer = () => {
         origArr={origArr}
         sortedArr={sortedArr}
         sortedUpTo={sortedUpTo}
-        sortButtonText="Selection Sort"
+        sortButtonText="Insertion Sort"
       />
     </div>
   );
 };
 
-export default SelectionSortVisualizer;
+export default InsertionSortVisualizer;
