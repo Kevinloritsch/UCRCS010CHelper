@@ -79,13 +79,9 @@ export const SortVisualizer = ({
         <button onClick={onSpeedDown}>Speed Down</button>
       </div>
 
-        <div>Current Speed: {playSpeed} ms delay</div>
-        <div>
-          Your Original Array: [{origArr.join(", ")}]
-        </div>
-        <div>
-          Your Original Array Sorted: [{sortedArr.join(", ")}]
-        </div>
+      <div>Current Speed: {playSpeed} ms delay</div>
+      <div>Your Original Array: [{origArr.join(", ")}]</div>
+      <div>Your Original Array Sorted: [{sortedArr.join(", ")}]</div>
 
       <div
         style={{
@@ -95,11 +91,18 @@ export const SortVisualizer = ({
           alignItems: "flex-end",
         }}
       >
-
         {array.map((num, index) => {
           const labels: string[] = [];
-          if (index === currentIndexes.i) {title === 'Bubble Sort Visualizer' ? labels.push("j") : labels.push("i")}
-          if (index === currentIndexes.j) {title === 'Bubble Sort Visualizer' ? labels.push("j+1") : labels.push("j")}
+          if (index === currentIndexes.i) {
+            title === "Bubble Sort Visualizer"
+              ? labels.push("j")
+              : labels.push("i");
+          }
+          if (index === currentIndexes.j) {
+            title === "Bubble Sort Visualizer"
+              ? labels.push("j+1")
+              : labels.push("j");
+          }
           if (index === currentIndexes.minIndex) labels.push("min");
 
           return (

@@ -64,9 +64,9 @@ const BubbleSortVisualizer = () => {
       return;
     }
 
-    setCurrIndexes({ 
-      i: j, 
-      j: j + 1 
+    setCurrIndexes({
+      i: j,
+      j: j + 1,
     }); // current indexes being compared
 
     // stay stuck in recursion while paused
@@ -79,7 +79,7 @@ const BubbleSortVisualizer = () => {
       if (j < arr.length - 1 - i) {
         if (arr[j] > arr[j + 1]) {
           [arr[j], arr[j + 1]] = [arr[j + 1], arr[j]];
-          console.log("meow" + i + " " + j)
+          console.log("meow" + i + " " + j);
 
           if (isPausedRef.current || !isSortingRef.current) return;
 
@@ -107,28 +107,28 @@ const BubbleSortVisualizer = () => {
   };
 
   return (
-      <SortVisualizer
-        title="Bubble Sort Visualizer"
-        array={cpyArr}
-        currentIndexes={currIndexes}
-        isSorting={isSorting}
-        value={value}
-        onValueChange={(e) => setValue(e.target.value)}
-        onRandomize={handleRandomizer}
-        onSubmit={handleGenerate}
-        onSort={handleBubbleSort}
-        onPauseResume={() => (!isPaused ? handlePause() : handleResume())}
-        onReset={handleReset}
-        onSpeedUp={() => handleSpeedChange(Math.max(250, playSpeed - 250))}
-        onSpeedDown={() => handleSpeedChange(Math.min(1250, playSpeed + 250))}
-        isValidArray={isValidArray}
-        isPaused={isPaused}
-        playSpeed={playSpeed}
-        origArr={origArr}
-        sortedArr={sortedArr}
-        sortedUpTo={sortedUpTo}
-        sortButtonText="Bubble Sort"
-      />
+    <SortVisualizer
+      title="Bubble Sort Visualizer"
+      array={cpyArr}
+      currentIndexes={currIndexes}
+      isSorting={isSorting}
+      value={value}
+      onValueChange={(e) => setValue(e.target.value)}
+      onRandomize={handleRandomizer}
+      onSubmit={handleGenerate}
+      onSort={handleBubbleSort}
+      onPauseResume={() => (!isPaused ? handlePause() : handleResume())}
+      onReset={handleReset}
+      onSpeedUp={() => handleSpeedChange(Math.max(250, playSpeed - 250))}
+      onSpeedDown={() => handleSpeedChange(Math.min(1250, playSpeed + 250))}
+      isValidArray={isValidArray}
+      isPaused={isPaused}
+      playSpeed={playSpeed}
+      origArr={origArr}
+      sortedArr={sortedArr}
+      sortedUpTo={sortedUpTo}
+      sortButtonText="Bubble Sort"
+    />
   );
 };
 

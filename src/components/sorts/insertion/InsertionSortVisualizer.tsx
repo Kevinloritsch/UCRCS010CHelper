@@ -54,33 +54,33 @@ const InsertionSortVisualizer = () => {
     doInsertionSort([...cpyArr], 0, 0, 0);
   };
 
-const doInsertionSort = (
+  const doInsertionSort = (
     arr: number[],
     i: number,
     j: number,
-    key: number, 
+    key: number,
   ) => {
     if (i >= arr.length - 1) {
       setIsSorting(false);
       setSortedUpTo(arr.length - 1);
       return;
     }
-  
+
     setCurrIndexes({
       i,
       j,
     });
-  
+
     if (isPausedRef.current) {
       setTimeout(() => doInsertionSort(arr, i, j, key), 100);
       return;
     }
-  
+
     setTimeout(() => {
       if (j >= 0 && arr[j] > key) {
         arr[j + 1] = arr[j];
         setCpyArr([...arr]);
-  
+
         if (!isPausedRef.current && isSortingRef.current) {
           doInsertionSort(arr, i, j - 1, key);
         }
@@ -88,7 +88,7 @@ const doInsertionSort = (
         arr[j + 1] = key;
         setCpyArr([...arr]);
         setSortedUpTo(i);
-  
+
         if (i + 1 < arr.length) {
           const nextKey = arr[i + 1];
           if (!isPausedRef.current && isSortingRef.current) {
@@ -97,12 +97,11 @@ const doInsertionSort = (
         } else {
           setIsSorting(false);
           setSortedUpTo(arr.length - 2);
-          setCurrIndexes({ i: -1, j: -1});
+          setCurrIndexes({ i: -1, j: -1 });
         }
       }
     }, playSpeedRef.current);
   };
-  
 
   return (
     <div>
