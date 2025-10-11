@@ -51,7 +51,7 @@ const InsertionSortVisualizer = () => {
     setIsSorting(true);
     // setCurrIndexes((prev) => ({ ...prev}));
 
-    doInsertionSort([...cpyArr], 0, 0, 0);
+    doInsertionSort([...cpyArr], 0, 0, cpyArr[1]);
   };
 
   const doInsertionSort = (
@@ -60,7 +60,7 @@ const InsertionSortVisualizer = () => {
     j: number,
     key: number,
   ) => {
-    if (i >= arr.length - 1) {
+    if (i > arr.length - 1) {
       setIsSorting(false);
       setSortedUpTo(arr.length - 1);
       return;
@@ -78,7 +78,9 @@ const InsertionSortVisualizer = () => {
 
     setTimeout(() => {
       if (j >= 0 && arr[j] > key) {
+        const temp = arr[j + 1];
         arr[j + 1] = arr[j];
+        arr[j] = temp;
         setCpyArr([...arr]);
 
         if (!isPausedRef.current && isSortingRef.current) {
