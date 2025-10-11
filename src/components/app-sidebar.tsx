@@ -46,6 +46,11 @@ export function AppSidebar() {
             Coming Soon!
           </Link>
         </SidebarMenuButton>
+        <SidebarMenuButton asChild>
+          <Link href="/selection" className="">
+            Selection Sort
+          </Link>
+        </SidebarMenuButton>
 
         <SidebarGroup />
       </SidebarContent>
