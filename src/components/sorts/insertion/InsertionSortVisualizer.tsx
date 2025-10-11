@@ -66,9 +66,10 @@ const InsertionSortVisualizer = () => {
       return;
     }
 
+
     setCurrIndexes({
-      i,
-      j,
+      i: i,
+      j: j+1,
     });
 
     if (isPausedRef.current) {
@@ -89,7 +90,7 @@ const InsertionSortVisualizer = () => {
       } else {
         arr[j + 1] = key;
         setCpyArr([...arr]);
-        setSortedUpTo(i);
+        // setSortedUpTo(i);
 
         if (i + 1 < arr.length) {
           const nextKey = arr[i + 1];
@@ -98,7 +99,7 @@ const InsertionSortVisualizer = () => {
           }
         } else {
           setIsSorting(false);
-          setSortedUpTo(arr.length - 2);
+          // setSortedUpTo(arr.length - 2);
           setCurrIndexes({ i: -1, j: -1 });
         }
       }
