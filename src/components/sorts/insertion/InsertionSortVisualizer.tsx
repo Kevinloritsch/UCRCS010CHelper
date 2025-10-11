@@ -66,10 +66,9 @@ const InsertionSortVisualizer = () => {
       return;
     }
 
-
     setCurrIndexes({
       i: i,
-      j: j+1,
+      j: j + 1,
     });
 
     if (isPausedRef.current) {
